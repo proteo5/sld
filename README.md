@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> The ultimate token-efficient data format that makes JSON cry and CSV look bloated.
+> The ultimate token-efficient data format that makes JSON cry, CSV look bloated, and leaves GOON and BONER in the dust.
 
 ## 📚 Documentation Index
 
@@ -31,7 +31,7 @@
 
 ## What is SLD?
 
-**SLD (Single Line Data)** is a revolutionary data serialization format designed to minimize token usage in LLM contexts by eliminating ALL line breaks and using ultra-rare separator characters. While others were arguing about JSON vs TOON vs VSC, we went further.
+**SLD (Single Line Data)** is a revolutionary data serialization format designed to minimize token usage in LLM contexts by eliminating ALL line breaks and using ultra-rare separator characters. While others were arguing about JSON vs TOON vs VSC vs GOON vs BONER, we went further.
 
 ## Why SLD is Superior
 
@@ -39,6 +39,8 @@
 
 | Format | Example | Token Count |
 |--------|---------|-------------|
+| **BONER** | Enhanced ASCII redundancy | **420 tokens** 💀 |
+| **GOON** | Verbose assignment syntax | **356 tokens** |
 | **JSON** | Traditional verbose format | **125 tokens** |
 | **TOON** | Simplified syntax | **70 tokens** |
 | **VSC** | Line-based comma format | **36 tokens** |
@@ -48,9 +50,11 @@
 
 1. **True Single Line**: Unlike VSC which uses multiple lines, SLD is ACTUALLY a single line of text, saving 1-2 characters per line break (depending on OS: `\n` or `\r\n`)
 2. **Rare Separators**: Uses characters that almost never appear in data (`|`, `~`, `[`, `^`)
-3. **Escape Strategy**: Simple doubling escape mechanism that's rarely needed
-4. **Null/Empty Support**: Easy to represent with `||`
-5. **Nested Structures**: Full support for objects and arrays
+3. **Not Binary Gibberish**: Unlike BONER's ASCII art approach with 420 tokens of redundancy
+4. **Actually Readable**: Unlike GOON's verbose assignment syntax with 356 tokens
+5. **Escape Strategy**: Simple escape mechanism that's rarely needed
+6. **Null/Empty Support**: Easy to represent with `||`
+7. **Nested Structures**: Full support for objects and arrays
 
 ## Format Specification
 
@@ -134,7 +138,7 @@ id|name|lastname~1|John|Smith~2|Juan|Perez
 
 ### Complex Nested Data
 
-**JSON**:
+**JSON** (125 tokens):
 ```json
 {
   "products": [
@@ -145,7 +149,22 @@ id|name|lastname~1|John|Smith~2|Juan|Perez
 }
 ```
 
-**SLD - Array**:
+**TOON** (70 tokens):
+```
+products[3](id,name,price):
+  1,Laptop,3999.90
+  2,Mouse,149.90
+  3,Headset,499.00
+```
+
+**VSC** (36 tokens):
+```
+Laptop,3999.90
+Mouse,149.90
+Headset,499.00
+```
+
+**SLD - Array** (~28 tokens):
 ```
 products{id[1|name[Laptop|price[3999.90|inStock[^1~id[2|name[Mouse|price[149.90|inStock[^0~id[3|name[Headset|price[499.00|inStock[^1
 ```
@@ -331,10 +350,12 @@ A: It started as one, but the math checks out. ¯\\\_(ツ)\_/¯
 ╔══════════╦══════════╦═══════════════════════════════════════╗
 ║ Format   ║ Tokens   ║ Efficiency                            ║
 ╠══════════╬══════════╬═══════════════════════════════════════╣
+║ BONER    ║ 420      ║ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 336% 💀  ║
+║ GOON     ║ 356      ║ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 285%          ║
 ║ JSON     ║ 125      ║ ▓▓▓▓▓▓▓▓▓▓▓▓▓ 100% (baseline)         ║
-║ TOON     ║ 70       ║ ▓▓▓▓▓▓▓ 56% of JSON size              ║
-║ VSC      ║ 36       ║ ▓▓▓ 29% of JSON size                  ║
-║ SLD      ║ 28       ║ ▓▓ 22% of JSON size 👑                ║
+║ TOON     ║ 70       ║ ▓▓▓▓▓▓▓ 56%                           ║
+║ VSC      ║ 36       ║ ▓▓▓ 29%                               ║
+║ SLD      ║ 28       ║ ▓▓ 22% 👑                             ║
 ╚══════════╩══════════╩═══════════════════════════════════════╝
 ```
 

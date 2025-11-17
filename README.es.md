@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-> El formato de datos definitivo para eficiencia de tokens que hace llorar a JSON y hace que CSV se vea inflado.
+> El formato de datos definitivo para eficiencia de tokens que hace llorar a JSON, hace que CSV se vea inflado, y deja a GOON y BONER en el polvo.
 
 ## 📚 Índice de Documentación
 
@@ -25,7 +25,7 @@
 
 ## ¿Qué es SLD?
 
-**SLD (Single Line Data)** es un formato revolucionario de serialización de datos diseñado para minimizar el uso de tokens en contextos LLM eliminando TODOS los saltos de línea y usando caracteres separadores ultra-raros. Mientras otros discutían sobre JSON vs TOON vs VSC, nosotros fuimos más allá.
+**SLD (Single Line Data)** es un formato revolucionario de serialización de datos diseñado para minimizar el uso de tokens en contextos LLM eliminando TODOS los saltos de línea y usando caracteres separadores ultra-raros. Mientras otros discutían sobre JSON vs TOON vs VSC vs GOON vs BONER, nosotros fuimos más allá.
 
 ## Por Qué SLD es Superior
 
@@ -33,6 +33,8 @@
 
 | Formato | Ejemplo | Conteo de Tokens |
 |---------|---------|------------------|
+| **BONER** | Redundancia ASCII mejorada | **420 tokens** 💀 |
+| **GOON** | Sintaxis de asignación verbosa | **356 tokens** |
 | **JSON** | Formato verbose tradicional | **125 tokens** |
 | **TOON** | Sintaxis simplificada | **70 tokens** |
 | **VSC** | Formato línea-comas | **36 tokens** |
@@ -42,9 +44,11 @@
 
 1. **Verdadera Línea Única**: A diferencia de VSC que usa múltiples líneas, SLD es REALMENTE una sola línea de texto, ahorrando 1-2 caracteres por salto de línea (dependiendo del SO: `\n` o `\r\n`)
 2. **Separadores Raros**: Usa caracteres que casi nunca aparecen en datos (`|`, `~`, `[`, `^`)
-3. **Estrategia de Escape**: Mecanismo simple de escape por duplicación que rara vez se necesita
-4. **Soporte Nulo/Vacío**: Fácil de representar con `||`
-5. **Estructuras Anidadas**: Soporte completo para objetos y arrays
+3. **No es Galimatías Binario**: A diferencia del enfoque de arte ASCII de BONER con 420 tokens de redundancia
+4. **Realmente Legible**: A diferencia de la sintaxis de asignación verbosa de GOON con 356 tokens
+5. **Estrategia de Escape**: Mecanismo simple de escape que rara vez se necesita
+6. **Soporte Nulo/Vacío**: Fácil de representar con `||`
+7. **Estructuras Anidadas**: Soporte completo para objetos y arrays
 
 ## Especificación del Formato
 
@@ -128,7 +132,7 @@ id|nombre|apellido~1|John|Smith~2|Juan|Perez
 
 ### Datos Complejos Anidados
 
-**JSON**:
+**JSON** (125 tokens):
 ```json
 {
   "productos": [
@@ -139,7 +143,22 @@ id|nombre|apellido~1|John|Smith~2|Juan|Perez
 }
 ```
 
-**SLD - Array**:
+**TOON** (70 tokens):
+```
+productos[3](id,nombre,precio):
+  1,Laptop,3999.90
+  2,Mouse,149.90
+  3,Headset,499.00
+```
+
+**VSC** (36 tokens):
+```
+Laptop,3999.90
+Mouse,149.90
+Headset,499.00
+```
+
+**SLD - Array** (~28 tokens):
 ```
 productos{id[1|nombre[Laptop|precio[3999.90|enStock[^1~id[2|nombre[Mouse|precio[149.90|enStock[^0~id[3|nombre[Headset|precio[499.00|enStock[^1
 ```
@@ -322,10 +341,12 @@ MIT - Porque incluso los memes merecen licencias apropiadas.
 ╔══════════╦══════════╦═══════════════════════════════════════╗
 ║ Formato  ║ Tokens   ║ Eficiencia                            ║
 ╠══════════╬══════════╬═══════════════════════════════════════╣
+║ BONER    ║ 420      ║ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 336% 💀   ║
+║ GOON     ║ 356      ║ ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓ 285%          ║
 ║ JSON     ║ 125      ║ ▓▓▓▓▓▓▓▓▓▓▓▓▓ 100% (baseline)         ║
-║ TOON     ║ 70       ║ ▓▓▓▓▓▓▓ 56% del tamaño JSON           ║
-║ VSC      ║ 36       ║ ▓▓▓ 29% del tamaño JSON               ║
-║ SLD      ║ 28       ║ ▓▓ 22% del tamaño JSON 👑             ║
+║ TOON     ║ 70       ║ ▓▓▓▓▓▓▓ 56%                           ║
+║ VSC      ║ 36       ║ ▓▓▓ 29%                               ║
+║ SLD      ║ 28       ║ ▓▓ 22% 👑                             ║
 ╚══════════╩══════════╩═══════════════════════════════════════╝
 ```
 
