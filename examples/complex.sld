@@ -1,0 +1,1 @@
+products{id[1|name[Laptop|price[3999.90|inStock[^1~id[2|name[Mouse|price[149.90|inStock[^0~id[3|name[Headset|price[499.00|inStock[^1

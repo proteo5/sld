@@ -1,0 +1,1 @@
+name|price~Laptop|3999.90~Mouse|149.90~Headset|499.00
