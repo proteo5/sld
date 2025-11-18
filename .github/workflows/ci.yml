@@ -1,0 +1,159 @@
+name: SLD/MLD CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test-python:
+    name: Test Python Implementation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest pytest-cov
+      - name: Run tests
+        run: |
+          cd implementations/python
+          pytest test_sld.py -v --cov=sld --cov-report=term-missing
+
+  test-javascript:
+    name: Test JavaScript Implementation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['16', '18', '20']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Run tests
+        run: |
+          cd implementations/javascript
+          node test_sld.js
+
+  test-go:
+    name: Test Go Implementation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.19', '1.20', '1.21']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      - name: Run tests
+        run: |
+          cd implementations/go
+          go test -v -cover
+
+  test-csharp:
+    name: Test C# Implementation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['6.0', '7.0', '8.0']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      - name: Build
+        run: |
+          cd implementations/csharp
+          dotnet build
+      - name: Test
+        run: |
+          cd implementations/csharp
+          dotnet test --no-build --verbosity normal
+
+  test-php:
+    name: Test PHP Implementation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-version: ['7.4', '8.0', '8.1', '8.2']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring
+          coverage: xdebug
+      - name: Install dependencies
+        run: |
+          cd implementations/php
+          composer install --prefer-dist --no-progress
+      - name: Run tests
+        run: |
+          cd implementations/php
+          ./vendor/bin/phpunit --bootstrap vendor/autoload.php --colors=always
+
+  test-java:
+    name: Test Java Implementation
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: ['11', '17', '21']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+      - name: Build and test with Maven
+        run: |
+          cd implementations/java
+          mvn -q -e -DskipTests=false clean test
+
+  lint-markdown:
+    name: Lint Markdown Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint markdown files
+        uses: DavidAnson/markdownlint-cli2-action@v14
+        with:
+          globs: '**/*.md'
+
+  validate-examples:
+    name: Validate Example Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate SLD examples
+        run: |
+          cd implementations/python
+          for file in ../../examples/sld/*.sld; do
+            echo "Validating $file"
+            python -c "from sld import decode_sld; decode_sld(open('$file').read())"
+          done
+      - name: Validate MLD examples
+        run: |
+          cd implementations/python
+          for file in ../../examples/mld/*.mld; do
+            echo "Validating $file"
+            python -c "from sld import decode_mld; decode_mld(open('$file').read())"
+          done

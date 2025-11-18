@@ -1,5 +1,12 @@
 # SLD Format Specification v1.0
 
+> ⚠️ **DEPRECATED**: This specification is outdated. Please use [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) for SLD v1.1 or [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) for MLD v1.1.
+>
+> **Key changes in v1.1:**
+> - Field separator changed from `|` to `;` for better shell compatibility
+> - New MLD format introduced with newline-separated records
+> - See [CHANGELOG.md](CHANGELOG.md) for full details
+
 ## Abstract
 
 SLD (Single Line Data) is a text-based data serialization format optimized for token efficiency in Large Language Model (LLM) contexts. By eliminating all line breaks and using statistically rare separator characters, SLD achieves significant token reduction compared to JSON, TOON, and VSC formats.

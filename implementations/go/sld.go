@@ -1,5 +1,11 @@
-// Package sld provides SLD (Single Line Data) format encoding and decoding.
-// A token-efficient data serialization format.
+// Package sld provides SLD/MLD (Single/Multi Line Data) format encoding and decoding.
+// A token-efficient data serialization format - v1.1
+//
+// Changes in v1.1:
+// - Field separator changed from | to ; (semicolon)
+// - Added MLD format support (records separated by newlines)
+// - Array marker changed to { (curly brace)
+// - Property marker remains [ (square bracket)
 package sld
 
 import (
@@ -7,25 +13,43 @@ import (
 	"strings"
 )
 
-// Escape escapes special SLD characters in a string.
-func Escape(text string) string {
+// Constants
+const (
+	FieldSeparator     = ";"
+	RecordSeparatorSLD = "~"
+	RecordSeparatorMLD = "\n"
+	PropertyMarker     = "["
+	ArrayMarker        = "{"
+	EscapeChar         = "^"
+)
+
+// EscapeValue escapes special SLD/MLD characters in a string.
+func EscapeValue(text string) string {
 	replacer := strings.NewReplacer(
-		"^", "^^",
-		"|", "^|",
-		"~", "^~",
-		"[", "^[",
+		EscapeChar, EscapeChar+EscapeChar,
+		FieldSeparator, EscapeChar+FieldSeparator,
+		RecordSeparatorSLD, EscapeChar+RecordSeparatorSLD,
+		PropertyMarker, EscapeChar+PropertyMarker,
+		ArrayMarker, EscapeChar+ArrayMarker,
 	)
 	return replacer.Replace(text)
 }
 
-// Unescape unescapes SLD escape sequences.
-func Unescape(text string) string {
+// UnescapeValue unescapes SLD/MLD escape sequences.
+func UnescapeValue(text string) interface{} {
 	var result strings.Builder
 	i := 0
 
 	for i < len(text) {
-		if text[i] == '^' && i+1 < len(text) {
-			result.WriteByte(text[i+1])
+		if text[i] == EscapeChar[0] && i+1 < len(text) {
+			nextChar := text[i+1]
+			if nextChar == '1' {
+				return true // Boolean true
+			} else if nextChar == '0' {
+				return false // Boolean false
+			} else {
+				result.WriteByte(nextChar)
+			}
 			i += 2
 		} else {
 			result.WriteByte(text[i])
@@ -44,7 +68,7 @@ func SplitUnescaped(text, delimiter string) []string {
 	delimByte := delimiter[0]
 
 	for i < len(text) {
-		if text[i] == '^' && i+1 < len(text) {
+		if text[i] == EscapeChar[0] && i+1 < len(text) {
 			current.WriteString(text[i : i+2])
 			i += 2
 		} else if text[i] == delimByte {
@@ -64,105 +88,134 @@ func SplitUnescaped(text, delimiter string) []string {
 	return parts
 }
 
-// EncodeRecord encodes a map to SLD format.
+// EncodeRecord encodes a map to SLD/MLD format.
 func EncodeRecord(record map[string]interface{}) string {
 	var parts []string
 
 	for key, value := range record {
-		escapedKey := Escape(key)
+		escapedKey := EscapeValue(key)
 
 		switch v := value.(type) {
 		case map[string]interface{}:
+			// Nested object
 			nested := EncodeRecord(v)
-			parts = append(parts, fmt.Sprintf("%s[%s", escapedKey, nested))
+			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, PropertyMarker, nested))
 		case []interface{}:
+			// Array using { marker
 			var nestedItems []string
 			for _, item := range v {
-				if itemMap, ok := item.(map[string]interface{}); ok {
-					nestedItems = append(nestedItems, EncodeRecord(itemMap))
-				} else {
-					nestedItems = append(nestedItems, Escape(fmt.Sprint(item)))
-				}
+				nestedItems = append(nestedItems, EscapeValue(fmt.Sprint(item)))
 			}
-			parts = append(parts, fmt.Sprintf("%s[%s", escapedKey, strings.Join(nestedItems, "~")))
+			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, ArrayMarker, strings.Join(nestedItems, ",")))
+		case bool:
+			// Boolean as ^1 or ^0
+			boolVal := "^0"
+			if v {
+				boolVal = "^1"
+			}
+			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, PropertyMarker, boolVal))
 		case nil:
-			parts = append(parts, fmt.Sprintf("%s|", escapedKey))
+			// Null value
+			parts = append(parts, fmt.Sprintf("%s%s", escapedKey, PropertyMarker))
 		default:
-			escapedValue := Escape(fmt.Sprint(v))
-			parts = append(parts, fmt.Sprintf("%s|%s", escapedKey, escapedValue))
+			// Regular value
+			escapedValue := EscapeValue(fmt.Sprint(v))
+			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, PropertyMarker, escapedValue))
 		}
 	}
 
-	return strings.Join(parts, "|")
+	return strings.Join(parts, FieldSeparator)
 }
 
-// Encode encodes data to SLD format.
-func Encode(data interface{}) string {
+// EncodeSLD encodes data to SLD format.
+func EncodeSLD(data interface{}) string {
 	switch v := data.(type) {
 	case []map[string]interface{}:
 		var records []string
 		for _, record := range v {
 			records = append(records, EncodeRecord(record))
 		}
-		return strings.Join(records, "~")
+		return strings.Join(records, RecordSeparatorSLD) + RecordSeparatorSLD
 	case map[string]interface{}:
 		return EncodeRecord(v)
 	default:
-		return Escape(fmt.Sprint(v))
+		return EscapeValue(fmt.Sprint(v))
 	}
 }
 
-// Decode decodes SLD format string to map or slice of maps.
-func Decode(sldString string) interface{} {
+// EncodeMLD encodes data to MLD format.
+func EncodeMLD(data interface{}) string {
+	switch v := data.(type) {
+	case []map[string]interface{}:
+		var records []string
+		for _, record := range v {
+			records = append(records, EncodeRecord(record))
+		}
+		return strings.Join(records, RecordSeparatorMLD)
+	case map[string]interface{}:
+		return EncodeRecord(v)
+	default:
+		return EscapeValue(fmt.Sprint(v))
+	}
+}
+
+// DecodeRecord decodes a single record string.
+func DecodeRecord(recordStr string) map[string]interface{} {
+	record := make(map[string]interface{})
+	fields := SplitUnescaped(recordStr, FieldSeparator)
+
+	for _, field := range fields {
+		if field == "" {
+			continue
+		}
+
+		// Check for property marker
+		if strings.Contains(field, PropertyMarker) && !strings.Contains(field, EscapeChar+PropertyMarker) {
+			parts := strings.SplitN(field, PropertyMarker, 2)
+			key := UnescapeValue(parts[0]).(string)
+			var value interface{}
+			if len(parts) > 1 {
+				value = UnescapeValue(parts[1])
+			} else {
+				value = nil
+			}
+			record[key] = value
+		} else if strings.Contains(field, ArrayMarker) && !strings.Contains(field, EscapeChar+ArrayMarker) {
+			// Check for array marker
+			parts := strings.SplitN(field, ArrayMarker, 2)
+			key := UnescapeValue(parts[0]).(string)
+			if len(parts) > 1 {
+				itemStrs := strings.Split(parts[1], ",")
+				items := make([]interface{}, len(itemStrs))
+				for i, itemStr := range itemStrs {
+					items[i] = UnescapeValue(itemStr)
+				}
+				record[key] = items
+			} else {
+				record[key] = []interface{}{}
+			}
+		}
+	}
+
+	return record
+}
+
+// DecodeSLD decodes SLD format string to map or slice of maps.
+func DecodeSLD(sldString string) interface{} {
 	if sldString == "" {
 		return map[string]interface{}{}
 	}
 
+	// Remove trailing ~
+	sldString = strings.TrimRight(sldString, RecordSeparatorSLD)
+
 	var records []map[string]interface{}
 
-	for _, recordStr := range SplitUnescaped(sldString, "~") {
+	for _, recordStr := range SplitUnescaped(sldString, RecordSeparatorSLD) {
 		if recordStr == "" {
 			continue
 		}
-
-		record := make(map[string]interface{})
-		fields := SplitUnescaped(recordStr, "|")
-
-		i := 0
-		for i < len(fields) {
-			if i >= len(fields) {
-				break
-			}
-
-			key := Unescape(fields[i])
-
-			// Check if this is a nested structure
-			if strings.Contains(fields[i], "[") && !strings.Contains(fields[i], "^[") {
-				key = strings.Replace(key, "[", "", -1)
-				if i+1 < len(fields) {
-					nestedValue := Unescape(fields[i+1])
-					record[key] = nestedValue
-					i += 2
-				} else {
-					i++
-				}
-			} else {
-				if i+1 < len(fields) {
-					value := Unescape(fields[i+1])
-					if value != "" {
-						record[key] = value
-					} else {
-						record[key] = nil
-					}
-					i += 2
-				} else {
-					record[key] = nil
-					i++
-				}
-			}
-		}
-
-		records = append(records, record)
+		records = append(records, DecodeRecord(recordStr))
 	}
 
 	if len(records) > 1 {
@@ -173,49 +226,96 @@ func Decode(sldString string) interface{} {
 	return map[string]interface{}{}
 }
 
-// Example demonstrates SLD usage
+// DecodeMLD decodes MLD format string to map or slice of maps.
+func DecodeMLD(mldString string) interface{} {
+	if mldString == "" {
+		return map[string]interface{}{}
+	}
+
+	var records []map[string]interface{}
+
+	for _, line := range strings.Split(mldString, RecordSeparatorMLD) {
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" {
+			continue
+		}
+		records = append(records, DecodeRecord(trimmed))
+	}
+
+	if len(records) > 1 {
+		return records
+	} else if len(records) == 1 {
+		return records[0]
+	}
+	return map[string]interface{}{}
+}
+
+// SLDToMLD converts SLD format to MLD format.
+func SLDToMLD(sldString string) string {
+	return strings.TrimRight(sldString, RecordSeparatorSLD) + RecordSeparatorMLD
+}
+
+// MLDToSLD converts MLD format to SLD format.
+func MLDToSLD(mldString string) string {
+	return strings.ReplaceAll(mldString, RecordSeparatorMLD, RecordSeparatorSLD) + RecordSeparatorSLD
+}
+
+// Example demonstrates SLD/MLD usage
 func Example() {
-	fmt.Println("=== SLD Go Implementation ===\n")
+	fmt.Println("=== SLD/MLD Go Implementation v1.1 ===\n")
 
-	// Example 1: Simple records
-	fmt.Println("Example 1: Simple product data")
+	// Example 1: Simple records with SLD
+	fmt.Println("Example 1: Simple user data (SLD)")
 	data1 := []map[string]interface{}{
-		{"name": "Laptop", "price": "3999.90"},
-		{"name": "Mouse", "price": "149.90"},
-		{"name": "Headset", "price": "499.00"},
+		{"name": "Alice", "age": 30, "city": "New York"},
+		{"name": "Bob", "age": 25, "city": "Los Angeles"},
 	}
-	sld1 := Encode(data1)
-	fmt.Printf("Encoded: %s\n", sld1)
-	fmt.Printf("Decoded: %v\n\n", Decode(sld1))
+	sld1 := EncodeSLD(data1)
+	fmt.Printf("Encoded SLD: %s\n", sld1)
+	fmt.Printf("Decoded: %v\n\n", DecodeSLD(sld1))
 
-	// Example 2: Objects with IDs
-	fmt.Println("Example 2: User records")
-	data2 := []map[string]interface{}{
-		{"id": "1", "name": "John", "lastname": "Smith"},
-		{"id": "2", "name": "Juan", "lastname": "Perez"},
-	}
-	sld2 := Encode(data2)
-	fmt.Printf("Encoded: %s\n", sld2)
-	fmt.Printf("Decoded: %v\n\n", Decode(sld2))
+	// Example 2: Same data with MLD
+	fmt.Println("Example 2: Same data (MLD)")
+	mld1 := EncodeMLD(data1)
+	fmt.Printf("Encoded MLD:\n%s\n", mld1)
+	fmt.Printf("Decoded: %v\n\n", DecodeMLD(mld1))
 
-	// Example 3: Data with special characters
-	fmt.Println("Example 3: Escaped characters")
+	// Example 3: Arrays
+	fmt.Println("Example 3: Products with tags (arrays)")
 	data3 := []map[string]interface{}{
-		{"company": "Pipe|Works Inc"},
-		{"product": "Model~XZ~2000"},
+		{"sku": "LAP001", "name": "UltraBook Pro", "tags": []interface{}{"business", "ultrabook"}},
+		{"sku": "MOU001", "name": "Wireless Mouse", "tags": []interface{}{"wireless", "ergonomic"}},
 	}
-	sld3 := Encode(data3)
-	fmt.Printf("Encoded: %s\n", sld3)
-	fmt.Printf("Decoded: %v\n\n", Decode(sld3))
+	sld3 := EncodeSLD(data3)
+	fmt.Printf("Encoded SLD: %s\n", sld3)
+	fmt.Printf("Decoded: %v\n\n", DecodeSLD(sld3))
 
-	// Example 4: Null values
-	fmt.Println("Example 4: Null/empty values")
+	// Example 4: Booleans
+	fmt.Println("Example 4: Boolean values")
 	data4 := map[string]interface{}{
-		"name":     "John",
-		"middle":   nil,
-		"lastname": "Doe",
+		"name":     "Alice",
+		"verified": true,
+		"active":   false,
 	}
-	sld4 := Encode(data4)
-	fmt.Printf("Encoded: %s\n", sld4)
-	fmt.Printf("Decoded: %v\n", Decode(sld4))
+	sld4 := EncodeSLD(data4)
+	fmt.Printf("Encoded SLD: %s\n", sld4)
+	fmt.Printf("Decoded: %v\n\n", DecodeSLD(sld4))
+
+	// Example 5: Conversion SLD ↔ MLD
+	fmt.Println("Example 5: Format conversion")
+	sld5 := "name[Alice;age[30~name[Bob;age[25~"
+	mld5 := SLDToMLD(sld5)
+	fmt.Printf("SLD: %s\n", sld5)
+	fmt.Printf("MLD:\n%s\n", mld5)
+	fmt.Printf("Back to SLD: %s\n\n", MLDToSLD(mld5))
+
+	// Example 6: Escaped characters
+	fmt.Println("Example 6: Escaped characters")
+	data6 := map[string]interface{}{
+		"note": "Price: $5;99",
+		"path": "C:\\Users",
+	}
+	sld6 := EncodeSLD(data6)
+	fmt.Printf("Encoded: %s\n", sld6)
+	fmt.Printf("Decoded: %v\n", DecodeSLD(sld6))
 }

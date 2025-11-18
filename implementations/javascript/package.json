@@ -1,0 +1,32 @@
+{
+  "name": "@proteo5/sld",
+  "version": "1.1.0",
+  "description": "Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder for JavaScript",
+  "main": "sld.js",
+  "scripts": {
+    "test": "node test_sld.js"
+  },
+  "keywords": [
+    "sld",
+    "mld",
+    "data-format",
+    "parser",
+    "encoder",
+    "serialization",
+    "single-line-data",
+    "multi-line-data"
+  ],
+  "author": "SLD Project Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proteo5/sld"
+  },
+  "bugs": {
+    "url": "https://github.com/proteo5/sld/issues"
+  },
+  "homepage": "https://github.com/proteo5/sld#readme",
+  "engines": {
+    "node": ">=12.0.0"
+  }
+}

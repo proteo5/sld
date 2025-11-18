@@ -6,45 +6,66 @@ using System.Text;
 namespace SLD
 {
     /// <summary>
-    /// SLD (Single Line Data) Format - C# Implementation
+    /// SLD/MLD (Single/Multi Line Data) Format - C# Implementation v1.1
     /// A token-efficient data serialization format
+    /// 
+    /// Changes in v1.1:
+    /// - Field separator changed from | to ; (semicolon)
+    /// - Added MLD format support (records separated by newlines)
+    /// - Array marker changed to { (curly brace)
+    /// - Property marker remains [ (square bracket)
     /// </summary>
-    public static class SLDFormat
+    public static class SLDParser
     {
+        // Constants
+        private const char FIELD_SEPARATOR = ';';
+        private const char RECORD_SEPARATOR_SLD = '~';
+        private const char RECORD_SEPARATOR_MLD = '\n';
+        private const char PROPERTY_MARKER = '[';
+        private const char ARRAY_MARKER = '{';
+        private const char ESCAPE_CHAR = '^';
+
         /// <summary>
-        /// Escape special SLD characters in a string
+        /// Escape special SLD/MLD characters in a string
         /// </summary>
-        public static string Escape(string text)
+        public static string EscapeValue(string text)
         {
-            if (text == null)
+            if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
             return text
                 .Replace("^", "^^")
-                .Replace("|", "^|")
+                .Replace(";", "^;")
                 .Replace("~", "^~")
-                .Replace("[", "^[");
+                .Replace("[", "^[")
+                .Replace("{", "^{");
         }
 
         /// <summary>
-        /// Unescape SLD escape sequences
+        /// Unescape SLD/MLD escape sequences
         /// </summary>
-        public static string Unescape(string text)
+        public static object UnescapeValue(string text)
         {
             var result = new StringBuilder();
             int i = 0;
 
             while (i < text.Length)
             {
-                if (text[i] == '^' && i + 1 < text.Length)
+                if (text[i] == ESCAPE_CHAR && i + 1 < text.Length)
                 {
-                    result.Append(text[i + 1]);
+                    char nextChar = text[i + 1];
+                    if (nextChar == '1')
+                        return true; // Boolean true
+                    else if (nextChar == '0')
+                        return false; // Boolean false
+                    else
+                        result.Append(nextChar);
                     i += 2;
                 }
                 else
                 {
                     result.Append(text[i]);
-                    i += 1;
+                    i++;
                 }
             }
 
@@ -52,9 +73,163 @@ namespace SLD
         }
 
         /// <summary>
-        /// Split text by delimiter, respecting escape sequences
+        /// Encode data to SLD format
         /// </summary>
-        public static List<string> SplitUnescaped(string text, char delimiter)
+        public static string EncodeSLD(List<Dictionary<string, object>> data)
+        {
+            var records = data.Select(record => EncodeRecord(record));
+            return string.Join(RECORD_SEPARATOR_SLD.ToString(), records) + RECORD_SEPARATOR_SLD;
+        }
+
+        /// <summary>
+        /// Encode single dictionary to SLD format
+        /// </summary>
+        public static string EncodeSLD(Dictionary<string, object> data)
+        {
+            return EncodeRecord(data);
+        }
+
+        /// <summary>
+        /// Encode data to MLD format
+        /// </summary>
+        public static string EncodeMLD(List<Dictionary<string, object>> data)
+        {
+            var records = data.Select(record => EncodeRecord(record));
+            return string.Join(RECORD_SEPARATOR_MLD.ToString(), records);
+        }
+
+        /// <summary>
+        /// Encode single dictionary to MLD format
+        /// </summary>
+        public static string EncodeMLD(Dictionary<string, object> data)
+        {
+            return EncodeRecord(data);
+        }
+
+        private static string EncodeRecord(Dictionary<string, object> record)
+        {
+            var parts = new List<string>();
+
+            foreach (var kvp in record)
+            {
+                string escapedKey = EscapeValue(kvp.Key);
+                object value = kvp.Value;
+
+                if (value is Dictionary<string, object> dict)
+                {
+                    // Nested object
+                    string nested = EncodeRecord(dict);
+                    parts.Add($"{escapedKey}{PROPERTY_MARKER}{nested}");
+                }
+                else if (value is List<object> list)
+                {
+                    // Array using { marker
+                    var nestedItems = list.Select(item => EscapeValue(item.ToString()));
+                    parts.Add($"{escapedKey}{ARRAY_MARKER}{string.Join(",", nestedItems)}");
+                }
+                else if (value is bool boolValue)
+                {
+                    // Boolean as ^1 or ^0
+                    string boolVal = boolValue ? "^1" : "^0";
+                    parts.Add($"{escapedKey}{PROPERTY_MARKER}{boolVal}");
+                }
+                else if (value == null)
+                {
+                    // Null value
+                    parts.Add($"{escapedKey}{PROPERTY_MARKER}");
+                }
+                else
+                {
+                    // Regular value
+                    string escapedValue = EscapeValue(value.ToString());
+                    parts.Add($"{escapedKey}{PROPERTY_MARKER}{escapedValue}");
+                }
+            }
+
+            return string.Join(FIELD_SEPARATOR.ToString(), parts);
+        }
+
+        /// <summary>
+        /// Decode SLD format string
+        /// </summary>
+        public static object DecodeSLD(string sldString)
+        {
+            if (string.IsNullOrEmpty(sldString))
+                return new Dictionary<string, object>();
+
+            sldString = sldString.TrimEnd(RECORD_SEPARATOR_SLD);
+
+            var records = new List<Dictionary<string, object>>();
+            var recordStrings = SplitUnescaped(sldString, RECORD_SEPARATOR_SLD);
+
+            foreach (var recordStr in recordStrings)
+            {
+                if (!string.IsNullOrEmpty(recordStr))
+                    records.Add(DecodeRecord(recordStr));
+            }
+
+            return records.Count > 1 ? (object)records : (records.Count == 1 ? records[0] : new Dictionary<string, object>());
+        }
+
+        /// <summary>
+        /// Decode MLD format string
+        /// </summary>
+        public static object DecodeMLD(string mldString)
+        {
+            if (string.IsNullOrEmpty(mldString))
+                return new Dictionary<string, object>();
+
+            var records = new List<Dictionary<string, object>>();
+            var lines = mldString.Split(new[] { RECORD_SEPARATOR_MLD }, StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var line in lines)
+            {
+                if (!string.IsNullOrWhiteSpace(line))
+                    records.Add(DecodeRecord(line));
+            }
+
+            return records.Count > 1 ? (object)records : (records.Count == 1 ? records[0] : new Dictionary<string, object>());
+        }
+
+        private static Dictionary<string, object> DecodeRecord(string recordStr)
+        {
+            var record = new Dictionary<string, object>();
+            var fields = SplitUnescaped(recordStr, FIELD_SEPARATOR);
+
+            foreach (var field in fields)
+            {
+                if (string.IsNullOrEmpty(field))
+                    continue;
+
+                // Check for property marker
+                if (field.Contains(PROPERTY_MARKER) && !field.Contains($"{ESCAPE_CHAR}{PROPERTY_MARKER}"))
+                {
+                    var parts = field.Split(new[] { PROPERTY_MARKER }, 2);
+                    string key = UnescapeValue(parts[0]).ToString();
+                    object value = parts.Length > 1 ? UnescapeValue(parts[1]) : null;
+                    record[key] = value;
+                }
+                // Check for array marker
+                else if (field.Contains(ARRAY_MARKER) && !field.Contains($"{ESCAPE_CHAR}{ARRAY_MARKER}"))
+                {
+                    var parts = field.Split(new[] { ARRAY_MARKER }, 2);
+                    string key = UnescapeValue(parts[0]).ToString();
+                    if (parts.Length > 1)
+                    {
+                        var items = parts[1].Split(',').Select(item => UnescapeValue(item)).ToList();
+                        record[key] = items;
+                    }
+                    else
+                    {
+                        record[key] = new List<object>();
+                    }
+                }
+            }
+
+            return record;
+        }
+
+        private static List<string> SplitUnescaped(string text, char delimiter)
         {
             var parts = new List<string>();
             var current = new StringBuilder();
@@ -62,21 +237,22 @@ namespace SLD
 
             while (i < text.Length)
             {
-                if (text[i] == '^' && i + 1 < text.Length)
+                if (text[i] == ESCAPE_CHAR && i + 1 < text.Length)
                 {
-                    current.Append(text.Substring(i, 2));
+                    current.Append(text[i]);
+                    current.Append(text[i + 1]);
                     i += 2;
                 }
                 else if (text[i] == delimiter)
                 {
                     parts.Add(current.ToString());
                     current.Clear();
-                    i += 1;
+                    i++;
                 }
                 else
                 {
                     current.Append(text[i]);
-                    i += 1;
+                    i++;
                 }
             }
 
@@ -89,181 +265,59 @@ namespace SLD
         }
 
         /// <summary>
-        /// Encode a dictionary to SLD format
+        /// Convert SLD to MLD format
         /// </summary>
-        public static string EncodeRecord(Dictionary<string, object> record)
+        public static string SLDToMLD(string sldString)
         {
-            var parts = new List<string>();
-
-            foreach (var kvp in record)
-            {
-                var escapedKey = Escape(kvp.Key);
-
-                if (kvp.Value == null)
-                {
-                    parts.Add($"{escapedKey}|");
-                }
-                else if (kvp.Value is Dictionary<string, object> dict)
-                {
-                    var nested = EncodeRecord(dict);
-                    parts.Add($"{escapedKey}[{nested}");
-                }
-                else if (kvp.Value is List<object> list)
-                {
-                    var nestedItems = list.Select(item =>
-                        item is Dictionary<string, object> d
-                            ? EncodeRecord(d)
-                            : Escape(item?.ToString() ?? string.Empty)
-                    );
-                    parts.Add($"{escapedKey}[{string.Join("~", nestedItems)}");
-                }
-                else
-                {
-                    var escapedValue = Escape(kvp.Value.ToString());
-                    parts.Add($"{escapedKey}|{escapedValue}");
-                }
-            }
-
-            return string.Join("|", parts);
+            return sldString.TrimEnd(RECORD_SEPARATOR_SLD).Replace(RECORD_SEPARATOR_SLD, RECORD_SEPARATOR_MLD);
         }
 
         /// <summary>
-        /// Encode data to SLD format
+        /// Convert MLD to SLD format
         /// </summary>
-        public static string Encode(object data)
+        public static string MLDToSLD(string mldString)
         {
-            if (data is List<Dictionary<string, object>> list)
-            {
-                return string.Join("~", list.Select(EncodeRecord));
-            }
-            else if (data is Dictionary<string, object> dict)
-            {
-                return EncodeRecord(dict);
-            }
-            else
-            {
-                return Escape(data?.ToString() ?? string.Empty);
-            }
-        }
-
-        /// <summary>
-        /// Decode SLD format string to dictionaries
-        /// </summary>
-        public static object Decode(string sldString)
-        {
-            if (string.IsNullOrEmpty(sldString))
-                return new Dictionary<string, object>();
-
-            var records = new List<Dictionary<string, object>>();
-
-            foreach (var recordStr in SplitUnescaped(sldString, '~'))
-            {
-                if (string.IsNullOrEmpty(recordStr))
-                    continue;
-
-                var record = new Dictionary<string, object>();
-                var fields = SplitUnescaped(recordStr, '|');
-
-                int i = 0;
-                while (i < fields.Count)
-                {
-                    if (i >= fields.Count)
-                        break;
-
-                    var key = Unescape(fields[i]);
-
-                    // Check if this is a nested structure
-                    if (fields[i].Contains("[") && !fields[i].Contains("^["))
-                    {
-                        key = key.Replace("[", "");
-                        if (i + 1 < fields.Count)
-                        {
-                            var nestedValue = Unescape(fields[i + 1]);
-                            record[key] = nestedValue;
-                            i += 2;
-                        }
-                        else
-                        {
-                            i += 1;
-                        }
-                    }
-                    else
-                    {
-                        if (i + 1 < fields.Count)
-                        {
-                            var value = Unescape(fields[i + 1]);
-                            record[key] = string.IsNullOrEmpty(value) ? null : value;
-                            i += 2;
-                        }
-                        else
-                        {
-                            record[key] = null;
-                            i += 1;
-                        }
-                    }
-                }
-
-                records.Add(record);
-            }
-
-            return records.Count > 1 ? (object)records : (records.FirstOrDefault() ?? new Dictionary<string, object>());
+            return mldString.Replace(RECORD_SEPARATOR_MLD, RECORD_SEPARATOR_SLD) + RECORD_SEPARATOR_SLD;
         }
     }
 
-    /// <summary>
-    /// Example usage of SLD format
-    /// </summary>
-    class Program
+    // Example usage class
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
-            Console.WriteLine("=== SLD C# Implementation ===\n");
+            Console.WriteLine("=== SLD/MLD C# Implementation v1.1 ===\n");
 
-            // Example 1: Simple records
-            Console.WriteLine("Example 1: Simple product data");
+            // Example 1: Simple records with SLD
+            Console.WriteLine("Example 1: Simple user data (SLD)");
             var data1 = new List<Dictionary<string, object>>
             {
-                new Dictionary<string, object> { { "name", "Laptop" }, { "price", "3999.90" } },
-                new Dictionary<string, object> { { "name", "Mouse" }, { "price", "149.90" } },
-                new Dictionary<string, object> { { "name", "Headset" }, { "price", "499.00" } }
+                new Dictionary<string, object> { {"name", "Alice"}, {"age", 30}, {"city", "New York"} },
+                new Dictionary<string, object> { {"name", "Bob"}, {"age", 25}, {"city", "Los Angeles"} }
             };
-            var sld1 = SLDFormat.Encode(data1);
-            Console.WriteLine($"Encoded: {sld1}");
-            Console.WriteLine($"Decoded: {SLDFormat.Decode(sld1)}\n");
+            string sld1 = SLDParser.EncodeSLD(data1);
+            Console.WriteLine($"Encoded SLD: {sld1}");
+            Console.WriteLine($"Decoded: {SLDParser.DecodeSLD(sld1)}\n");
 
-            // Example 2: Objects with IDs
-            Console.WriteLine("Example 2: User records");
-            var data2 = new List<Dictionary<string, object>>
+            // Example 2: Booleans
+            Console.WriteLine("Example 2: Boolean values");
+            var data2 = new Dictionary<string, object>
             {
-                new Dictionary<string, object> { { "id", "1" }, { "name", "John" }, { "lastname", "Smith" } },
-                new Dictionary<string, object> { { "id", "2" }, { "name", "Juan" }, { "lastname", "Perez" } }
+                {"name", "Alice"},
+                {"verified", true},
+                {"active", false}
             };
-            var sld2 = SLDFormat.Encode(data2);
-            Console.WriteLine($"Encoded: {sld2}");
-            Console.WriteLine($"Decoded: {SLDFormat.Decode(sld2)}\n");
+            string sld2 = SLDParser.EncodeSLD(data2);
+            Console.WriteLine($"Encoded SLD: {sld2}");
+            Console.WriteLine($"Decoded: {SLDParser.DecodeSLD(sld2)}\n");
 
-            // Example 3: Data with special characters
-            Console.WriteLine("Example 3: Escaped characters");
-            var data3 = new List<Dictionary<string, object>>
-            {
-                new Dictionary<string, object> { { "company", "Pipe|Works Inc" } },
-                new Dictionary<string, object> { { "product", "Model~XZ~2000" } }
-            };
-            var sld3 = SLDFormat.Encode(data3);
-            Console.WriteLine($"Encoded: {sld3}");
-            Console.WriteLine($"Decoded: {SLDFormat.Decode(sld3)}\n");
-
-            // Example 4: Null values
-            Console.WriteLine("Example 4: Null/empty values");
-            var data4 = new Dictionary<string, object>
-            {
-                { "name", "John" },
-                { "middle", null },
-                { "lastname", "Doe" }
-            };
-            var sld4 = SLDFormat.Encode(data4);
-            Console.WriteLine($"Encoded: {sld4}");
-            Console.WriteLine($"Decoded: {SLDFormat.Decode(sld4)}");
+            // Example 3: Format conversion
+            Console.WriteLine("Example 3: Format conversion");
+            string sld3 = "name[Alice;age[30~name[Bob;age[25~";
+            string mld3 = SLDParser.SLDToMLD(sld3);
+            Console.WriteLine($"SLD: {sld3}");
+            Console.WriteLine($"MLD:\n{mld3}");
+            Console.WriteLine($"Back to SLD: {SLDParser.MLDToSLD(mld3)}");
         }
     }
 }

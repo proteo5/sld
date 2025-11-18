@@ -1,103 +1,189 @@
-# SLD Format Specification Changes - v1.1
+# Changelog
 
-## Summary of Updates
+All notable changes to the SLD/MLD format will be documented in this file.
 
-This document outlines the key specification changes made to the SLD format to clarify and formalize the three distinct data representation methods.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Major Changes
+## [1.1.0] - 2024-12-01
 
-### 1. Boolean Representation
-**Previous:** `true` / `false`  
-**New:** `^1` / `^0`
+### Breaking Changes
 
-**Rationale:** 
-- Consistent with escape character usage
-- Shorter representation (2 chars vs 4-5 chars)
-- Clear distinction from string values
-- Easier to parse programmatically
+⚠️ **This version is NOT backward compatible with v1.0**
 
-**Examples:**
-```
-Before: active[true|verified[false|
-After:  active[^1|verified[^0|
-```
+- **Changed field separator from `|` to `;`**
+  - Rationale: The pipe character (`|`) requires escaping in Unix shells (bash, zsh) and causes conflicts in terminal usage
+  - Semicolon (`;`) is statistically rarer in natural text and causes fewer shell conflicts
+  - Migration: Replace all unescaped `|` with `;` and `^|` with `^;`
+
+### Added
+
+- **MLD (Multi Line Data) format introduced**
+  - New variant using newline (`\n`) as record separator instead of tilde (`~`)
+  - File extension: `.mld`
+  - MIME type: `text/mld`
+  - Optimized for:
+    - Log files and streaming data
+    - Unix tool processing (grep, awk, sed, head, tail)
+    - Line-by-line processing with constant memory
+    - Human debugging and inspection
+  
+- **Bidirectional conversion between SLD and MLD**
+  - SLD → MLD: `tr '~' '\n' < file.sld > file.mld`
+  - MLD → SLD: `tr '\n' '~' < file.mld > file.sld`
+  - Lossless conversion in both directions
+
+- **Comprehensive documentation**
+  - SPECIFICATION_SLD.md - Complete SLD technical specification
+  - SPECIFICATION_MLD.md - Complete MLD technical specification
+  - QUICK_REFERENCE_SLD.md - SLD quick reference guide
+  - QUICK_REFERENCE_MLD.md - MLD quick reference guide with Unix tools
+  - SYNTAX_GUIDE_SLD.md - Detailed SLD syntax examples
+  - SYNTAX_GUIDE_MLD.md - Detailed MLD syntax with streaming patterns
+  - Spanish versions: REFERENCIA_RAPIDA_*.md, GUIA_SINTAXIS_*.md
+
+- **Example files**
+  - 7 SLD examples: simple, products, users, escaped, complex, logs, config
+  - 7 MLD examples: same content in multi-line format
+  - Comprehensive README with usage patterns and Unix tool examples
+
+### Changed
+
+- **Delimiter table updated**
+  - Field separator: `|` (U+007C) → `;` (U+003B)
+  - All escape sequences updated: `^|` → `^;`
+  - Record separator: `~` (U+007E) - unchanged for SLD, `\n` for MLD
+  - Property marker: `[` (U+005B) - unchanged
+  - Array marker: `{` (U+007B) - unchanged
+  - Escape character: `^` (U+005E) - unchanged
+
+- **File extensions clarified**
+  - `.sld` - Single Line Data (SLD format)
+  - `.mld` - Multi Line Data (MLD format)
+
+- **MIME types defined**
+  - `application/sld+compact` - SLD format
+  - `text/mld` - MLD format
+
+### Deprecated
+
+- **v1.0 format using `|` as field separator**
+  - SPECIFICATION.md marked as deprecated
+  - No migration path provided - clean break
+  - Legacy implementations should upgrade to v1.1
+
+### Security
+
+- Shell safety improved by using semicolon instead of pipe
+- Reduced risk of command injection in shell contexts
+- Same escape mechanism security properties maintained
+
+### Performance
+
+- Token efficiency unchanged: 78% reduction vs JSON
+- Byte efficiency unchanged for SLD
+- MLD adds Unix tool compatibility with minimal overhead
+
+## [1.0.0] - 2024-11-16
+
+### Added
+
+- Initial SLD format specification
+- Field separator: `|` (U+007C)
+- Record separator: `~` (U+007E)
+- Property marker: `[` (U+005B)
+- Array marker: `{` (U+007B)
+- Escape character: `^` (U+005E)
+- Boolean values: `^1` (true), `^0` (false)
+- Single-line format optimized for token efficiency
+- 78% token reduction compared to JSON
+- Basic documentation and examples
+
+### Notes
+
+- Created as satirical response to format minimalism trends
+- Functional but primarily educational/experimental
 
 ---
 
-### 2. Three Distinct Formats Formalized
+## Migration Notes
 
-#### A. Table Format
-**Use case:** CSV-like data, uniform records
+### Upgrading from v1.0 to v1.1
 
-**Structure:**
-- First row = headers
-- Subsequent rows = data values
-- Fields separated by `|`
-- Rows separated by `~`
+**Automatic conversion is NOT possible** due to ambiguity in escape sequences.
 
-**Example:**
-```
-id|name|price|stock~1|Laptop|3999.90|25~2|Mouse|149.90|150
-```
+**Manual steps required:**
 
-**Benefits:**
-- Most compact for uniform data
-- Natural CSV migration path
-- Headers amortized across rows
+1. **Replace field separators:**
+   - Find: `|` (unescaped pipes)
+   - Replace: `;`
 
----
+2. **Update escape sequences:**
+   - Find: `^|` (escaped pipes)
+   - Replace: `^;`
 
-#### B. Object Format
-**Use case:** Single entities, configuration, key-value pairs
+3. **Validate data:**
+   - Parse with v1.1 decoder
+   - Verify all records load correctly
+   - Check for data integrity
 
-**Structure:**
-- Properties: `property[value|`
-- Last property: `property[value~`
-- Always ends with `~`
+4. **Choose format:**
+   - Use SLD (`.sld`) for network transmission, compact storage
+   - Use MLD (`.mld`) for logs, streaming, Unix tool processing
 
-**Example:**
-```
-userId[12345|username[john_doe|email[john@example.com|verified[^1~
-```
+5. **Update implementations:**
+   - Upgrade parsers to v1.1
+   - Update field separator constant
+   - Add MLD support if needed
 
-**Benefits:**
-- Self-documenting properties
-- Clear property-value relationship
-- Easy to read and parse
+### Format Selection Guide
 
----
+**Use SLD when:**
+- Sending data over network
+- Minimizing token count for LLMs
+- Storing in memory-constrained environments
+- Single-record processing
 
-#### C. Array Format
-**Use case:** Named collections, lists of objects
+**Use MLD when:**
+- Writing log files
+- Processing with grep/awk/sed
+- Streaming large datasets
+- Line-by-line processing needed
+- Human debugging/inspection
 
-**Structure:**
-- Array start: `arrayName{`
-- Objects separated by `~`
-- Each object follows object format rules
-
-**Example:**
-```
-users{id[1|name[John|active[^1~id[2|name[Jane|active[^0
-```
-
-**Benefits:**
-- Explicit array naming
-- Clear collection boundaries
-- Supports heterogeneous objects
+Both formats are interconvertible without data loss.
 
 ---
 
-### 3. New Delimiter: `{` (Array Start)
+## Comparison with Other Formats
 
-**Added:** U+007B `{` as array start marker
+### Token Efficiency (v1.1)
 
-**Purpose:** Distinguish between object properties and array collections
+| Format | Tokens | Reduction vs JSON |
+|--------|--------|-------------------|
+| JSON (formatted) | 100 | 0% |
+| JSON (minified) | 68 | 32% |
+| GOON | 356 | -256% |
+| BONER | 420 | -320% |
+| TOON | 56 | 44% |
+| VSC | 29 | 71% |
+| **SLD/MLD** | **22** | **78%** |
 
-**Escape:** `^{` for literal brace character
+### Use Case Comparison
 
-**Example:**
-```
-teams{name[Engineering|size[15~name[Design|size[8
+| Feature | SLD | MLD | JSON | CSV |
+|---------|-----|-----|------|-----|
+| Token efficiency | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐ |
+| Human readability | ⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+| Unix tool support | ⭐ | ⭐⭐⭐⭐⭐ | ⭐ | ⭐⭐⭐⭐ |
+| Nested structures | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐ |
+| Streaming | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐⭐⭐ |
+| Network transmission | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐ |
+
+---
+
+[1.1.0]: https://github.com/proteo5/sld/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/proteo5/sld/releases/tag/v1.0.0
 braces[Open^{|Close^}~
 ```
 

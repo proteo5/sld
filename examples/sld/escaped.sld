@@ -1,0 +1,1 @@
+id[1;title[Cooking Guide: Tips ^& Tricks;content[First^, preheat oven^; second^, mix ingredients^; third^, bake at 350°F~id[2;note[Use semicolons^; not commas^; for lists;author[Chef Bob~id[3;code[if (x ^> 5) ^{ return true^; ^};language[javascript~id[4;path[C:^^Users^^Alice^^Documents^^file^{1^}.txt;type[document~id[5;formula[x^[2^] + y^[3^] = z;description[Polynomial equation~

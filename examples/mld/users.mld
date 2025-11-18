@@ -1,0 +1,4 @@
+user_id[u_001;username[alice_smith;email[alice@example.com;verified[^1;role[admin;created[2023-01-15T10:00:00Z;tags{developer,team-lead
+user_id[u_002;username[bob_jones;email[bob@example.com;verified[^1;role[user;created[2023-03-22T14:30:00Z;tags{designer,freelancer
+user_id[u_003;username[charlie_brown;email[charlie@example.com;verified[^0;role[user;created[2024-01-10T09:15:00Z;tags{writer
+user_id[u_004;username[diana_prince;email[diana@example.com;verified[^1;role[moderator;created[2022-11-05T16:45:00Z;tags{support,moderator,senior

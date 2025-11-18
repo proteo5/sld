@@ -1,0 +1,4 @@
+sku[LAP001;name[UltraBook Pro 15;price[1299.99;inStock[^1;quantity[45;category[laptops;tags{business,ultrabook,portable
+sku[MOU001;name[Wireless Mouse;price[29.99;inStock[^1;quantity[200;category[accessories;tags{wireless,ergonomic
+sku[KEY001;name[Mechanical Keyboard;price[149.99;inStock[^0;quantity[0;category[accessories;tags{mechanical,rgb,gaming
+sku[MON001;name[4K Monitor 27-inch;price[499.99;inStock[^1;quantity[15;category[monitors;tags{4k,ips,professional

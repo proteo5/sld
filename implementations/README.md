@@ -1,50 +1,65 @@
-# SLD Format Implementations
+# SLD Format Implementations v1.1
 
-This directory contains reference implementations of the SLD (Single Line Data) format in various programming languages.
+This directory contains reference implementations of the SLD (Single Line Data) and MLD (Multi Line Data) formats in various programming languages.
 
 ## Available Implementations
 
 ### Python
 - **File**: `python/sld.py`
-- **Run**: `python python/sld.py`
-- **Features**: Full encode/decode support with examples
+- **Test**: `python/test_sld.py`
+- **Install**: `pip install -e implementations/python`
+- **Run Tests**: `cd implementations/python && pytest test_sld.py`
+- **Features**: Full SLD/MLD encode/decode with format conversion
 
 ### JavaScript/Node.js
 - **File**: `javascript/sld.js`
-- **Run**: `node javascript/sld.js`
+- **Test**: `javascript/test_sld.js`
+- **Install**: `npm install implementations/javascript`
+- **Run Tests**: `cd implementations/javascript && npm test`
 - **Features**: Works in both Node.js and browsers
 
 ### Go
 - **File**: `go/sld.go`
-- **Usage**: Import as package or run example
-- **Features**: Idiomatic Go with interfaces
+- **Test**: `go/sld_test.go`
+- **Install**: `go get github.com/proteo5/sld`
+- **Run Tests**: `cd implementations/go && go test`
+- **Features**: Idiomatic Go with comprehensive test coverage
 
 ### C#
 - **File**: `csharp/SLD.cs`
-- **Compile**: `csc SLD.cs` or use Visual Studio
-- **Run**: `SLD.exe`
-- **Features**: LINQ-friendly implementation
+- **Project**: `csharp/SLD.csproj`
+- **Build**: `dotnet build`
+- **Run Tests**: `dotnet test`
+- **Features**: .NET 6.0+ with xUnit tests
 
 ### PHP
 - **File**: `php/sld.php`
-- **Run**: `php php/sld.php`
-- **Features**: Class-based with static methods
+- **Package**: `php/composer.json`
+- **Install**: `composer install`
+- **Run Tests**: `composer test`
+- **Features**: PSR-12 compliant with PHPUnit tests
 
 ### Java
 - **File**: `java/SLD.java`
-- **Compile**: `javac SLD.java`
-- **Run**: `java SLD`
-- **Features**: Generic collections support
+- **Project**: `java/pom.xml`
+- **Build**: `mvn compile`
+- **Run Tests**: `mvn test`
+- **Features**: Maven project with JUnit tests
 
 ## Common Features
 
-All implementations support:
-- ✅ Encoding data to SLD format
-- ✅ Decoding SLD strings back to native structures
-- ✅ Proper escape sequence handling
+All v1.1 implementations support:
+- ✅ SLD format encoding/decoding (single-line with `~` separator)
+- ✅ MLD format encoding/decoding (multi-line with `\n` separator)
+- ✅ Format conversion (SLD ↔ MLD)
+- ✅ Field separator `;` (shell-safe)
+- ✅ Property marker `[` and array marker `{`
+- ✅ Boolean values (`^1` and `^0`)
+- ✅ Escape character `^` handling
 - ✅ Null/empty value support
-- ✅ Nested structures (simplified)
-- ✅ Working examples
+- ✅ Array encoding with `~` element separator and explicit `}` close
+- ✅ Working examples included in each file
+- ✅ Unit tests with comprehensive coverage
 
 ## Usage Examples
 

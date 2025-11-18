@@ -531,8 +531,11 @@ def parse_value(val):
     elif val.startswith("^0"):
         return False
     elif val.startswith("{"):
-        # Array
-        elements = val[1:].split(",")
+        # Array: elements separated by '~' and closed by '}'
+        inner = val[1:]
+        if inner.endswith("}"):
+            inner = inner[:-1]
+        elements = split_unescaped(inner, "~") if inner else []
         return [unescape_string(e) for e in elements]
     else:
         # Try number, else string
@@ -543,6 +546,24 @@ def parse_value(val):
                 return int(val)
         except ValueError:
             return unescape_string(val)
+
+def split_unescaped(s, sep):
+    parts = []
+    buf = ""
+    escaped = False
+    for ch in s:
+        if escaped:
+            buf += ch
+            escaped = False
+        elif ch == "^":
+            escaped = True
+        elif ch == sep:
+            parts.append(buf)
+            buf = ""
+        else:
+            buf += ch
+    parts.append(buf)
+    return parts
 
 def unescape_string(s):
     result = ""
@@ -817,14 +838,14 @@ id[3;name[Charlie;age[35
 
 ```
 user_id[42;username[alice_2024;email[alice@example.com;verified[^1;role[admin;created[2024-01-15
-product_id[101;name[Laptop;price[999.99;in_stock[^1;tags{electronics~computers;reviews{Good~Excellent
-transaction_id[tx_5678;amount[250.50;currency[USD;status[completed;items{item1~item2~item3;timestamp[2024-12-01T10:30:00Z
+product_id[101;name[Laptop;price[999.99;in_stock[^1;tags{electronics~computers};reviews{Good~Excellent}
+transaction_id[tx_5678;amount[250.50;currency[USD;status[completed;items{item1~item2~item3};timestamp[2024-12-01T10:30:00Z
 ```
 
 ### A.3 Escaped Content
 
 ```
-note_id[1;title[Meeting Notes: Q4 Planning;content[Discussed budget^; targets^; and timelines.;tags{planning~Q4
+note_id[1;title[Meeting Notes: Q4 Planning;content[Discussed budget^; targets^; and timelines.;tags{planning~Q4}
 quote_id[2;text[He said: ^"Hello^, World!^";author[Unknown;lang[en
 path_id[3;file_path[C:^^Users^^Alice^^Documents^^file^{1^}.txt;type[document
 ```
@@ -839,8 +860,8 @@ product_id[200;name[Widget;description[;price[19.99;image_url[
 ### A.5 Arrays
 
 ```
-id[1;skills{Python~JavaScript~Rust;certifications{AWS~Azure;scores{95~87~92
-id[2;tags{};items{single};codes{A001~B002~C003~D004
+id[1;skills{Python~JavaScript~Rust};certifications{AWS~Azure};scores{95~87~92}
+id[2;tags{};items{single};codes{A001~B002~C003~D004}
 ```
 
 ### A.6 Real-World Log Example
