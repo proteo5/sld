@@ -3,7 +3,7 @@
 [![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Versión](https://img.shields.io/badge/versión-1.1.0-blue.svg)](https://github.com/proteo5/sld/releases)
 
-> El formato de datos más eficiente en tokens que hace llorar a JSON, deja a CSV con sobrepeso, y deja a GOON y BONER en el polvo. Ahora con formatos duales: **SLD** para transmisión compacta y **MLD** para streaming nativo de Unix.
+> El formato de datos más eficiente en tokens que hace llorar a JSON y deja a CSV con sobrepeso. Ahora con formatos duales: **SLD** para transmisión compacta y **MLD** para streaming nativo de Unix.
 
 ---
 
@@ -45,7 +45,7 @@
 - **SLD**: Formato de línea única usando tilde `~` como separador de registros. Optimizado para transmisión de red, almacenamiento compacto y conteo mínimo de tokens.
 - **MLD**: Formato multilínea usando salto de línea `\n` como separador de registros. Optimizado para archivos de log, procesamiento con herramientas Unix (grep, awk, sed) y datos en streaming.
 
-Ambos formatos usan **punto y coma** `;` como separador de campos (cambio de v1.1 desde `|` para seguridad en shells). Mientras otros discutían sobre JSON vs TOON vs VSC vs GOON vs BONER, nosotros creamos DOS formatos que funcionan juntos perfectamente.
+Ambos formatos usan **punto y coma** `;` como separador de campos (cambio de v1.1 desde `|` para seguridad en shells). Mientras otros discutían sobre formatos, nosotros creamos DOS que funcionan juntos perfectamente.
 
 ---
 
@@ -59,12 +59,8 @@ Mismo conjunto de datos (100 registros de usuarios), medido con el tokenizador d
 |---------|----------------|-----------------|---------|
 | **SLD** | **2,200** | **22** | **-78%** ✨ |
 | **MLD** | **2,300** | **23** | **-77%** |
-| VSC | 3,600 | 36 | -71% |
-| TOON | 7,000 | 70 | -44% |
 | JSON (minificado) | 8,500 | 85 | -32% |
 | JSON (formateado) | 12,500 | 125 | 0% |
-| GOON | 35,600 | 356 | +185% |
-| BONER | 42,000 | 420 | +236% |
 
 Ahorro de tokens = Ahorro de dinero en APIs de LLM
 
@@ -73,10 +69,8 @@ Ahorro de tokens = Ahorro de dinero en APIs de LLM
 ```text
 🏆 GANADOR: SLD/MLD
 ├─ 78% menos tokens que JSON
-├─ 93% menos tokens que BONER  
-├─ 92% menos tokens que GOON
-├─ Legible por humanos (a diferencia de BONER)
-├─ Sintaxis mínima (a diferencia de GOON)
+├─ Legible por humanos
+├─ Sintaxis mínima
 ├─ Dos variantes para casos de uso específicos
 └─ Conversión sin pérdidas entre SLD ↔ MLD
 ```
@@ -599,12 +593,10 @@ Medido usando el tokenizador GPT-4 en conjunto de datos idéntico (100 registros
 |--------|--------------|---------------|---------|
 | **SLD** | **2,200** | **22** | **-78%** ✨ |
 | **MLD** | **2,300** | **23** | **-77%** |
-| VSC | 3,600 | 36 | -71% |
+| CSV | 3,600 | 36 | -71% |
 | TOON | 7,000 | 70 | -44% |
 | JSON (min) | 8,500 | 85 | -32% |
 | JSON (fmt) | 12,500 | 125 | 0% |
-| GOON | 35,600 | 356 | +185% |
-| BONER | 42,000 | 420 | +236% |
 
 ### Velocidad de Parseo
 
@@ -754,7 +746,7 @@ Licencia MIT - ver archivo [LICENSE](LICENSE) para detalles.
 
 ## Agradecimientos
 
-- Inspirado por las guerras de formatos TOON vs VSC
+- Creado originalmente como una exploración humorística de eficiencia de tokens
 - Creado como sátira y optimización seria
 - Gracias a todos los contribuidores y primeros adoptantes
 

@@ -196,10 +196,7 @@ Ambos formatos son interconvertibles sin pérdida de datos.
 |--------|--------|-------------------|
 | JSON (formateado) | 100 | 0% |
 | JSON (minificado) | 68 | 32% |
-| GOON | 356 | -256% |
-| BONER | 420 | -320% |
-| TOON | 56 | 44% |
-| VSC | 29 | 71% |
+| CSV | 29 | 71% |
 | **SLD/MLD** | **22** | **78%** |
 
 ### Comparación de Casos de Uso

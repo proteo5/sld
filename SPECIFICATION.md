@@ -9,7 +9,7 @@
 
 ## Abstract
 
-SLD (Single Line Data) is a text-based data serialization format optimized for token efficiency in Large Language Model (LLM) contexts. By eliminating all line breaks and using statistically rare separator characters, SLD achieves significant token reduction compared to JSON, TOON, and VSC formats.
+SLD (Single Line Data) is a text-based data serialization format optimized for token efficiency in Large Language Model (LLM) contexts. By eliminating all line breaks and using statistically rare separator characters, SLD achieves significant token reduction compared to common formats like JSON and CSV.
 
 ## Motivation
 
@@ -330,7 +330,7 @@ Based on empirical testing with GPT-style tokenizers:
 | JSON (formatted) | 100% | 0% |
 | JSON (minified) | 68% | 32% |
 | TOON | 56% | 44% |
-| VSC | 29% | 71% |
+| CSV | 29% | 71% |
 | SLD | 22% | 78% |
 
 ### Byte Efficiency
@@ -405,7 +405,7 @@ An implementation is SLD-compliant if it:
 
 ## Acknowledgments
 
-Inspired by the TOON vs VSC format wars. Created as a humorous yet functional exploration of token efficiency.
+Originally created as a humorous exploration of token efficiency, now a practical, documented format.
 
 ---
 

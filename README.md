@@ -3,79 +3,76 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/proteo5/sld/releases)
 
-> The ultimate token-efficient data format that makes JSON cry, CSV look bloated, and leaves GOON and BONER in the dust. Now with dual formats: **SLD** for compact transmission and **MLD** for Unix-native streaming.
+> SLD (Single Line Data) and MLD (Multi Line Data) are compact, line-oriented data formats designed for efficient serialization, storage, and processing. SLD is optimized for single-line transmission; MLD is optimized for line-by-line streaming and Unix toolchains.
 
 ---
 
-## 📚 Documentation Index
+## Documentation
 
 ### Core Documentation
 
-- 🏠 **[This README](README.md)** - Overview and quick start
-- 📖 **[SLD Specification](SPECIFICATION_SLD.md)** - Complete SLD technical specification v1.1
-- 📖 **[MLD Specification](SPECIFICATION_MLD.md)** - Complete MLD technical specification v1.1
-- ⚡ **[SLD Quick Reference](QUICK_REFERENCE_SLD.md)** - Fast lookup guide for SLD
-- ⚡ **[MLD Quick Reference](QUICK_REFERENCE_MLD.md)** - Fast lookup guide for MLD with Unix tools
-- 📝 **[SLD Syntax Guide](SYNTAX_GUIDE_SLD.md)** - Detailed SLD examples and patterns
-- 📝 **[MLD Syntax Guide](SYNTAX_GUIDE_MLD.md)** - Detailed MLD examples with streaming
-- 🔄 **[Changelog](CHANGELOG.md)** - Version history and breaking changes
-- 🔀 **[Migration Guide](MIGRATION.md)** - v1.0 → v1.1 upgrade guide
--- ⚠️ **[SPECIFICATION.md](SPECIFICATION.md)** - DEPRECATED v1.0 specification
+- **[This README](README.md)** - Overview and quick start
+- **[SLD Specification](SPECIFICATION_SLD.md)** - Complete SLD technical specification v1.1
+- **[MLD Specification](SPECIFICATION_MLD.md)** - Complete MLD technical specification v1.1
+- **[SLD Quick Reference](QUICK_REFERENCE_SLD.md)** - Fast lookup guide for SLD
+- **[MLD Quick Reference](QUICK_REFERENCE_MLD.md)** - Fast lookup guide for MLD with Unix tools
+- **[SLD Syntax Guide](SYNTAX_GUIDE_SLD.md)** - Detailed SLD examples and patterns
+- **[MLD Syntax Guide](SYNTAX_GUIDE_MLD.md)** - Detailed MLD examples with streaming
+- **[Changelog](CHANGELOG.md)** - Version history and breaking changes
+- **[Migration Guide](MIGRATION.md)** - v1.0 → v1.1 upgrade guide
+  - [SPECIFICATION.md](SPECIFICATION.md) - Deprecated v1.0 specification
 
 ### Language-Specific Documentation
 
-- 🇪🇸 **[README en Español](README.es.md)** - Complete Spanish documentation
-- 🇪🇸 **[Referencia Rápida SLD](REFERENCIA_RAPIDA_SLD.md)** - SLD quick reference in Spanish
-- 🇪🇸 **[Referencia Rápida MLD](REFERENCIA_RAPIDA_MLD.md)** - MLD quick reference in Spanish
-- 🇪🇸 **[Guía de Sintaxis SLD](GUIA_SINTAXIS_SLD.md)** - SLD syntax guide in Spanish
-- 🇪🇸 **[Guía de Sintaxis MLD](GUIA_SINTAXIS_MLD.md)** - MLD syntax guide in Spanish
--- 🇪🇸 **[Guía de Migración](MIGRACION.md)** - Migration guide in Spanish
+- **[README en Español](README.es.md)** - Complete Spanish documentation
+- **[Referencia Rápida SLD](REFERENCIA_RAPIDA_SLD.md)** - SLD quick reference in Spanish
+- **[Referencia Rápida MLD](REFERENCIA_RAPIDA_MLD.md)** - MLD quick reference in Spanish
+- **[Guía de Sintaxis SLD](GUIA_SINTAXIS_SLD.md)** - SLD syntax guide in Spanish
+- **[Guía de Sintaxis MLD](GUIA_SINTAXIS_MLD.md)** - MLD syntax guide in Spanish
+  - **[Guía de Migración](MIGRACION.md)** - Migration guide in Spanish
 
 ### Examples & Code
 
-- 💾 **[Example Files](examples/)** - Sample .sld and .mld files with README
-- 💻 **[Implementations](implementations/)** - Working code in Python, JavaScript, Go, C#, PHP, Java
+- **[Example Files](examples/)** - Sample .sld and .mld files with README
+- **[Implementations](implementations/)** - Working code in Python, JavaScript, Go, C#, PHP, Java
 
 ---
 
 ## What is SLD/MLD?
 
-**SLD (Single Line Data)** and **MLD (Multi Line Data)** are revolutionary data serialization formats designed to minimize token usage in LLM contexts.
+**SLD (Single Line Data)** and **MLD (Multi Line Data)** are data serialization formats designed to reduce token usage and improve processing efficiency in LLM and log-processing contexts.
 
 - **SLD**: Single-line format using tilde `~` as record separator. Optimized for network transmission, compact storage, and minimal token count.
 - **MLD**: Multi-line format using newline `\n` as record separator. Optimized for log files, Unix tool processing (grep, awk, sed), and streaming data.
 
-Both formats use **semicolon** `;` as field separator (v1.1 change from `|` for shell safety). While others were arguing about JSON vs TOON vs VSC vs GOON vs BONER, we created TWO formats that work together seamlessly.
+Both formats use **semicolon** `;` as field separator (v1.1 change from `|` for shell safety). While others argued about formats, we created TWO that work together seamlessly.
 
 ---
 
-## Why SLD/MLD is Superior
+## Key Benefits
 
 ### Token Comparison
 
 Real-world benchmark using identical dataset across all formats:
 
-| Format | Tokens | Reduction vs JSON | Status |
-|--------|--------|-------------------|--------|
-| **BONER** | **420** | **-320%** 💀 | Enhanced ASCII redundancy |
-| **GOON** | **356** | **-256%** | Verbose assignment syntax |
-| **JSON (formatted)** | **125** | **0%** | Traditional verbose format |
-| **JSON (minified)** | **85** | **32%** | Compact JSON |
-| **TOON** | **70** | **44%** | Simplified syntax |
-| **VSC** | **36** | **71%** | Line-based comma format |
-| **SLD/MLD** | **22** | **78%** ✨ | **Ultimate efficiency** |
+| Format | Tokens | Reduction vs JSON | Notes |
+|--------|--------|-------------------|-------|
+| JSON (formatted) | 125 | 0% | Baseline |
+| JSON (minified) | 85 | 32% | Compact JSON |
+| CSV | 36 | 71% | Row/column format |
+| SLD/MLD | 22 | 78% | Compact line-oriented format |
 
 **Test dataset**: User profile with id, name, email, age, verified status, roles array
 
-### The SLD/MLD Advantage
+### Capabilities
 
-1. **True Efficiency**: 78% token reduction vs JSON, 93% vs BONER, 92% vs GOON
-2. **Shell-Safe**: Semicolon delimiter avoids shell pipe conflicts
-3. **Dual Formats**: Choose SLD for compact or MLD for readable
-4. **Unix Native**: MLD works with grep, awk, sed, head, tail
-5. **Simple Escape**: Caret-based escaping (`^;`, `^~`, `^[`, `^{`, `^^`)
-6. **Lossless Conversion**: `tr '~' '\n'` converts SLD↔MLD perfectly
-7. **Streaming Ready**: MLD processes line-by-line with constant memory
+- Token efficiency: ~78% fewer tokens than formatted JSON (typical datasets)
+- Shell safety: semicolon field separator avoids pipe conflicts
+- Two variants: SLD (single-line) and MLD (multi-line)
+- Unix compatibility: designed for grep, awk, sed, head, tail
+- Simple escaping: caret-based escapes (`^;`, `^~`, `^[`, `^{`, `^}` and `^^`)
+- Lossless conversion: `tr '~' '\n'` converts SLD↔MLD
+- Streaming-friendly: MLD processes line-by-line with constant memory
 
 ---
 
@@ -131,21 +128,21 @@ To use delimiter characters as literal values, escape them with `^`:
 
 ### Use SLD When
 
-✅ **Network Transmission**
+**Network transmission**
 
 - API responses
 - WebSocket messages
 - Message queue payloads
 - Minimizing bandwidth
 
-✅ **Compact Storage**
+**Compact storage**
 
 - Embedded systems
 - Memory-constrained environments
 - Token-limited LLM contexts
 - Single-line configs
 
-✅ **Quick Serialization**
+**Quick serialization**
 
 - Fast encode/decode needed
 - Single-record processing
@@ -159,21 +156,21 @@ user_id[42;username[alice;email[alice@example.com;verified[^1~user_id[43;usernam
 
 ### Use MLD When
 
-✅ **Log Files**
+**Log files**
 
 - Application logs
 - Access logs
 - Audit trails
 - Debug output
 
-✅ **Streaming Data**
+**Streaming data**
 
 - Real-time event processing
 - Large dataset processing
 - Line-by-line analysis
 - Constant memory usage
 
-✅ **Unix Tool Processing**
+**Unix tool processing**
 
 - grep filtering
 - awk transformations
@@ -587,12 +584,10 @@ Measured using GPT-4 tokenizer on identical dataset (100 user records):
 |--------|--------------|---------------|---------|
 | **SLD** | **2,200** | **22** | **-78%** ✨ |
 | **MLD** | **2,300** | **23** | **-77%** |
-| VSC | 3,600 | 36 | -71% |
+| CSV | 3,600 | 36 | -71% |
 | TOON | 7,000 | 70 | -44% |
 | JSON (min) | 8,500 | 85 | -32% |
 | JSON (fmt) | 12,500 | 125 | 0% |
-| GOON | 35,600 | 356 | +185% |
-| BONER | 42,000 | 420 | +236% |
 
 ### Parsing Speed
 
@@ -742,7 +737,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
-- Inspired by the TOON vs VSC format wars
+- Originally created as a humorous exploration of token efficiency
 - Created as both satire and serious optimization
 - Thanks to all contributors and early adopters
 

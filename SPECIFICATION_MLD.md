@@ -651,8 +651,7 @@ MLD achieves similar token efficiency to SLD:
 | **MLD** | **22** | **78%** | 4.2 KB |
 | **SLD** | **22** | **78%** | 4.1 KB |
 | JSON | 100 | — | 18.5 KB |
-| BONER | 420 | +320% vs. MLD | 75.0 KB |
-| GOON | 356 | +262% vs. MLD | 63.8 KB |
+| CSV | 45 | +105% vs. MLD | 8.1 KB |
 | CSV | 45 | +105% vs. MLD | 8.1 KB |
 
 **Analysis:**
