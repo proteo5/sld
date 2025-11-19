@@ -244,6 +244,68 @@ Null has two representations depending on whether inline types are used:
 1. **Untyped null**: `^_` (caret underscore) - use when NOT using inline types
 2. **Typed null**: `!n[` (empty payload with type tag) - use when using inline types for consistency
 
+### 4.6 Inline Type Tags (Optional v2.0 Feature)
+
+Keys MAY include an optional inline type tag using `!<code>` immediately before the value marker `[` or `{`.
+
+**Syntax:**
+```
+key!<type>[value
+key!<type>{array}
+```
+
+**Available Type Codes:**
+
+| Code | Type | Description | Example |
+|------|------|-------------|--------|
+| `!i` | Integer | Whole numbers | `age!i[42` |
+| `!f` | Float | Decimal numbers | `price!f[3999.90` |
+| `!b` | Boolean | True/false (use `^1`/`^0`) | `active!b[^1` |
+| `!s` | String | Text (explicit typing) | `name!s[Alice` |
+| `!n` | Null | Typed null value | `removed!n[` |
+| `!d` | Date | ISO-8601 date | `birth!d[1990-05-15` |
+| `!t` | Time | ISO-8601 time | `start!t[14:30:00` |
+| `!ts` | Timestamp | ISO-8601 datetime | `created!ts[2025-11-19T10:30:00Z` |
+
+**Examples (MLD format):**
+
+```mld
+# Basic types
+age!i[42;price!f[99.99;active!b[^1;name!s[Alice
+
+# Temporal types
+birth!d[1990-05-15;start!t[14:30:00;created!ts[2025-11-19T10:30:00Z
+
+# Null with type
+removed!n[;deleted!n[;optional!n[
+
+# Arrays with types
+ids!i{1~2~3~4};scores!f{95.5~87.3~92.0};tags!s{admin~user}
+
+# Complete record (one line in MLD)
+id!i[1;name!s[Alice;age!i[30;verified!b[^1;bio!s[Engineer;joined!ts[2025-01-15T09:00:00Z
+```
+
+**Important Rules:**
+
+1. Type tags are **optional** - untyped properties default to string
+2. Unknown type codes MUST NOT cause parse failure
+3. Consumers MAY ignore type suffixes and treat all values as strings
+4. When using types, declare `types` in `!features{types}` header
+5. `!s` makes string typing **explicit** (useful for schema validation)
+
+**When to Use `!s` (String Tag):**
+
+```mld
+# Without explicit typing (ambiguous for validators)
+count[42;code[42;id[42
+
+# With explicit typing (clear intent)
+count!i[42;code!s[42;id!s[USER-42
+```
+
+The `!s` tag clarifies that `"42"` should remain a string, not be parsed as number.
+
 ---
 
 ## 5. Header Metadata (Optional)
@@ -378,51 +440,11 @@ Implementations SHOULD validate:
 
 Error code for malformed headers: **E09**
 
-**Nested Structures:**  
-Arrays of scalars and arrays of objects are supported. Records remain line-delimited; `}`, not newline, closes arrays.
-
-### 4.5 Null
-
-**Encoding:** Property marker `[` with no subsequent value before delimiter
-
-**Examples:**
-```
-middleName[;age[30
-optional[;required[value
-```
-
-**Detection:** Parser encounters `;` or `\n` immediately after `[`. 
-
----
-
-### 4.6 Null
-
-Null has two representations depending on whether inline types are used:
-
-1. **Untyped null**: `^_` (caret underscore) - use when NOT using inline types
-2. **Typed null**: `!n[` (empty payload with type tag) - use when using inline types for consistency
-
-Parsers MUST recognize both forms.
-
-Empty values (consecutive delimiters or empty after `[`) are treated as empty strings, NOT null.
-
-Examples:
-
-```
-# Without inline types
-deleted[^_
-optional[^_
-text[]    # empty string, not null
-
-# With inline types
-name!s[Alice;age!i[30;removed!n[
-```
-
 ---
 
 ## 6. Record Structure
 
-### 5.1 Record Definition
+### 6.1 Record Definition
 
 A **record** is a single line of text representing one logical entity or object. Each record consists of one or more **properties**.
 
@@ -434,7 +456,7 @@ property1[value1;property2[value2;property3[value3
 **Termination:**  
 Records are terminated by newline (`\n`). The final record in a file MAY omit the trailing newline.
 
-### 5.2 Property Structure
+### 6.2 Property Structure
 
 Each property consists of:
 1. **Property Name:** UTF-8 identifier (no special characters unescaped)
@@ -1077,10 +1099,19 @@ id[1;name[Ana
 
 ## Explicit Types (v2.0)
 
-Keys MAY include an inline type tag before the value marker using `!code`:
-`!i` integer, `!f` float, `!b` boolean, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
+MLD v2.0 supports optional inline type tags for properties and arrays. See the **Inline Type Tags (§4.6)** section above for:
 
-Consumers MUST NOT fail on unknown type codes; they MAY ignore the suffix.
+- Complete list of 8 type codes (`!i`, `!f`, `!b`, `!s`, `!n`, `!d`, `!t`, `!ts`)
+- Detailed syntax and examples
+- When to use `!s` for explicit string typing
+- Array typing with `!<type>{...}`
+
+**Key Points:**
+
+1. Type tags are **entirely optional** - parsers MUST work without them
+2. Unknown type codes MUST NOT cause parse failure
+3. Declare usage in header: `!features{types}`
+4. Useful for schema validation and strong typing in applications
 
 ## Standard Error Codes (v2.0)
 

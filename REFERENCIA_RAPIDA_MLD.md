@@ -75,20 +75,55 @@ puntuaciones{85~92~78}
 
 Funciones aditivas negociadas con `!features{types}`; decodificadores sin soporte pueden ignorarlas.
 
-### Etiquetas de tipo inline
+### Etiquetas de Tipo Inline
 
-- Coloca `!codigo` inmediatamente antes de `[` o `{`.
-- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
-- Null también puede ser `^_` cuando NO usas inline types.
+**Sintaxis:** Coloca `!<codigo>` inmediatamente antes de `[` o `{`
 
-Ejemplos:
+**Tabla Completa de Tipos:**
 
+| Código | Tipo | Descripción | Ejemplo |
+|--------|------|-------------|--------|
+| `!i` | Integer | Números enteros | `edad!i[42` |
+| `!f` | Float | Números decimales | `precio!f[3999.90` |
+| `!b` | Boolean | Verdadero/falso (usa `^1`/`^0`) | `activo!b[^1` |
+| `!s` | String | Texto (tipado explícito) | `nombre!s[Alicia` |
+| `!n` | Null | Valor nulo tipado | `eliminado!n[` |
+| `!d` | Date | Fecha ISO-8601 | `nacimiento!d[1990-05-15` |
+| `!t` | Time | Hora ISO-8601 | `inicio!t[14:30:00` |
+| `!ts` | Timestamp | Fecha-hora ISO-8601 | `creado!ts[2025-11-19T10:30:00Z` |
+
+**Ejemplos Completos (formato MLD - una línea por registro):**
+
+```mld
+# Tipos básicos
+edad!i[42;precio!f[99.99;activo!b[^1;nombre!s[Alicia
+
+# Tipos temporales
+nacimiento!d[1990-05-15;inicio!t[14:30:00;creado!ts[2025-11-19T10:30:00Z
+
+# Null con tipo
+eliminado!n[;borrado!n[;opcional!n[
+
+# Arrays con tipos
+ids!i{1~2~3~4};puntuaciones!f{95.5~87.3~92.0};etiquetas!s{admin~usuario}
+
+# Registro completo
+id!i[1;nombre!s[Alicia;edad!i[30;verificado!b[^1;bio!s[Ingeniera;ingreso!ts[2025-01-15T09:00:00Z
 ```
-edad!i[42; precio!f[399.90; activo!b[^1; titulo!s[Hola
-ids!i{1~2~3}
-creado!ts[2025-11-18T12:00:00Z
-eliminado!n[    # null tipado
+
+**Cuándo usar `!s` (String explícito):**
+
+```mld
+# Sin tipado explícito (ambiguo)
+contador[42;codigo[42;id[42
+
+# Con tipado explícito (intención clara)
+contador!i[42;codigo!s[42;id!s[USER-42
 ```
+
+El tag `!s` aclara que `"42"` debe permanecer como texto, no parsearse como número.
+
+**Nota:** Null también puede ser `^_` cuando NO usas inline types.
 
 ### Registro de metadatos (línea 0)
 

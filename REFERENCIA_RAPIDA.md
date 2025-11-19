@@ -1,4 +1,4 @@
-# Guía de Referencia Rápida de SLD
+# Guía de Referencia Rápida de SLD v2.0
 
 ## Tres Formas de Representar Datos
 
@@ -10,13 +10,13 @@
 
 - Primera fila = encabezados
 - Filas subsecuentes = datos
-- Campos separados por `|`
+- Campos separados por `;` (v2.0 cambio desde `|`)
 - Filas separadas por `~`
 
 **Ejemplo:**
 
 ```sld
-nombre|precio|enStock~Laptop|3999.90|^1~Mouse|149.90|^0~Headset|499.00|^1
+nombre;precio;enStock~Laptop;3999.90;^1~Mouse;149.90;^0~Headset;499.00;^1
 ```
 
 **Equivalente JSON:**
@@ -37,14 +37,14 @@ nombre|precio|enStock~Laptop|3999.90|^1~Mouse|149.90|^0~Headset|499.00|^1
 
 **Estructura:**
 
-- Propiedades: `propiedad[valor|`
+- Propiedades: `propiedad[valor;`
 - Última propiedad: `propiedad[valor~`
 - Siempre termina con `~`
 
 **Ejemplo:**
 
 ```sld
-nombre[Juan|edad[30|ciudad[NYC|activo[^1~
+nombre[Juan;edad[30;ciudad[NYC;activo[^1~
 ```
 
 **Equivalente JSON:**

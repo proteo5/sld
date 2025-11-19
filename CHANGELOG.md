@@ -55,7 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - QUICK_REFERENCE_MLD.md - MLD quick reference guide with Unix tools
   - SYNTAX_GUIDE_SLD.md - Detailed SLD syntax examples
   - SYNTAX_GUIDE_MLD.md - Detailed MLD syntax with streaming patterns
-  - Spanish versions: REFERENCIA_RAPIDA_*.md, GUIA_SINTAXIS_*.md
+  - Spanish versions: REFERENCIA_RAPIDA_*.md
 
 - **Example files**
   - 7 SLD examples: simple, products, users, escaped, complex, logs, config
@@ -83,9 +83,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - **v1.0 format using `|` as field separator**
-  - SPECIFICATION.md marked as deprecated
+  - SPECIFICATION.md (v1.0) removed - use SPECIFICATION_SLD.md or SPECIFICATION_MLD.md
   - No migration path provided - clean break
-  - Legacy implementations should upgrade to v1.1
+  - Legacy implementations should upgrade to v2.0
 
 ### Security
 
@@ -445,7 +445,8 @@ For language implementations:
 
 ## References
 
-- [SPECIFICATION.md](SPECIFICATION.md) - Complete technical spec
+- [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Complete SLD technical specification
+- [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Complete MLD technical specification
 - [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Format quick guide
 - [SYNTAX_GUIDE_SLD.md](SYNTAX_GUIDE_SLD.md) - Detailed SLD examples
 - [SYNTAX_GUIDE_MLD.md](SYNTAX_GUIDE_MLD.md) - Detailed MLD examples

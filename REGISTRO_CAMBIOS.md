@@ -95,7 +95,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
   - QUICK_REFERENCE_MLD.md - Guía de referencia rápida MLD con herramientas Unix
   - SYNTAX_GUIDE_SLD.md - Ejemplos detallados de sintaxis SLD
   - SYNTAX_GUIDE_MLD.md - Sintaxis detallada MLD con patrones de streaming
-  - Versiones en español: REFERENCIA_RAPIDA_*.md, GUIA_SINTAXIS_*.md
+  - Versiones en español: REFERENCIA_RAPIDA_*.md
 
 - **Archivos de ejemplo**
   - 7 ejemplos SLD: simple, productos, usuarios, escaped, complejo, logs, config
@@ -123,7 +123,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 ### Obsoleto
 
 - **Formato v1.0 usando `|` como separador de campos**
-  - SPECIFICATION.md marcado como obsoleto
+  - SPECIFICATION.md (v1.0) eliminado - usar SPECIFICATION_SLD.md o SPECIFICATION_MLD.md
   - No se proporciona ruta de migración - ruptura limpia
   - Las implementaciones legacy deberían actualizar a v2.0
 

@@ -1,4 +1,4 @@
-# SLD Format Quick Reference
+# SLD Format Quick Reference v2.0
 
 ## Three Ways to Represent Data
 
@@ -10,7 +10,7 @@
 
 - First row = headers
 - Subsequent rows = data
-- Fields separated by `;`
+- Fields separated by `;` (v2.0 change from `|`)
 - Rows separated by `~`
 
 **Example:**
