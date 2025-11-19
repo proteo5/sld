@@ -12,15 +12,14 @@
 ### Documentación Principal
 
 - 🏠 **[Este README](README.es.md)** - Resumen y guía rápida
+- 📖 **[RFC Draft](RFC_SLD_MLD.txt)** - Especificación formal estilo IETF v2.0 (inglés)
 - 📖 **[Especificación SLD](SPECIFICATION_SLD.md)** - Especificación técnica completa SLD v2.0 (inglés)
 - 📖 **[Especificación MLD](SPECIFICATION_MLD.md)** - Especificación técnica completa MLD v2.0 (inglés)
 - ⚡ **[Referencia Rápida SLD](REFERENCIA_RAPIDA_SLD.md)** - Guía de consulta rápida para SLD
 - ⚡ **[Referencia Rápida MLD](REFERENCIA_RAPIDA_MLD.md)** - Guía de consulta rápida para MLD con herramientas Unix
-- 📝 **[Guía de Sintaxis SLD](GUIA_SINTAXIS_SLD.md)** - Ejemplos y patrones detallados de SLD
-- 📝 **[Guía de Sintaxis MLD](GUIA_SINTAXIS_MLD.md)** - Ejemplos detallados de MLD con streaming
 - 🔄 **[Registro de Cambios](REGISTRO_CAMBIOS.md)** - Historial de versiones y cambios importantes
 - 🔀 **[Guía de Migración](MIGRACION.md)** - Guía de actualización v1.0 → v2.0
--- ⚠️ **[SPECIFICATION.md](SPECIFICATION.md)** - Especificación v1.0 OBSOLETA
+- ⚠️ **[SPECIFICATION.md](SPECIFICATION.md)** - Especificación v1.0 OBSOLETA
 
 ### Documentación en Otros Idiomas
 

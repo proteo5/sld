@@ -348,7 +348,7 @@ Ver [MIGRACION.md](MIGRACION.md) para guía completa.
 ## Documentos Relacionados
 
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Especificación técnica completa
-- [GUIA_SINTAXIS_SLD.md](GUIA_SINTAXIS_SLD.md) - Ejemplos detallados de sintaxis
+- [SYNTAX_GUIDE_SLD.md](SYNTAX_GUIDE_SLD.md) - Ejemplos detallados de sintaxis
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Variante multi-línea
 - [MIGRACION.md](MIGRACION.md) - Guía de migración v1.0 a v2.0
 

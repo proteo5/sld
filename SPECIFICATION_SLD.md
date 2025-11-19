@@ -114,9 +114,6 @@ name!s[Alice;age!i[30;removed!n[;active!b[1
 ```
 
 #### Structured Data
-```
-
-#### Structured Data
 
 **Table Format (First row = headers):**
 
@@ -380,6 +377,8 @@ def decode_sld(sld_string):
 ```
 
 ## Performance Characteristics
+
+Typical parsing throughput: 50-200 MB/s (depending on record complexity and language implementation).
 
 ## Canonicalization Profile (v2.0)
 

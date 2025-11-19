@@ -37,9 +37,7 @@ See the specifications for normative details.
 - **[README en Español](README.es.md)** - Complete Spanish documentation
 - **[Referencia Rápida SLD](REFERENCIA_RAPIDA_SLD.md)** - SLD quick reference in Spanish
 - **[Referencia Rápida MLD](REFERENCIA_RAPIDA_MLD.md)** - MLD quick reference in Spanish
-- **[Guía de Sintaxis SLD](GUIA_SINTAXIS_SLD.md)** - SLD syntax guide in Spanish
-- **[Guía de Sintaxis MLD](GUIA_SINTAXIS_MLD.md)** - MLD syntax guide in Spanish
-  - **[Guía de Migración](MIGRACION.md)** - Migration guide in Spanish
+- **[Guía de Migración](MIGRACION.md)** - Migration guide in Spanish
 
 ### Examples & Code
 

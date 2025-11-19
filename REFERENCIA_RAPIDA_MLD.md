@@ -462,7 +462,7 @@ wait
 ## Documentos Relacionados
 
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Especificación técnica completa
-- [GUIA_SINTAXIS_MLD.md](GUIA_SINTAXIS_MLD.md) - Ejemplos detallados de sintaxis
+- [SYNTAX_GUIDE_MLD.md](SYNTAX_GUIDE_MLD.md) - Ejemplos detallados de sintaxis
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Variante de línea única
 - [MIGRACION.md](MIGRACION.md) - Guía de migración v1.0 a v2.0
 

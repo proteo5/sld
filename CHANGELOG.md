@@ -447,7 +447,8 @@ For language implementations:
 
 - [SPECIFICATION.md](SPECIFICATION.md) - Complete technical spec
 - [QUICK_REFERENCE.md](QUICK_REFERENCE.md) - Format quick guide
-- [SYNTAX_GUIDE.md](SYNTAX_GUIDE.md) - Detailed examples
+- [SYNTAX_GUIDE_SLD.md](SYNTAX_GUIDE_SLD.md) - Detailed SLD examples
+- [SYNTAX_GUIDE_MLD.md](SYNTAX_GUIDE_MLD.md) - Detailed MLD examples
 
 ---
 

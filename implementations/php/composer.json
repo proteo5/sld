@@ -1,7 +1,7 @@
 {
     "name": "proteo5/sld",
     "description": "Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder for PHP",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "type": "library",
     "keywords": [
         "sld",
@@ -11,10 +11,10 @@
         "encoder",
         "serialization"
     ],
-    "license": "MIT",
+    "license": "Apache-2.0",
     "authors": [
         {
-            "name": "SLD Project Contributors",
+            "name": "Alfredo Pinto Molina",
             "homepage": "https://github.com/proteo5/sld"
         }
     ],
