@@ -1,10 +1,10 @@
-# Referencia Rápida MLD v1.1
+# Referencia Rápida MLD v2.0
 
 **Multi Line Data - Referencia rápida para desarrolladores**
 
 ---
 
-## Delimitadores (v1.1)
+## Delimitadores (v2.0)
 
 | Símbolo | Propósito | Ejemplo |
 |---------|-----------|---------|
@@ -78,7 +78,8 @@ Funciones aditivas negociadas con `!features{types}`; decodificadores sin soport
 ### Etiquetas de tipo inline
 
 - Coloca `!codigo` inmediatamente antes de `[` o `{`.
-- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
+- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!d` date, `!t` time, `!ts` timestamp.
+- Valores null usan secuencia de escape `^_`.
 
 Ejemplos:
 
@@ -86,7 +87,7 @@ Ejemplos:
 edad!i[42; precio!f[399.90; activo!b[^1; titulo!s[Hola
 ids!i{1~2~3}
 creado!ts[2025-11-18T12:00:00Z
-eliminado!n[    # null tipado (payload vacío)
+eliminado[^_    # null explícito
 ```
 
 ### Registro de metadatos (línea 0)
@@ -463,7 +464,7 @@ wait
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Especificación técnica completa
 - [GUIA_SINTAXIS_MLD.md](GUIA_SINTAXIS_MLD.md) - Ejemplos detallados de sintaxis
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Variante de línea única
-- [MIGRACION.md](MIGRACION.md) - Guía de migración v1.0 a v1.1
+- [MIGRACION.md](MIGRACION.md) - Guía de migración v1.0 a v2.0
 
 ---
 

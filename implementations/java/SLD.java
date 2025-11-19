@@ -3,10 +3,10 @@ package io.github.proteo5.sld;
 import java.util.*;
 
 /**
- * SLD/MLD (Single/Multi Line Data) Format - Java Implementation v1.1
+ * SLD/MLD (Single/Multi Line Data) Format - Java Implementation v2.0
  * A token-efficient data serialization format
- * 
- * Changes in v1.1:
+ *
+ * Changes in v2.0:
  * - Field separator changed from | to ; (semicolon)
  * - Added MLD format support (records separated by newlines)
  * - Array marker changed to { (curly brace)
@@ -122,8 +122,8 @@ public class SLDParser {
                 String boolVal = (Boolean) value ? "^1" : "^0";
                 parts.add(escapedKey + PROPERTY_MARKER + boolVal);
             } else if (value == null) {
-                // Null
-                parts.add(escapedKey + PROPERTY_MARKER);
+                // Null as ^_
+                parts.add(escapedKey + PROPERTY_MARKER + "^_");
             } else {
                 // Regular value
                 String escapedValue = escapeValue(value.toString());
@@ -185,10 +185,16 @@ public class SLDParser {
             // Check for property marker
             if (field.contains(String.valueOf(PROPERTY_MARKER)) && 
                 !field.contains(ESCAPE_CHAR + String.valueOf(PROPERTY_MARKER))) {
-                String[] parts = field.split("\\" + PROPERTY_MARKER, 2);
+                String[] parts = field.split("\\\\" + PROPERTY_MARKER, 2);
                 String key = unescapeValue(parts[0]).toString();
-                Object value = parts.length > 1 ? unescapeValue(parts[1]) : null;
-                record.put(key, value);
+                String value = parts.length > 1 ? unescapeValue(parts[1]).toString() : "";
+                
+                // Handle null (^_)
+                if ("^_".equals(value)) {
+                    record.put(key, null);
+                } else {
+                    record.put(key, value);
+                }
             }
             // Check for array marker
             else if (field.contains(String.valueOf(ARRAY_MARKER)) && 
@@ -267,7 +273,7 @@ public class SLDParser {
 
     // Example usage
     public static void main(String[] args) {
-        System.out.println("=== SLD/MLD Java Implementation v1.1 ===\n");
+        System.out.println("=== SLD/MLD Java Implementation v2.0 ===\n");
 
         // Example 1: Simple records with SLD
         System.out.println("Example 1: Simple user data (SLD)");

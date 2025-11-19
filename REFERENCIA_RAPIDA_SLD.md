@@ -15,7 +15,7 @@
 | `}` | Marcador de array (fin) | `etiquetas{rojo~azul}` |
 | `^` | Carácter de escape | `texto[Hola^; Mundo` |
 
-**⚠️ Cambio importante en v1.1:** El separador de campos cambió de `|` a `;` para mejor compatibilidad con shells.
+**⚠️ Cambio importante en v2.0:** El separador de campos cambió de `|` a `;` para mejor compatibilidad con shells.
 
 ---
 
@@ -83,7 +83,8 @@ Estas funciones son aditivas y se negocian con `!features{types}`; los decodific
 ### Etiquetas de tipo inline
 
 - Coloca `!codigo` inmediatamente antes de `[` o `{`.
-- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
+- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!d` date, `!t` time, `!ts` timestamp.
+- Valores null usan secuencia de escape `^_`.
 
 Ejemplos:
 
@@ -91,7 +92,7 @@ Ejemplos:
 edad!i[42; precio!f[399.90; activo!b[^1; titulo!s[Hola~
 ids!i{1~2~3}
 creado!ts[2025-11-18T12:00:00Z~
-eliminado!n[    # null tipado (payload vacío)
+eliminado[^_    # null explícito
 ```
 
 ### Registro de metadatos (primer registro)
@@ -239,7 +240,7 @@ tr '\n' '~' < datos.mld > datos.sld
 nombre|Alicia|edad|30
 ```
 
-### ✅ Correcto: Usar `;` (delimitador v1.1)
+### ✅ Correcto: Usar `;` (delimitador v2.0)
 
 ```sld
 nombre[Alicia;edad[30~
@@ -349,7 +350,7 @@ Ver [MIGRACION.md](MIGRACION.md) para guía completa.
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Especificación técnica completa
 - [GUIA_SINTAXIS_SLD.md](GUIA_SINTAXIS_SLD.md) - Ejemplos detallados de sintaxis
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Variante multi-línea
-- [MIGRACION.md](MIGRACION.md) - Guía de migración v1.0 a v1.1
+- [MIGRACION.md](MIGRACION.md) - Guía de migración v1.0 a v2.0
 
 ---
 

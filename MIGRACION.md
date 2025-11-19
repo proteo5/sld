@@ -1,6 +1,6 @@
-# Guía de Migración: SLD v1.0 → v1.1
+# Guía de Migración: SLD v1.0 → v2.0
 
-Esta guía te ayuda a migrar de SLD v1.0 (usando delimitador `|`) a v1.1 (usando delimitador `;`) y elegir entre los formatos SLD y MLD.
+Esta guía te ayuda a migrar de SLD v1.0 (usando delimitador `|`) a v2.0 (usando delimitador `;`) y elegir entre los formatos SLD y MLD.
 
 ## Tabla de Contenidos
 
@@ -15,15 +15,15 @@ Esta guía te ayuda a migrar de SLD v1.0 (usando delimitador `|`) a v1.1 (usando
 
 ## Cambios Incompatibles
 
-### ⚠️ v1.1 NO es compatible con v1.0
+### ⚠️ v2.0 NO es compatible con v1.0
 
 **Cambio Principal: Separador de Campos**
 - v1.0: `|` (pipe, U+007C)
-- v1.1: `;` (punto y coma, U+003B)
+- v2.0: `;` (punto y coma, U+003B)
 
 **Secuencias de Escape Actualizadas:**
 - v1.0: `^|` para pipe literal
-- v1.1: `^;` para punto y coma literal
+- v2.0: `^;` para punto y coma literal
 
 **Nuevo Formato Agregado:**
 - MLD (Multi Line Data) con salto de línea como separador de registros
@@ -119,7 +119,7 @@ from sld import decode_sld
 
 try:
     data = decode_sld(tu_cadena_convertida)
-    print("✓ SLD v1.1 válido")
+    print("✓ SLD v2.0 válido")
 except Exception as e:
     print(f"✗ Inválido: {e}")
 ```
@@ -196,7 +196,7 @@ tr '\n' '~' < data.mld > data.sld
 # convert_v10_to_v11.sh
 
 if [ $# -ne 2 ]; then
-  echo "Uso: $0 <entrada_v1.0.sld> <salida_v1.1.sld>"
+  echo "Uso: $0 <entrada_v1.0.sld> <salida_v2.0.sld>"
   exit 1
 fi
 
@@ -224,7 +224,7 @@ import re
 import sys
 
 def convert_v10_to_v11(v10_string):
-    """Convertir SLD v1.0 a formato v1.1."""
+    """Convertir SLD v1.0 a formato v2.0."""
     # Esta es una conversión SIMPLISTA
     # Revisión manual requerida para datos de producción
     
@@ -416,8 +416,8 @@ Ambos son interconvertibles, así que puedes usar ambos en diferentes contextos.
 
 ## Recursos
 
-- [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Especificación completa SLD v1.1
-- [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Especificación completa MLD v1.1  
+- [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Especificación completa SLD v2.0
+- [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Especificación completa MLD v2.0  
 - [REGISTRO_CAMBIOS.md](REGISTRO_CAMBIOS.md) - Historial detallado de versiones
 - [examples/](examples/) - Archivos de ejemplo en ambos formatos
 - [implementations/](implementations/) - Implementaciones de referencia

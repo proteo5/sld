@@ -1,4 +1,4 @@
-# Guía de Sintaxis SLD v1.1
+# Guía de Sintaxis SLD v2.0
 
 **Ejemplos completos y patrones para Single Line Data**
 

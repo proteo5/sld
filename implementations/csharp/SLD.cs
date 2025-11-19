@@ -148,8 +148,8 @@ namespace SLD
                 }
                 else if (value == null)
                 {
-                    // Null value
-                    parts.Add($"{escapedKey}{PROPERTY_MARKER}");
+                    // Null value as ^_
+                    parts.Add($"{escapedKey}{PROPERTY_MARKER}^_");
                 }
                 else
                 {
@@ -219,8 +219,17 @@ namespace SLD
                 {
                     var parts = field.Split(new[] { PROPERTY_MARKER }, 2);
                     string key = UnescapeValue(parts[0]).ToString();
-                    object value = parts.Length > 1 ? UnescapeValue(parts[1]) : null;
-                    record[key] = value;
+                    string value = parts.Length > 1 ? UnescapeValue(parts[1]).ToString() : "";
+                    
+                    // Handle null (^_)
+                    if (value == "^_")
+                    {
+                        record[key] = null;
+                    }
+                    else
+                    {
+                        record[key] = value;
+                    }
                 }
                 // Check for array marker
                 else if (field.Contains(ARRAY_MARKER) && !field.Contains($"{ESCAPE_CHAR}{ARRAY_MARKER}"))
@@ -299,7 +308,7 @@ namespace SLD
     {
         public static void Main(string[] args)
         {
-            Console.WriteLine("=== SLD/MLD C# Implementation v1.1 ===\n");
+            Console.WriteLine("=== SLD/MLD C# Implementation v2.0 ===\n");
 
             // Example 1: Simple records with SLD
             Console.WriteLine("Example 1: Simple user data (SLD)");

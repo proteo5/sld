@@ -1,5 +1,5 @@
 /**
- * Unit tests for SLD/MLD JavaScript Implementation v1.1
+ * Unit tests for SLD/MLD JavaScript Implementation v2.0
  * Run with: node test_sld.js
  */
 

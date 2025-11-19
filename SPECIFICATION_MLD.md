@@ -217,16 +217,18 @@ optional[;required[value
 
 ---
 
-### 4.6 Null (v2.0 optional feature)
+### 4.6 Null
 
-- Canonical null MAY be encoded as the escape sequence `^_` when the `null` feature is negotiated via header metadata (see Header Metadata v2.0).
-- For maximum compatibility with baseline decoders, producers SHOULD prefer the typed-null tag `campo!n[` (empty payload), or omit the field entirely when semantics allow.
+- Null is represented by the escape sequence `^_` (caret underscore).
+- Parsers MUST recognize `^_` as null.
+- Empty values (consecutive delimiters or empty after `[`) are treated as empty strings, NOT null.
 
-Examples:
+Example:
 
 ```
 deleted[^_
-deleted!n[
+optional[^_
+text[]    # empty string, not null
 ```
 
 ---

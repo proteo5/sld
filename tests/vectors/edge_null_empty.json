@@ -2,8 +2,7 @@
   "header": null,
   "records": [
     {
-      "typed_null": null,
-      "legacy_null": null,
+      "null_value": null,
       "empty_string": "",
       "zero": 0,
       "false": false

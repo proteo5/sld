@@ -1,4 +1,4 @@
-# SLD Format Implementations v1.1
+# SLD Format Implementations v2.0
 
 This directory contains reference implementations of the SLD (Single Line Data) and MLD (Multi Line Data) formats in various programming languages.
 

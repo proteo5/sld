@@ -136,8 +136,8 @@ function encodeRecord(record) {
             const boolVal = value ? '^1' : '^0';
             parts.push(`${escapedKey}${PROPERTY_MARKER}${boolVal}`);
         } else if (value === null || value === undefined) {
-            // Null value
-            parts.push(`${escapedKey}${PROPERTY_MARKER}`);
+            // Null value as ^_
+            parts.push(`${escapedKey}${PROPERTY_MARKER}^_`);
         } else {
             // Regular value
             const escapedValue = escapeValue(value);
@@ -196,8 +196,14 @@ function decodeRecord(recordStr) {
         if (field.includes(PROPERTY_MARKER) && !field.includes(ESCAPE_CHAR + PROPERTY_MARKER)) {
             const parts = field.split(PROPERTY_MARKER, 2);
             const key = unescapeValue(parts[0]);
-            const value = parts.length > 1 ? unescapeValue(parts[1]) : null;
-            record[key] = value;
+            const value = parts.length > 1 ? unescapeValue(parts[1]) : '';
+            
+            // Handle null (^_)
+            if (value === '^_') {
+                record[key] = null;
+            } else {
+                record[key] = value;
+            }
         }
         // Check for array marker
         else if (field.includes(ARRAY_MARKER) && !field.includes(ESCAPE_CHAR + ARRAY_MARKER)) {
@@ -292,7 +298,7 @@ if (typeof module !== 'undefined' && module.exports) {
 
 // Example usage
 if (typeof require !== 'undefined' && require.main === module) {
-    console.log('=== SLD/MLD JavaScript Implementation v1.1 ===\n');
+    console.log('=== SLD/MLD JavaScript Implementation v2.0 ===\n');
 
     // Example 1: Simple records with SLD
     console.log('Example 1: Simple user data (SLD)');

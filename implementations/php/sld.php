@@ -135,8 +135,8 @@ namespace SLD;class Parser
                 $boolVal = $value ? '^1' : '^0';
                 $parts[] = $escapedKey . self::PROPERTY_MARKER . $boolVal;
             } elseif ($value === null) {
-                // Null
-                $parts[] = $escapedKey . self::PROPERTY_MARKER;
+                // Null as ^_
+                $parts[] = $escapedKey . self::PROPERTY_MARKER . '^_';
             } else {
                 // Regular value
                 $escapedValue = self::escapeValue($value);
@@ -199,8 +199,14 @@ namespace SLD;class Parser
                 strpos($field, self::ESCAPE_CHAR . self::PROPERTY_MARKER) === false) {
                 $parts = explode(self::PROPERTY_MARKER, $field, 2);
                 $key = self::unescapeValue($parts[0]);
-                $value = isset($parts[1]) ? self::unescapeValue($parts[1]) : null;
-                $record[$key] = $value;
+                $value = isset($parts[1]) ? self::unescapeValue($parts[1]) : '';
+                
+                // Handle null (^_)
+                if ($value === '^_') {
+                    $record[$key] = null;
+                } else {
+                    $record[$key] = $value;
+                }
             }
             // Check for array marker
             elseif (strpos($field, self::ARRAY_MARKER) !== false &&
@@ -280,7 +286,7 @@ namespace SLD;class Parser
 
 // Example usage
 if (php_sapi_name() === 'cli') {
-    echo "=== SLD/MLD PHP Implementation v1.1 ===\n\n";
+    echo "=== SLD/MLD PHP Implementation v2.0 ===\n\n";
 
     // Example 1: Simple records with SLD
     echo "Example 1: Simple user data (SLD)\n";

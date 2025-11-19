@@ -190,8 +190,8 @@ def _encode_record(record: Dict[str, Any]) -> str:
             bool_val = "^1" if value else "^0"
             parts.append(f"{escaped_key}{PROPERTY_MARKER}{bool_val}")
         elif value is None:
-            # Null value
-            parts.append(f"{escaped_key}{PROPERTY_MARKER}")
+            # Null value as ^_
+            parts.append(f"{escaped_key}{PROPERTY_MARKER}^_")
         else:
             # Regular value
             escaped_value = escape_value(str(value))
@@ -278,10 +278,13 @@ def _decode_record(record_str: str) -> Dict[str, Any]:
         if PROPERTY_MARKER in field and not (ESCAPE_CHAR + PROPERTY_MARKER) in field:
             parts = field.split(PROPERTY_MARKER, 1)
             key = unescape_value(parts[0])
-            value = unescape_value(parts[1]) if len(parts) > 1 else None
+            value = unescape_value(parts[1]) if len(parts) > 1 else ""
 
+            # Handle null (^_)
+            if value == "^_":
+                value = None
             # Handle booleans
-            if value == "True":
+            elif value == "True":
                 value = True
             elif value == "False":
                 value = False
@@ -326,7 +329,7 @@ def mld_to_sld(mld_string: str) -> str:
 
 if __name__ == "__main__":
     # Example usage
-    print("=== SLD/MLD Python Implementation v1.1 ===\n")
+    print("=== SLD/MLD Python Implementation v2.0 ===\n")
 
     # Example 1: Simple records with SLD
     print("Example 1: Simple user data (SLD)")

@@ -59,6 +59,7 @@ To include delimiter characters as literal values:
 ^[  → literal [
 ^{  → literal {
 ^}  → literal }
+^_  → null value
 ^^  → literal ^
 ```
 
@@ -90,25 +91,33 @@ price[3999.90;quantity[5;
 active[^1;verified[^0;
 ```
 
-**Null/Empty (v2.0):** Consecutive delimiters
+#### Null Value
 
-```sld
-name;;age;30
-```
-
-(name is null, age is 30)
-
-#### Null Value (v2.0 optional feature)
-
-- Canonical null MAY be encoded as the escape sequence `^_`.
-- Producers MUST only emit `^_` when the peer declares support via the header metadata `!features[null]` (see Header Metadata).
-- For backward compatibility, producers SHOULD prefer `campo!n[` (typed null; see Explicit Types) or empty value when interoperability with baseline decoders is required.
+- Null is represented by the escape sequence `^_` (caret underscore).
+- Parsers MUST recognize `^_` as null.
+- Empty values (consecutive delimiters like `;;` or empty after `[`) are treated as empty strings, NOT null.
 
 Examples:
 
 ```sld
-note[^_      ; # typed as null if feature negotiated
-missing!n[; # backward-compatible typed null (empty payload)
+name[^_;age[30    # name is null, age is 30
+opt[^_;text[];num[0  # opt is null, text is empty string, num is 0
+```
+
+#### Structured Data
+```
+
+#### Null Value
+
+- Null is represented by the escape sequence `^_` (caret underscore).
+- Parsers MUST recognize `^_` as null.
+- Empty values (consecutive delimiters like `;;` or empty after `[`) are treated as empty strings, NOT null.
+
+Examples:
+
+```sld
+name[^_;age[30    # name is null, age is 30
+opt[^_;text[];num[0  # opt is null, text is empty string, num is 0
 ```
 
 #### Structured Data
@@ -386,7 +395,7 @@ This section defines a canonical form for producers. Decoders MUST accept non‑
 - Unicode: Producers SHOULD normalize values to NFC. Decoders MAY accept any normalization.
 - Numbers: Integers without leading `+` or zeros (except zero itself). Floats use `.` as decimal separator and lowercase `e` for scientific notation.
 - Booleans: Always `^1` / `^0`.
-- Null: Prefer `campo!n[` (empty payload) for maximum interoperability; `^_` only when negotiated when types unsupported.
+- Null: Use `^_` for null values; empty values (no chars after `[`) are empty strings.
 
 Canonicalization is a production rule; it does not alter the acceptance criteria of decoders.
 
@@ -477,7 +486,7 @@ Implementations MAY report standardized error codes to improve interoperability:
 - E02: Unterminated array `}` missing
 - E03: Unexpected record terminator
 - E04: Invalid boolean (only `^0` or `^1` allowed)
-- E05: Invalid null (requires `^_` feature or typed-null)
+- E05: Invalid null (only `^_` allowed)
 - E06: Malformed typed key suffix (unknown type code)
 - E07: Exceeded implementation limits (size/fields/nesting)
 - E08: Invalid UTF‑8 sequence
@@ -499,8 +508,8 @@ An implementation is SLD v2.0-compliant if it:
 
 An implementation advertising v2.0 optional feature support SHOULD additionally:
 
-1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` `name!n[` etc.
-2. Recognize `^_` as null when `!features` includes `null`.
+1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` etc.
+2. Recognize `^_` as null.
 3. Respect and/or emit the canonicalization profile.
 4. Parse a metadata header record when present (see next section).
 
@@ -529,13 +538,13 @@ id[1;name[Ana~id[2;name[Carlos
 
 Keys MAY include an optional inline type tag using `!code` immediately before the value marker `[` or `{`:
 
-- `!i` integer, `!f` float, `!b` boolean, `!s` string, `!n` null,
+- `!i` integer, `!f` float, `!b` boolean, `!s` string,
 - `!d` date, `!t` time, `!ts` timestamp (ISO‑8601 strings recommended).
 
 Examples:
 
 ```sld
-age!i[42; price!f[3999.90; active!b[^1; title!s[Hello; removed!n[
+age!i[42; price!f[3999.90; active!b[^1; title!s[Hello; removed[^_
 ```
 
 Unknown type codes MUST NOT cause parse failure; consumers MAY ignore the suffix and treat as string.
@@ -562,7 +571,8 @@ tr '\n' '~' < file.mld | sed 's/~$//' > file.sld
 - **v2.0 (2025-11-18)**:
   - Consolidated v1.1 baseline + v1.2 extensions into unified v2.0
   - Semicolon field separator (`;`), curly brace arrays (`{}`)
-  - Optional features: inline typing, typed null, headers, canonicalization
+  - Null represented as `^_` (not consecutive delimiters)
+  - Optional features: inline typing, headers, canonicalization
   - **BREAKING CHANGE**: Not compatible with v1.0
   
 - v1.0 (2025-11-16): Initial specification (DEPRECATED)

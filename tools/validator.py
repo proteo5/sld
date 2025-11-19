@@ -337,8 +337,10 @@ def _parse_record(record: str) -> Dict[str, Any]:
             if value_text.endswith(']') and not value_text.endswith('^]'):
                 value_text = value_text[:-1]
             if tcode:
-                # typed scalar; handle typed null !n[
+                # typed scalar
                 if tcode == "n":
+                    # Type code 'n' no longer used for null in v2.0 (use ^_ instead)
+                    # Preserve for backward compatibility
                     out[key] = None
                 else:
                     out[key] = _convert_typed(value_text, tcode)

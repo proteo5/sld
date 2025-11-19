@@ -53,7 +53,7 @@ When reporting bugs, please include:
 - **Steps to reproduce** the issue
 - **Expected behavior** vs. **actual behavior**
 - **Sample data** that causes the issue
-- **Version information** (SLD v1.0 or v1.1)
+- **Version information** (SLD v1.0 or v2.0)
 - **Implementation language** (Python, JavaScript, etc.)
 
 ### Suggesting Enhancements

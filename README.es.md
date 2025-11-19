@@ -1,7 +1,7 @@
-# SLD/MLD - Formato de Datos en Línea Simple/Múltiple v1.1
+# SLD/MLD - Formato de Datos en Línea Simple/Múltiple v2.0
 
-[![Licencia: MIT](https://img.shields.io/badge/Licencia-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Versión](https://img.shields.io/badge/versión-1.1.0-blue.svg)](https://github.com/proteo5/sld/releases)
+[![Licencia: Apache 2.0](https://img.shields.io/badge/Licencia-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![Versión](https://img.shields.io/badge/versión-2.0.0-blue.svg)](https://github.com/proteo5/sld/releases)
 
 > El formato de datos más eficiente en tokens que hace llorar a JSON y deja a CSV con sobrepeso. Ahora con formatos duales: **SLD** para transmisión compacta y **MLD** para streaming nativo de Unix.
 

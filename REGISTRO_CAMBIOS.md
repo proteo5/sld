@@ -125,7 +125,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 - **Formato v1.0 usando `|` como separador de campos**
   - SPECIFICATION.md marcado como obsoleto
   - No se proporciona ruta de migración - ruptura limpia
-  - Las implementaciones legacy deberían actualizar a v1.1
+  - Las implementaciones legacy deberían actualizar a v2.0
 
 ### Seguridad
 
@@ -212,7 +212,7 @@ Ambos formatos son interconvertibles sin pérdida de datos.
 
 ## Comparación con Otros Formatos
 
-### Eficiencia de Tokens (v1.1)
+### Eficiencia de Tokens (v2.0)
 
 | Formato | Tokens | Reducción vs JSON |
 |--------|--------|-------------------|
@@ -317,12 +317,12 @@ Si estás usando SLD v1.0, necesitas actualizar:
 3. **Terminación de Arrays:**
    ```
    Antes (v1.0): usuarios{id[1|nombre[Ana~id[2|nombre[Bob~
-   Ahora (v1.1):  usuarios{id[1|nombre[Ana~id[2|nombre[Bob
+   Ahora (v2.0):  usuarios{id[1;nombre[Ana~id[2;nombre[Bob}
                                                         ^
                                                    Sin ~ al final
    ```
 
-**Herramientas de Migración:** Las implementaciones de código v1.1 incluyen compatibilidad con formatos v1.0 para facilitar la transición.
+**Herramientas de Migración:** Las implementaciones de código v2.0 incluyen compatibilidad con formatos v1.0 para facilitar la transición.
 
 ---
 

@@ -27,8 +27,8 @@
 
 - Canonicalization profile (stable ordering, NFC, normalized numbers)
 - Header metadata record with reserved `!` keys and `!features{...}` negotiation
-- Inline type tags before `[` or `{`: `!i !f !b !s !n !d !t !ts` (e.g. `age!i[42`, `ids!i{1~2}`)
-- Canonical typed null `!n[`; legacy alternative `^_` when types not negotiated
+- Inline type tags before `[` or `{`: `!i !f !b !s !d !t !ts` (e.g. `age!i[42`, `ids!i{1~2}`)
+- Null values represented as `^_` escape sequence
 
 See the specifications for normative details.
 
@@ -50,7 +50,7 @@ See the specifications for normative details.
 
 - A minimal validator/inspector is available at `tools/validator.py` supporting:
   - v2.0 parsing (fields `;`, records `~`/`\n`, arrays `{...}` with `~`, escapes `^`)
-  - v2.0 optional features: inline types (`key!i[123` / `ids!i{1~2}`) and typed null (`!n[`)
+  - v2.0 optional features: inline types (`key!i[123` / `ids!i{1~2}`) and null (`^_`)
   - Header detection for reserved `!` keys (e.g., `!v`, `!features{...}`)
 
 Quick run:
@@ -62,7 +62,7 @@ python tools\validator.py tests\vectors\v2_mld.mld --format mld
 
 #### Canonicalizer & Benchmark (experimental)
 
-- Canonical SLD: stable key order, NFC strings, typed scalars, `!n[` null, arrays `{a~b}` without trailing `~`.
+- Canonical SLD: stable key order, NFC strings, typed scalars, `^_` null, arrays `{a~b}` without trailing `~`.
 - Scripts:
   - `tools/canonicalizer.py` → emit canonical SLD/MLD form.
   - `tools/benchmark_tokens.py` → approximate token counts vs JSON.

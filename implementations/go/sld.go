@@ -128,8 +128,8 @@ func EncodeRecord(record map[string]interface{}) string {
 			}
 			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, PropertyMarker, boolVal))
 		case nil:
-			// Null value
-			parts = append(parts, fmt.Sprintf("%s%s", escapedKey, PropertyMarker))
+			// Null value as ^_
+			parts = append(parts, fmt.Sprintf("%s%s^_", escapedKey, PropertyMarker))
 		default:
 			// Regular value
 			escapedValue := EscapeValue(fmt.Sprint(v))
@@ -188,9 +188,15 @@ func DecodeRecord(recordStr string) map[string]interface{} {
 			key := UnescapeValue(parts[0]).(string)
 			var value interface{}
 			if len(parts) > 1 {
-				value = UnescapeValue(parts[1])
+				val := UnescapeValue(parts[1]).(string)
+				// Handle null (^_)
+				if val == "^_" {
+					value = nil
+				} else {
+					value = val
+				}
 			} else {
-				value = nil
+				value = ""
 			}
 			record[key] = value
 		} else if strings.Contains(field, ArrayMarker) && !strings.Contains(field, EscapeChar+ArrayMarker) {
@@ -275,7 +281,7 @@ func MLDToSLD(mldString string) string {
 
 // Example demonstrates SLD/MLD usage
 func Example() {
-	fmt.Println("=== SLD/MLD Go Implementation v1.1 ===\n")
+	fmt.Println("=== SLD/MLD Go Implementation v2.0 ===\n")
 
 	// Example 1: Simple records with SLD
 	fmt.Println("Example 1: Simple user data (SLD)")

@@ -1,5 +1,5 @@
 """
-Unit tests for SLD/MLD Python Implementation v1.1
+Unit tests for SLD/MLD Python Implementation v2.0
 """
 
 import pytest
