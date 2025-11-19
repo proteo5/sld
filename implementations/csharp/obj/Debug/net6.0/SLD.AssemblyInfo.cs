@@ -12,11 +12,11 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("SLD Project")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
-[assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright (c) 2025 SLD Project Contributors")]
+[assembly: System.Reflection.AssemblyCopyrightAttribute("Copyright 2025 Alfredo Pinto Molina")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder for .N" +
     "ET"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.1.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.1.0+b031f3cc446631a2c626c5803cddf086c188a024")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.1.0+d9f8e03ea6bdc8ef2e868a28a78653544b4a96ad")]
 [assembly: System.Reflection.AssemblyProductAttribute("SLD Format Parser")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SLD")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.1.0.0")]

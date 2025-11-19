@@ -1,6 +1,6 @@
 # SLD/MLD - Single/Multi Line Data Format v1.1
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/proteo5/sld/releases)
 
 > SLD (Single Line Data) and MLD (Multi Line Data) are compact, line-oriented data formats designed for efficient serialization, storage, and processing. SLD is optimized for single-line transmission; MLD is optimized for line-by-line streaming and Unix toolchains.
@@ -813,7 +813,9 @@ pylint sld/
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) file for details.
+Apache License 2.0 - see [LICENSE](LICENSE) file for details.
+
+Copyright 2025 Alfredo Pinto Molina
 
 ---
 

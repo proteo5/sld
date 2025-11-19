@@ -9,7 +9,7 @@
     <Company>SLD Project</Company>
     <Product>SLD Format Parser</Product>
     <Description>Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder for .NET</Description>
-    <Copyright>Copyright (c) 2025 SLD Project Contributors</Copyright>
+    <Copyright>Copyright 2025 Alfredo Pinto Molina</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/proteo5/sld</PackageProjectUrl>
     <RepositoryUrl>https://github.com/proteo5/sld</RepositoryUrl>

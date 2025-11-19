@@ -3,7 +3,7 @@
 
 
 Network Working Group                                A. Pinto Molina
-Request for Comments: XXXX                                              
+Request for Comments: XXXX
 Category: Standards Track                                  November 2025
            SLD/MLD: Single-Line and Multi-Line Data Formats
                     for Token-Efficient Serialization
@@ -19,7 +19,13 @@ Status of This Memo
 
 Copyright Notice
 
-   Copyright (C) 2025 Alfredo Pinto Molina.  All Rights Reserved.
+   Copyright 2025 Alfredo Pinto Molina
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
 
 Abstract
 
@@ -869,16 +875,21 @@ Appendix C. Implementation Guidance
 Authors' Addresses
 
    Alfredo Pinto Molina
-   Email: proteo5@github.com
+   GitHub: https://github.com/proteo5
 
 
 Full Copyright Statement
 
-   Copyright (C) 2025 Alfredo Pinto Molina.  All Rights Reserved.
+   Copyright 2025 Alfredo Pinto Molina
 
-   This document and translations of it may be copied and furnished to
-   others, and derivative works that comment on or otherwise explain it
-   or assist in its implementation may be prepared, copied, published
-   and distributed, in whole or in part, without restriction of any
-   kind, provided that the above copyright notice and this paragraph are
-   included on all such copies and derivative works.
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.

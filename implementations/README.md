@@ -151,4 +151,4 @@ To add a new language implementation:
 
 ## License
 
-All implementations are released under the MIT License, same as the main SLD project.
+All implementations are released under the Apache License 2.0, same as the main SLD project.
