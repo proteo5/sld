@@ -759,6 +759,7 @@ Licencia MIT - ver archivo [LICENSE](LICENSE) para detalles.
 
 ## Agradecimientos
 
+- Agradecimiento especial a [@IceSolst](https://x.com/IceSolst), [@travofoz](https://x.com/travofoz) y [@princessakano](https://x.com/princessakano) por dar el empujón necesario para crear este formato.
 - Creado originalmente como una exploración humorística de eficiencia de tokens
 - Creado como sátira y optimización seria
 - Gracias a todos los contribuidores y primeros adoptantes

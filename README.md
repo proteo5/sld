@@ -819,6 +819,7 @@ Copyright 2025 Alfredo Pinto Molina
 
 ## Acknowledgments
 
+- Special thanks to [@IceSolst](https://x.com/IceSolst), [@travofoz](https://x.com/travofoz), and [@princessakano](https://x.com/princessakano) for giving the push needed to create this format.
 - Originally created as a humorous exploration of token efficiency
 - Created as both satire and serious optimization
 - Thanks to all contributors and early adopters
