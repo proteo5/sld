@@ -33,17 +33,18 @@ MLD prioritizes line-based processing and human readability for debugging while 
 2. [Delimiters](#delimiters)
 3. [Escape Mechanism](#escape-mechanism)
 4. [Data Types](#data-types)
-5. [Record Structure](#record-structure)
-6. [Parsing Rules](#parsing-rules)
-7. [Grammar](#grammar)
-8. [Encoding Algorithm](#encoding-algorithm)
-9. [Decoding Algorithm](#decoding-algorithm)
-10. [MLD-SLD Interoperability](#mld-sld-interoperability)
-11. [Performance Characteristics](#performance-characteristics)
-12. [Security Considerations](#security-considerations)
-13. [Conformance](#conformance)
-14. [Version History](#version-history)
-15. [References](#references)
+5. [Header Metadata (Optional)](#header-metadata-optional)
+6. [Record Structure](#record-structure)
+7. [Parsing Rules](#parsing-rules)
+8. [Grammar](#grammar)
+9. [Encoding Algorithm](#encoding-algorithm)
+10. [Decoding Algorithm](#decoding-algorithm)
+11. [MLD-SLD Interoperability](#mld-sld-interoperability)
+12. [Performance Characteristics](#performance-characteristics)
+13. [Security Considerations](#security-considerations)
+14. [Conformance](#conformance)
+15. [Version History](#version-history)
+16. [References](#references)
 
 ---
 
@@ -104,6 +105,35 @@ Unlike SLD's tilde (`~`), MLD uses actual line breaks to separate records. This 
 - Decoders SHOULD accept and normalize Windows-style (`\r\n`) and classic Mac (`\r`) line endings
 - Property values MUST NOT contain literal newlines. Represent line breaks as the two characters `\\n` inside the value if needed.
 
+### 2.3 Document Structure
+
+An MLD document consists of:
+
+1. **Optional Header Record** (metadata) - MUST be first line if present
+2. **Data Records** - One or more lines containing application data
+
+**Structure with Header:**
+```mld
+!v[2.0;!features{types~null}
+id[1;name[Alice
+id[2;name[Bob
+```
+Line 1: Header Metadata  
+Line 2+: Data Records
+
+**Structure without Header:**
+```mld
+id[1;name[Alice
+id[2;name[Bob
+```
+All lines: Data Records Only
+
+**Key Rules:**
+- Header record uses keys prefixed with `!` (reserved namespace)
+- Header MUST be the first line if present
+- Decoders MUST NOT treat header as application data
+- Decoders that don't recognize header keys MAY ignore the header line entirely
+
 ---
 
 ## 3. Escape Mechanism
@@ -122,6 +152,13 @@ The caret character (`^`, U+005E) escapes special characters:
 
 **Note on Newlines:**  
 Since MLD records are line-delimited, embedded newlines MUST NOT appear in property values. Represent line breaks as the literal two-character sequence `\\n` inside the value.
+
+**Important: `!` is NOT a delimiter**
+
+- `!` is a **syntax modifier** for type tags and header keys
+- `!` appears literally in values without escaping: `message[Hello! World`
+- `!` only has structural meaning when attached to a key: `age!i[42` or `!v[2.0`
+- Parsers ignore `!` inside values
 
 ### 3.2 Escape Processing
 
@@ -200,6 +237,147 @@ tags{red~green~blue}
 scores{85~92~78~95}
 ```
 
+### 4.5 Null
+
+Null has two representations depending on whether inline types are used:
+
+1. **Untyped null**: `^_` (caret underscore) - use when NOT using inline types
+2. **Typed null**: `!n[` (empty payload with type tag) - use when using inline types for consistency
+
+---
+
+## 5. Header Metadata (Optional)
+
+### 5.1 Purpose
+
+Header metadata provides document-level information without mixing it with application data. This enables:
+
+- **Version declaration** - Parsers can validate compatibility
+- **Schema identification** - Consumers can validate structure
+- **Feature signaling** - Producers declare which optional features are used
+- **Provenance tracking** - Timestamp and source information
+
+### 5.2 Syntax
+
+The header is a **special first line** with reserved keys prefixed by `!`:
+
+```mld
+!v[<version>;!schema[<uri>;!ts[<timestamp>;!features{<feature>~<feature>}
+```
+
+**Critical Rules:**
+
+1. Header MUST be the **first line** if present
+2. Header keys MUST start with `!` character
+3. Application data keys MUST NOT start with `!`
+4. Header line uses same syntax as data records (`;` separators, `[` markers)
+
+### 5.3 Reserved Header Keys
+
+| Key | Type | Purpose | Example |
+|-----|------|---------|--------|
+| `!v` | string | Format version | `!v[2.0` |
+| `!schema` | string | Schema/contract URI | `!schema[urn:example:users:v1` |
+| `!ts` | string | ISO-8601 timestamp | `!ts[2025-11-19T10:30:00Z` |
+| `!source` | string | Data origin | `!source[database-export` |
+| `!features` | array | Enabled optional features | `!features{types~null~canon}` |
+
+### 5.4 Feature Tokens
+
+The `!features` array declares which optional v2.0 features are active:
+
+- `types` - Inline type tags are used (`name!i[42`)
+- `null` - Typed null (`!n[`) is used instead of `^_`
+- `canon` - Data follows canonicalization profile
+
+**Examples:**
+
+```mld
+!features{types}
+!features{types~null}
+!features{canon}
+!features{}
+```
+
+### 5.5 Complete Examples
+
+**Minimal Header:**
+```mld
+!v[2.0
+id[1;name[Alice
+id[2;name[Bob
+```
+
+**Full Header with Features:**
+```mld
+!v[2.0;!schema[urn:example:schema:v1;!ts[2025-11-19T12:00:00Z;!features{types~null~canon}
+id!i[1;name!s[Alice;age!i[30
+id!i[2;name!s[Bob;age!i[25
+```
+
+**Header with Empty Features:**
+```mld
+!v[2.0;!features{}
+id[1;name[Alice
+id[2;name[Bob
+```
+
+### 5.6 Parsing Strategy
+
+**Step 1: Read first line**
+```python
+lines = mld_string.split('\n')
+first_line = lines[0]
+```
+
+**Step 2: Check if first line is header**
+```python
+first_fields = split_unescaped(first_line, ";")
+first_key = first_fields[0].split("[")[0]
+
+if first_key.startswith("!"):
+    # This is a header line
+    header = parse_record(first_line)
+    data_lines = lines[1:]  # Skip header
+else:
+    # No header present
+    header = None
+    data_lines = lines
+```
+
+**Step 3: Process header metadata**
+```python
+if header:
+    version = header.get("!v", "2.0")
+    features = header.get("!features", [])
+    schema = header.get("!schema")
+    
+    # Validate version compatibility
+    if not is_compatible(version):
+        raise VersionError(f"Unsupported version: {version}")
+```
+
+### 5.7 Backward Compatibility
+
+Decoders that don't recognize header metadata will:
+
+1. Parse header as a regular data record
+2. See keys like `!v`, `!features` as application fields
+3. Application code can filter out `!`-prefixed keys
+
+**This is acceptable** because the header is namespaced with `!`.
+
+### 5.8 Error Handling
+
+Implementations SHOULD validate:
+
+- Header appears only as first line
+- Header keys start with `!`
+- `!features` contains only known tokens
+- `!v` follows semantic versioning
+
+Error code for malformed headers: **E09**
+
 **Nested Structures:**  
 Arrays of scalars and arrays of objects are supported. Records remain line-delimited; `}`, not newline, closes arrays.
 
@@ -242,7 +420,7 @@ name!s[Alice;age!i[30;removed!n[
 
 ---
 
-## 5. Record Structure
+## 6. Record Structure
 
 ### 5.1 Record Definition
 
@@ -286,9 +464,9 @@ id[3;name[Charlie;age[35
 
 ---
 
-## 6. Parsing Rules
+## 7. Parsing Rules
 
-### 6.1 Tokenization
+### 7.1 Tokenization
 
 **State Machine:**
 1. **RECORD_START:** Beginning of a new record
@@ -352,7 +530,7 @@ items{item^~with^~tilde~normal item}
 
 ---
 
-## 7. Grammar
+## 8. Grammar
 
 ### 7.1 EBNF Specification
 
@@ -499,7 +677,7 @@ id[42;name[Alice^; Smith;active[^1;tags{admin~user};note[
 
 ---
 
-## 9. Decoding Algorithm
+## 10. Decoding Algorithm
 
 ### 9.1 High-Level Decoding Process
 
@@ -635,7 +813,7 @@ id[2;name[Bob^; Jr.;age[25;active[^0
 
 ---
 
-## 10. MLD-SLD Interoperability
+## 11. MLD-SLD Interoperability
 
 ### 10.1 Conversion Between Formats
 
@@ -676,7 +854,7 @@ Conversion assumes no literal newlines within property values in MLD, or they ar
 
 ---
 
-## 11. Performance Characteristics
+## 12. Performance Characteristics
 
 ### 11.1 Token Efficiency
 
@@ -729,7 +907,7 @@ MLD can process unlimited records with fixed memory by reading line-by-line.
 
 ---
 
-## 12. Security Considerations
+## 13. Security Considerations
 
 ### 12.1 Injection Attacks
 
@@ -780,7 +958,7 @@ description[First line\nsecond line
 
 ---
 
-## 13. Conformance
+## 14. Conformance
 
 ### 13.1 Conformance Levels
 
@@ -800,6 +978,13 @@ description[First line\nsecond line
 
 **Level 4: Full Encoder**
 - MUST generate valid MLD from objects
+- MUST escape all special characters
+- MUST emit Unix line endings
+
+**Level 5: v2.0 Compliant**
+- MUST support all Level 1-4 requirements
+- MUST correctly identify and separate header metadata from data records
+- MUST NOT treat header record as application data
 - MUST properly escape all special characters
 - SHOULD generate minimal escaping (only where needed)
 
@@ -814,7 +999,7 @@ Conforming implementations SHOULD pass the official MLD test suite:
 
 ---
 
-## 14. Version History
+## 15. Version History
 
 ### Version 2.0 (November 2025) - **CURRENT**
 
@@ -838,7 +1023,7 @@ tr '~' '\n' < data.sld > data.mld
 
 ---
 
-## 15. References
+## 16. References
 
 ### 15.1 Normative References
 

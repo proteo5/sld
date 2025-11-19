@@ -21,7 +21,6 @@
 - **[MLD Syntax Guide](SYNTAX_GUIDE_MLD.md)** - Detailed MLD examples with streaming
 - **[Changelog](CHANGELOG.md)** - Version history and breaking changes
 - **[Migration Guide](MIGRATION.md)** - v1.0 → v2.0 upgrade guide
-  - [SPECIFICATION.md](SPECIFICATION.md) - Deprecated v1.0 specification
 
 ### v2.0 Optional Features
 

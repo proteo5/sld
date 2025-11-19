@@ -23,6 +23,33 @@ SLD addresses these inefficiencies by design, achieving **78% token reduction** 
 
 **SLD data MUST be represented as a single continuous line of text with NO line breaks** (`\n`, `\r\n`, or `\r`).
 
+### Document Structure
+
+An SLD document consists of:
+
+1. **Optional Header Record** (metadata) - MUST be first record if present
+2. **Data Records** - One or more records containing application data
+
+**Structure with Header:**
+```sld
+!v[2.0;!features{types~null}~id[1;name[Alice~id[2;name[Bob
+└─────────────────────────┘ └────────────────────────────┘
+   Header Metadata              Data Records
+```
+
+**Structure without Header:**
+```sld
+id[1;name[Alice~id[2;name[Bob
+└────────────────────────────┘
+      Data Records Only
+```
+
+**Key Rules:**
+- Header record uses keys prefixed with `!` (reserved namespace)
+- Header MUST be terminated with `~` to separate it from data records
+- Decoders MUST NOT treat header as application data
+- Decoders that don't recognize header keys MAY ignore the header record entirely
+
 ### Delimiter Characters
 
 | Character | Unicode | Purpose | Priority |
@@ -69,6 +96,13 @@ To include delimiter characters as literal values:
 - Only the five delimiter characters require escaping
 - All other characters are used literally
 
+**Important: `!` is NOT a delimiter**
+
+- `!` is a **syntax modifier** for type tags and header keys
+- `!` appears literally in values without escaping: `message[Hello! World`
+- `!` only has structural meaning when attached to a key: `age!i[42` or `!v[2.0`
+- Parsers ignore `!` inside values
+
 ### Data Types
 
 #### Primitive Values
@@ -97,6 +131,132 @@ Null has two representations depending on whether inline types are used:
 
 1. **Untyped null**: `^_` (caret underscore) - use when NOT using inline types
 2. **Typed null**: `!n[` (empty payload with type tag) - use when using inline types for consistency
+
+## Header Metadata (Optional)
+
+### Purpose
+
+Header metadata provides document-level information without mixing it with application data. This enables:
+
+- **Version declaration** - Parsers can validate compatibility
+- **Schema identification** - Consumers can validate structure
+- **Feature signaling** - Producers declare which optional features are used
+- **Provenance tracking** - Timestamp and source information
+
+### Syntax
+
+The header is a **special first record** with reserved keys prefixed by `!`:
+
+```sld
+!v[<version>;!schema[<uri>;!ts[<timestamp>;!features{<feature>~<feature>}~<data_records>
+```
+
+**Critical Rules:**
+
+1. Header MUST be the **first record** if present
+2. Header keys MUST start with `!` character
+3. Header MUST end with `~` to separate from data
+4. Application data keys MUST NOT start with `!`
+
+### Reserved Header Keys
+
+| Key | Type | Purpose | Example |
+|-----|------|---------|--------|
+| `!v` | string | Format version | `!v[2.0` |
+| `!schema` | string | Schema/contract URI | `!schema[urn:example:users:v1` |
+| `!ts` | string | ISO-8601 timestamp | `!ts[2025-11-19T10:30:00Z` |
+| `!source` | string | Data origin | `!source[database-export` |
+| `!features` | array | Enabled optional features | `!features{types~null~canon}` |
+
+### Feature Tokens
+
+The `!features` array declares which optional v2.0 features are active:
+
+- `types` - Inline type tags are used (`name!i[42`)
+- `null` - Typed null (`!n[`) is used instead of `^_`
+- `canon` - Data follows canonicalization profile
+
+**Examples:**
+
+```sld
+!features{types}~          # Only inline types enabled
+!features{types~null}~     # Types + typed null
+!features{canon}~          # Canonical form only
+!features{}~               # No optional features
+```
+
+### Complete Examples
+
+**Minimal Header:**
+```sld
+!v[2.0~id[1;name[Alice~id[2;name[Bob
+```
+
+**Full Header with Features:**
+```sld
+!v[2.0;!schema[urn:example:schema:v1;!ts[2025-11-19T12:00:00Z;!features{types~null~canon}~
+id!i[1;name!s[Alice;age!i[30~id!i[2;name!s[Bob;age!i[25
+```
+
+**Header with Empty Features:**
+```sld
+!v[2.0;!features{}~id[1;name[Alice~id[2;name[Bob
+```
+
+### Parsing Strategy
+
+**Step 1: Split by record separator**
+```python
+records = split_unescaped(sld_string, "~")
+```
+
+**Step 2: Check if first record is header**
+```python
+first_record_fields = split_unescaped(records[0], ";")
+first_key = first_record_fields[0].split("[")[0]
+
+if first_key.startswith("!"):
+    # This is a header record
+    header = parse_record(records[0])
+    data_records = records[1:]  # Skip header
+else:
+    # No header present
+    header = None
+    data_records = records
+```
+
+**Step 3: Process header metadata**
+```python
+if header:
+    version = header.get("!v", "2.0")
+    features = header.get("!features", [])
+    schema = header.get("!schema")
+    
+    # Validate version compatibility
+    if not is_compatible(version):
+        raise VersionError(f"Unsupported version: {version}")
+```
+
+### Backward Compatibility
+
+Decoders that don't recognize header metadata will:
+
+1. Parse header as a regular data record
+2. See keys like `!v`, `!features` as application fields
+3. Application code can filter out `!`-prefixed keys
+
+**This is acceptable** because the header is namespaced with `!`.
+
+### Error Handling
+
+Implementations SHOULD validate:
+
+- Header appears only as first record
+- Header keys start with `!`
+- `!features` contains only known tokens
+- `!v` follows semantic versioning
+
+Error code for malformed headers: **E09**
 
 Parsers MUST recognize both forms.
 
@@ -498,6 +658,8 @@ An implementation is SLD v2.0-compliant if it:
 4. Produces single-line output
 5. Preserves data integrity through encode/decode cycles
 6. Uses `;` as field separator (not `|`)
+7. Correctly identifies and separates header metadata from data records
+8. Does NOT treat header record as application data
 
 ### v2.0 Optional Features
 
@@ -506,28 +668,8 @@ An implementation advertising v2.0 optional feature support SHOULD additionally:
 1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` `name!n[` etc.
 2. Recognize `^_` as untyped null and `!n[` as typed null.
 3. Respect and/or emit the canonicalization profile.
-4. Parse a metadata header record when present (see next section).
-
-## Header Metadata (v2.0)
-
-Producers MAY include a leading metadata record using reserved keys prefixed with `!`. Decoders that do not recognize these keys will treat them as ordinary fields and MAY ignore them.
-
-Placement:
-- SLD: The metadata record appears as the first record (before application data).
-
-Reserved keys:
-- `!v[1.2]` – Declared format minor version.
-- `!schema[<uri>]` – Schema or contract identifier.
-- `!ts[<iso-8601>]` – Timestamp of production.
-- `!source[<text>]` – Origin of the data.
-- `!features{types~null~canon}` – Enabled optional features (array of tokens).
-
-Example (SLD):
-
-```sld
-!v[1.2;!schema[urn:example:schema:v1;!ts[2025-11-18T12:00:00Z;!features{types~null~canon}~
-id[1;name[Ana~id[2;name[Carlos
-```
+4. Parse and optionally emit header metadata (see Header Metadata section above).
+5. Validate `!features` array against actual usage in data records.
 
 ### Explicit Types (v2.0)
 

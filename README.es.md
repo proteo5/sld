@@ -19,9 +19,8 @@
 - ⚡ **[Referencia Rápida MLD](REFERENCIA_RAPIDA_MLD.md)** - Guía de consulta rápida para MLD con herramientas Unix
 - 🔄 **[Registro de Cambios](REGISTRO_CAMBIOS.md)** - Historial de versiones y cambios importantes
 - 🔀 **[Guía de Migración](MIGRACION.md)** - Guía de actualización v1.0 → v2.0
-- ⚠️ **[SPECIFICATION.md](SPECIFICATION.md)** - Especificación v1.0 OBSOLETA
 
-### Documentación en Otros Idiomas
+### Características Opcionales v2.0
 
 - 🇬🇧 **[README in English](README.md)** - Documentación completa en inglés
 - 🇬🇧 **[SLD Quick Reference](QUICK_REFERENCE_SLD.md)** - Referencia rápida SLD en inglés
