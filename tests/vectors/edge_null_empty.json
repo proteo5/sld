@@ -1,0 +1,12 @@
+{
+  "header": null,
+  "records": [
+    {
+      "typed_null": null,
+      "legacy_null": null,
+      "empty_string": "",
+      "zero": 0,
+      "false": false
+    }
+  ]
+}

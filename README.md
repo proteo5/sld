@@ -96,6 +96,27 @@ python tools\convert.py --from mld --to sld tests\vectors\v11_mld.mld
 python tools\convert.py --from json --to sld data.json -o output.sld
 ```
 
+#### Test Suite (comprehensive)
+
+- **11 test vectors** covering v1.1 baseline, v1.2 extensions, and edge cases:
+  - Basic: simple records, booleans, arrays
+  - Edge cases: nested escapes, empty arrays, null variants, scientific notation, Unicode/NFC, many fields
+  - Format variants: SLD and MLD
+- **Auto-discovery runner**: `tests/run_tests.py` finds all `*.sld`/`*.mld` with matching `*.json` expected output
+- **Performance benchmark**: `tests/benchmark_perf.py` measures parse/serialize speed vs JSON
+
+Quick run:
+
+```powershell
+# Run all conformance tests
+python tests\run_tests.py
+
+# Performance benchmark
+python tests\benchmark_perf.py
+```
+
+**Current coverage**: 11 test vectors (v1.1 + v1.2-draft features)
+
 ---
 
 ## What is SLD/MLD?

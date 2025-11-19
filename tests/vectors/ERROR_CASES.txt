@@ -1,0 +1,30 @@
+# Malformed SLD test cases - expected to fail parsing
+# Format: filename.sld | expected_error_code | description
+
+# E01: Syntax error - unescaped delimiter in value
+error_unescaped_semicolon.sld
+name[John;Smith~
+
+# E02: Invalid escape sequence
+error_bad_escape.sld
+text[invalid^x~
+
+# E03: Unclosed array
+error_unclosed_array.sld
+tags{a~b~c~
+
+# E04: Mismatched brackets
+error_mismatched.sld
+data[value}~
+
+# E05: Invalid type code
+error_invalid_type.sld
+age!z[30~
+
+# E06: Empty key
+error_empty_key.sld
+[value~
+
+# E07: Duplicate keys (warning in some modes)
+error_duplicate_keys.sld
+id[1;id[2~
