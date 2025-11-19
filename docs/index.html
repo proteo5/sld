@@ -310,6 +310,182 @@
         </div>
     </section>
 
+        <section id="translator" class="section-padding">
+                <div class="container">
+                        <h2>Interactive Translator (JSON ↔ SLD / MLD)</h2>
+                        <p style="color: var(--text-muted); max-width:720px;">Convert between JSON and SLD/MLD directly in your browser. This demo supports core v2.0 features: fields, arrays, booleans (^1/^0), null (^_), and escapes. Advanced inline types and headers are omitted for simplicity.</p>
+                        <div style="display:grid; gap:2rem; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); align-items:start;">
+                                <div>
+                                        <h3 style="margin-top:0">JSON Input</h3>
+                                        <textarea id="jsonInput" placeholder='[{"name":"Alice","age":30,"tags":["admin","user"],"verified":true}]' style="width:100%; height:180px; padding:12px; font-family:monospace; border:1px solid var(--border); border-radius:6px; resize:vertical;"></textarea>
+                                        <div style="margin-top:0.75rem; display:flex; flex-wrap:wrap; gap:10px;">
+                                                <button id="toSLD" class="btn btn-primary" type="button">JSON → SLD</button>
+                                                <button id="toMLD" class="btn btn-secondary" type="button">JSON → MLD</button>
+                                                <button id="prettyJSON" class="btn btn-secondary" type="button">Format JSON</button>
+                                        </div>
+                                </div>
+                                <div>
+                                        <h3 style="margin-top:0">SLD / MLD Input</h3>
+                                        <textarea id="sldInput" placeholder='name[Alice;age[30;tags{admin~user};verified[^1' style="width:100%; height:180px; padding:12px; font-family:monospace; border:1px solid var(--border); border-radius:6px; resize:vertical;"></textarea>
+                                        <div style="margin-top:0.75rem; display:flex; flex-wrap:wrap; gap:10px;">
+                                                <button id="toJSON" class="btn btn-primary" type="button">SLD/MLD → JSON</button>
+                                                <button id="detectFormat" class="btn btn-secondary" type="button">Detect Format</button>
+                                                <button id="clearAll" class="btn btn-secondary" type="button">Clear</button>
+                                        </div>
+                                </div>
+                                <div>
+                                        <h3 style="margin-top:0">Result</h3>
+                                        <textarea id="resultOutput" readonly style="width:100%; height:180px; padding:12px; font-family:monospace; border:1px solid var(--border); border-radius:6px; background:#f3f4f6; resize:vertical;" placeholder="Output will appear here..."></textarea>
+                                        <div style="margin-top:0.75rem; display:flex; gap:10px; flex-wrap:wrap;">
+                                                <button id="copyResult" class="btn btn-secondary" type="button">Copy Result</button>
+                                                <button id="asMLD" class="btn btn-secondary" type="button">SLD → MLD (lines)</button>
+                                                <button id="asSLD" class="btn btn-secondary" type="button">MLD → SLD (tilde)</button>
+                                        </div>
+                                        <p id="status" style="font-size:0.85rem; color: var(--text-muted); margin-top:0.75rem;">Ready.</p>
+                                </div>
+                        </div>
+                        <details style="margin-top:2rem;">
+                                <summary style="cursor:pointer; font-weight:600;">Implementation Notes (click to expand)</summary>
+                                <div style="margin-top:1rem; font-size:0.9rem; color:var(--text-muted); line-height:1.4;">
+                                        <p>The encoder walks object keys and emits <code>key[value</code> pairs separated by <code>;</code>. Arrays produce <code>key{item~item}</code>. Booleans become <code>^1</code>/<code>^0</code>; <code>null</code> becomes <code>^_</code>. Special characters <code>; ~ [ { } ^</code> inside values are escaped with a caret.</p>
+                                        <p>The decoder splits on record separators (<code>~</code> for SLD, <code>\n</code> for MLD), then fields by <code>;</code> (ignoring empty tail). Each field is parsed as either property (<code>name[Alice</code>) or array (<code>tags{admin~user}</code>). Escapes are resolved by scanning values for caret-prefixed tokens.</p>
+                                        <p>This demo is intentionally minimal—no canonicalization, inline type tags, headers, or nested objects. Treat it as an educational preview, not a production parser.</p>
+                                </div>
+                        </details>
+                        <script>
+                        (function(){
+                            const jsonInput = document.getElementById('jsonInput');
+                            const sldInput = document.getElementById('sldInput');
+                            const resultOutput = document.getElementById('resultOutput');
+                            const statusEl = document.getElementById('status');
+                            function escapeValue(str){
+                                return String(str).replace(/[;~\[{\}^]/g, ch => '^' + ch);
+                            }
+                            function encodeRecord(obj){
+                                const parts = [];
+                                for(const k of Object.keys(obj)){
+                                    const v = obj[k];
+                                    if(v === null){ parts.push(k + '[^_'); continue; }
+                                    if(Array.isArray(v)){
+                                        const items = v.map(x => escapeValue(x)).join('~');
+                                        parts.push(k + '{' + items + '}');
+                                        continue;
+                                    }
+                                    switch(typeof v){
+                                        case 'boolean': parts.push(k + '[' + (v ? '^1' : '^0')); break;
+                                        default: parts.push(k + '[' + escapeValue(v));
+                                    }
+                                }
+                                return parts.join(';');
+                            }
+                            function encodeSLD(arr){
+                                return arr.map(encodeRecord).join('~');
+                            }
+                            function encodeMLD(arr){
+                                return arr.map(encodeRecord).join('\n');
+                            }
+                            function unescapeValue(str){
+                                return str.replace(/\^(;|~|\[|\{|\}|\^)/g, (_, c) => c)
+                                                     .replace(/^\^1$/, 'true')
+                                                     .replace(/^\^0$/, 'false')
+                                                     .replace(/^\^_$/, 'null');
+                            }
+                            function parseValue(raw){
+                                if(raw === '^1') return true;
+                                if(raw === '^0') return false;
+                                if(raw === '^_') return null;
+                                return unescapeValue(raw);
+                            }
+                            function decodeRecords(str){
+                                const isMLD = str.includes('\n') && !str.includes('~');
+                                const recSep = isMLD ? /\n/ : /~/;
+                                const records = str.split(recSep).filter(r => r.trim().length);
+                                return records.map(r => {
+                                    const obj = {};
+                                    const fields = r.split(';').filter(f => f.trim().length);
+                                    for(const f of fields){
+                                        const braceIdx = f.indexOf('{');
+                                        const bracketIdx = f.indexOf('[');
+                                        if(braceIdx !== -1){
+                                            const key = f.slice(0, braceIdx);
+                                            const inner = f.slice(braceIdx + 1, f.lastIndexOf('}'));
+                                            const items = inner.length ? inner.split('~').map(parseValue) : [];
+                                            obj[key] = items;
+                                        } else if(bracketIdx !== -1){
+                                            const key = f.slice(0, bracketIdx);
+                                            const val = f.slice(bracketIdx + 1);
+                                            obj[key] = parseValue(val);
+                                        }
+                                    }
+                                    return obj;
+                                });
+                            }
+                            function safeParseJSON(text){
+                                try { return JSON.parse(text); } catch(e){ throw new Error('Invalid JSON: ' + e.message); }
+                            }
+                            function setStatus(msg, ok=true){
+                                statusEl.textContent = msg;
+                                statusEl.style.color = ok ? 'var(--text-muted)' : '#b91c1c';
+                            }
+                            document.getElementById('toSLD').onclick = () => {
+                                try {
+                                    const data = safeParseJSON(jsonInput.value || '[]');
+                                    if(!Array.isArray(data)) throw new Error('Root must be an array of objects');
+                                    const out = encodeSLD(data);
+                                    resultOutput.value = out;
+                                    setStatus('Encoded ' + data.length + ' record(s) to SLD');
+                                } catch(e){ setStatus(e.message,false); }
+                            };
+                            document.getElementById('toMLD').onclick = () => {
+                                try {
+                                    const data = safeParseJSON(jsonInput.value || '[]');
+                                    if(!Array.isArray(data)) throw new Error('Root must be an array of objects');
+                                    const out = encodeMLD(data);
+                                    resultOutput.value = out;
+                                    setStatus('Encoded ' + data.length + ' record(s) to MLD');
+                                } catch(e){ setStatus(e.message,false); }
+                            };
+                            document.getElementById('prettyJSON').onclick = () => {
+                                try { jsonInput.value = JSON.stringify(safeParseJSON(jsonInput.value || '[]'), null, 2); setStatus('JSON formatted'); } catch(e){ setStatus(e.message,false); }
+                            };
+                            document.getElementById('toJSON').onclick = () => {
+                                try {
+                                    const records = decodeRecords(sldInput.value);
+                                    resultOutput.value = JSON.stringify(records, null, 2);
+                                    setStatus('Decoded ' + records.length + ' record(s) to JSON');
+                                } catch(e){ setStatus(e.message,false); }
+                            };
+                            document.getElementById('detectFormat').onclick = () => {
+                                const v = sldInput.value;
+                                if(!v.trim()) return setStatus('No input provided');
+                                const fmt = (v.includes('\n') && !v.includes('~')) ? 'MLD' : 'SLD';
+                                setStatus('Detected: ' + fmt);
+                            };
+                            document.getElementById('clearAll').onclick = () => {
+                                jsonInput.value = '';
+                                sldInput.value = '';
+                                resultOutput.value = '';
+                                setStatus('Cleared');
+                            };
+                            document.getElementById('copyResult').onclick = () => {
+                                if(!resultOutput.value) return setStatus('Nothing to copy', false);
+                                navigator.clipboard.writeText(resultOutput.value).then(()=> setStatus('Copied to clipboard')).catch(e=> setStatus('Copy failed: ' + e.message,false));
+                            };
+                            document.getElementById('asMLD').onclick = () => {
+                                if(!resultOutput.value) return setStatus('No SLD to convert', false);
+                                resultOutput.value = resultOutput.value.replace(/~/g,'\n');
+                                setStatus('Converted tilde separators to newline (MLD view)');
+                            };
+                            document.getElementById('asSLD').onclick = () => {
+                                if(!resultOutput.value) return setStatus('No MLD to convert', false);
+                                resultOutput.value = resultOutput.value.replace(/\n/g,'~');
+                                setStatus('Converted newline separators to tilde (SLD view)');
+                            };
+                        })();
+                        </script>
+                </div>
+        </section>
+
     <section class="section-padding">
         <div class="container">
             <h2>Key Features</h2>
