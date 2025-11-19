@@ -71,6 +71,30 @@ scores{85~92~78}
 ```
 
 ---
+## v1.2 Optional Extensions (inline types and typed null)
+
+These features are additive and negotiated via a metadata header (`!features{types}`); decoders without support may ignore type hints.
+
+### Inline Type Tags
+
+- Place `!code` immediately before `[` or `{`.
+- Codes: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
+
+Examples:
+
+```
+age!i[42; price!f[399.90; active!b[^1; title!s[Hello
+ids!i{1~2~3}
+created!ts[2025-11-18T12:00:00Z
+removed!n[    # typed null (empty payload)
+```
+
+### Header Metadata (line 0)
+
+```
+!v[1.2;!features{types~canon}
+id!i[1;name!s[Ana
+```
 
 ## Basic Examples
 

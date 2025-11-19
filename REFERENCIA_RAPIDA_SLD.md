@@ -76,6 +76,30 @@ puntuaciones{85~92~78}
 ```
 
 ---
+## Extensiones v1.2 (etiquetas de tipo y null tipado)
+
+Estas funciones son aditivas y se negocian con `!features{types}`; los decodificadores sin soporte pueden ignorarlas.
+
+### Etiquetas de tipo inline
+
+- Coloca `!codigo` inmediatamente antes de `[` o `{`.
+- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
+
+Ejemplos:
+
+```sld
+edad!i[42; precio!f[399.90; activo!b[^1; titulo!s[Hola~
+ids!i{1~2~3}
+creado!ts[2025-11-18T12:00:00Z~
+eliminado!n[    # null tipado (payload vacío)
+```
+
+### Registro de metadatos (primer registro)
+
+```sld
+!v[1.2;!features{types~canon}~
+id!i[1;nombre!s[Ana~
+```
 
 ## Ejemplos Básicos
 
