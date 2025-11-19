@@ -1,11 +1,12 @@
 # SLD Format Specification v1.0
 
-> ⚠️ **DEPRECATED**: This specification is outdated. Please use [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) for SLD v1.1 or [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) for MLD v1.1.
+> ⚠️ **DEPRECATED**: This specification is outdated. Please use [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) for SLD v2.0 or [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) for MLD v2.0.
 >
-> **Key changes in v1.1:**
-> - Field separator changed from `|` to `;` for better shell compatibility
-> - New MLD format introduced with newline-separated records
-> - See [CHANGELOG.md](CHANGELOG.md) for full details
+> **Key changes in v2.0:**
+> - Field separator: `|` → `;`
+> - Array marker: `<` → `{` with explicit close `}`
+> - Boolean: `true`/`false` → `^1`/`^0`
+> - Optional features: inline types, typed null, headers
 
 ## Abstract
 

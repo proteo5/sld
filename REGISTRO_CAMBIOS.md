@@ -1,17 +1,24 @@
 # Registro de Cambios
-## [1.2.0] - 2025-11-18
 
-### Agregado
+## [2.0.0] - 2025-11-18
 
-- Perfil de canonicalización: orden estable de campos, arrays sin `~` final, normalización NFC, formato numérico normalizado.
-- Registro de metadatos (claves reservadas con `!`): `!v`, `!schema`, `!ts`, `!source`, `!features{...}`.
-- Tipos explícitos opcionales con etiqueta inline `!i !f !b !s !n !d !t !ts` antes del valor.
-- Token de null opcional `^_` (compatibilidad legacy) y null tipado canónico `!n[`.
-- Tabla de códigos de error E01–E10 para decodificadores.
+### Consolidación v2.0
+
+Esta versión consolida v1.1 (línea base) y v1.2 (extensiones) en una especificación unificada v2.0.
+
+**Características principales v2.0:**
+- **Core obligatorio**: Separador `;`, arrays `{...}`, escapes `^`, booleanos `^1`/`^0`
+- **Características opcionales v2.0**:
+  - Tipos inline: `!i !f !b !s !n !d !t !ts`
+  - Null tipado: `!n[` (preferido) o `^_` (legacy con negociación)
+  - Metadatos de encabezado: `!v !features !ts !source !schema`
+  - Perfil de canonicalización: orden estable, arrays sin `~` final, normalización NFC
 
 ### Compatibilidad
 
-- Cambios aditivos y compatibles hacia atrás cuando los productores negocian mediante `!features`. Los decodificadores v1.1 pueden ignorar claves `!` y etiquetas de tipo inline desconocidas. Los productores DEBEN evitar `^_` salvo que la contraparte anuncie soporte; preferir `!n[` cuando la característica `types` esté habilitada.
+- **CAMBIO INCOMPATIBLE**: No compatible con v1.0 (separador `|` → `;`)
+- Decodificadores v2.0 básicos pueden ignorar características opcionales
+- Productores DEBEN negociar características vía `!features{...}` antes de usar extensiones
 
 ---
 
@@ -22,7 +29,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/lang/es/).
 
 ---
 
-## [1.1] - 2025-11-16
+## [Histórico v1.1] - 2025-11-16
 
 ### Cambiado
 - **Sintaxis de Booleanos:** Cambio de `true`/`false` a `^1`/`^0` para mayor consistencia con caracteres de escape y eficiencia de tokens
@@ -156,7 +163,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
 
 ## Notas de Migración
 
-### Actualizar de v1.0 a v1.1
+### Actualizar de v1.0 a v2.0
 
 **La conversión automática NO es posible** debido a ambigüedad en las secuencias de escape.
 
@@ -171,7 +178,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
    - Reemplazar: `^;`
 
 3. **Validar datos:**
-   - Parsear con decodificador v1.1
+   - Parsear con decodificador v2.0
    - Verificar que todos los registros cargan correctamente
    - Verificar integridad de datos
 
@@ -180,7 +187,7 @@ y este proyecto adhiere a [Versionado Semántico](https://semver.org/spec/v2.0.0
    - Usar MLD (`.mld`) para logs, streaming, procesamiento con herramientas Unix
 
 5. **Actualizar implementaciones:**
-   - Actualizar parsers a v1.1
+   - Actualizar parsers a v2.0
    - Actualizar constante de separador de campos
    - Agregar soporte MLD si es necesario
 
@@ -288,22 +295,23 @@ Ambos formatos son interconvertibles sin pérdida de datos.
 
 ---
 
-## Notas de Migración
+## Notas de Migración (Históricas)
 
-### Migración de v1.0 a v1.1
+### Migración de v1.0 a v2.0 (vía v1.1)
 
 Si estás usando SLD v1.0, necesitas actualizar:
 
 1. **Booleanos:**
    ```
    Antes (v1.0): activo[true|verificado[false~
-   Ahora (v1.1):  activo[^1|verificado[^0~
+   Ahora (v2.0):  activo[^1;verificado[^0~
    ```
 
 2. **Inicio de Arrays:**
    ```
    Antes (v1.0): usuarios[id[1|nombre[Ana~id[2|nombre[Bob~
-   Ahora (v1.1):  usuarios{id[1|nombre[Ana~id[2|nombre[Bob
+   Ahora (v2.0):  usuarios{id[1;nombre[Ana~id[2;nombre[Bob}
+   ```
    ```
 
 3. **Terminación de Arrays:**

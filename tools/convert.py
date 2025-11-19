@@ -15,7 +15,7 @@
 
 """
 SLD/MLD/JSON converter supporting bidirectional transformations:
-- JSON → SLD/MLD (with optional v1.2 typing)
+- JSON → SLD/MLD (with optional v2.0 typing)
 - SLD/MLD → JSON
 - SLD ↔ MLD
 """
@@ -166,7 +166,7 @@ def main(argv: List[str]) -> int:
                    choices=['json', 'sld', 'mld'],
                    help='Target format')
     p.add_argument('--typed', action='store_true',
-                   help='Use v1.2 inline type tags (only for JSON→SLD/MLD)')
+                   help='Use v2.0 inline type tags (only for JSON→SLD/MLD)')
     p.add_argument('-o', '--output', help='Output file (default: stdout)')
 
     args = p.parse_args(argv)

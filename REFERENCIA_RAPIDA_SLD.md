@@ -1,10 +1,10 @@
-# Referencia Rápida SLD v1.1
+# Referencia Rápida SLD v2.0
 
 ## Single Line Data - Referencia rápida para desarrolladores
 
 ---
 
-## Delimitadores (v1.1)
+## Delimitadores (v2.0)
 
 | Símbolo | Propósito | Ejemplo |
 |---------|-----------|---------|
@@ -76,7 +76,7 @@ puntuaciones{85~92~78}
 ```
 
 ---
-## Extensiones v1.2 (etiquetas de tipo y null tipado)
+## Extensiones v2.0 (características opcionales)
 
 Estas funciones son aditivas y se negocian con `!features{types}`; los decodificadores sin soporte pueden ignorarlas.
 

@@ -1,6 +1,6 @@
-# Migration Guide: SLD v1.0 → v1.1
+# Migration Guide: SLD v1.0 → v2.0
 
-This guide helps you migrate from SLD v1.0 (using `|` delimiter) to v1.1 (using `;` delimiter) and choose between SLD and MLD formats.
+This guide helps you migrate from SLD v1.0 (using `|` delimiter) to v2.0 (using `;` delimiter) and choose between SLD and MLD formats.
 
 ## Table of Contents
 
@@ -15,15 +15,15 @@ This guide helps you migrate from SLD v1.0 (using `|` delimiter) to v1.1 (using 
 
 ## Breaking Changes
 
-### ⚠️ v1.1 is NOT backward compatible with v1.0
+### ⚠️ v2.0 is NOT backward compatible with v1.0
 
 **Primary Change: Field Separator**
 - v1.0: `|` (pipe, U+007C)
-- v1.1: `;` (semicolon, U+003B)
+- v2.0: `;` (semicolon, U+003B)
 
 **Escape Sequences Updated:**
 - v1.0: `^|` for literal pipe
-- v1.1: `^;` for literal semicolon
+- v2.0: `^;` for literal semicolon
 
 **New Format Added:**
 - MLD (Multi Line Data) with newline record separator
@@ -37,7 +37,7 @@ The pipe character `|` is a command separator in Unix shells:
 # v1.0 - DANGEROUS
 echo "name[Alice|age[30~" | grep age  # Creates pipeline!
 
-# v1.1 - SAFE
+# v2.0 - SAFE
 echo "name[Alice;age[30~" | grep age  # Works correctly
 ```
 
@@ -48,7 +48,7 @@ Semicolon requires less escaping in interactive shells:
 # v1.0
 DATA="name[Alice\|age[30~"  # Must escape pipe
 
-# v1.1
+# v2.0
 DATA="name[Alice;age[30~"   # No escaping needed in most shells
 ```
 
@@ -101,7 +101,7 @@ cp data.sld data.sld.v1.0.backup
 # v1.0
 name[John Doe|email[john@example.com|note[Use | symbol here: ^|~
 
-# v1.1
+# v2.0
 name[John Doe;email[john@example.com;note[Use ; symbol here: ^;~
 ```
 
@@ -111,7 +111,7 @@ See [Format Selection](#format-selection) section below.
 
 ### Step 4: Validate
 
-Parse with v1.1 decoder and verify:
+Parse with v2.0 decoder and verify:
 
 ```python
 # Python validation
@@ -119,7 +119,7 @@ from sld import decode_sld
 
 try:
     data = decode_sld(your_converted_string)
-    print("✓ Valid SLD v1.1")
+    print("✓ Valid SLD v2.0")
 except Exception as e:
     print(f"✗ Invalid: {e}")
 ```
@@ -196,7 +196,7 @@ tr '\n' '~' < data.mld > data.sld
 # convert_v10_to_v11.sh
 
 if [ $# -ne 2 ]; then
-  echo "Usage: $0 <input_v1.0.sld> <output_v1.1.sld>"
+  echo "Usage: $0 <input_v1.0.sld> <output_v2.0.sld>"
   exit 1
 fi
 
@@ -224,7 +224,7 @@ import re
 import sys
 
 def convert_v10_to_v11(v10_string):
-    """Convert SLD v1.0 to v1.1 format."""
+    """Convert SLD v1.0 to v2.0 format."""
     # This is a SIMPLISTIC conversion
     # Manual review required for production data
     
@@ -270,7 +270,7 @@ if __name__ == '__main__':
 - [ ] Identified all SLD files in project
 - [ ] Reviewed escape sequences in data
 - [ ] Tested conversion on sample data
-- [ ] Updated parser libraries to v1.1
+- [ ] Updated parser libraries to v2.0
 
 ### Post-Migration Validation
 
@@ -284,7 +284,7 @@ from sld_v11 import decode_sld as decode_v11
 with open('data.v1.0.sld') as f:
     original = decode_v10(f.read())
 
-with open('data.v1.1.sld') as f:
+with open('data.v2.0.sld') as f:
     converted = decode_v11(f.read())
 
 # Compare as JSON
@@ -302,16 +302,16 @@ print("✓ Validation passed - data integrity preserved")
 # v1.0
 text[Hello; World|author[Alice~
 
-# v1.1 - WRONG
+# v2.0 - WRONG
 text[Hello; World;author[Alice~  # Semicolon breaks parsing!
 
-# v1.1 - CORRECT
+# v2.0 - CORRECT
 text[Hello^; World;author[Alice~  # Escape the semicolon
 ```
 
 **Issue 2: Shell escaping**
 ```bash
-# v1.1 - May need escaping in some contexts
+# v2.0 - May need escaping in some contexts
 echo 'data[value;next[value'  # Single quotes = safe
 echo "data[value;next[value"  # Double quotes = safe
 echo data[value;next[value    # No quotes = may need escaping
@@ -333,7 +333,7 @@ name[Alice;age[30~          # Mixed - WRONG
 # v1.0
 FIELD_SEPARATOR = '|'
 
-# v1.1
+# v2.0
 FIELD_SEPARATOR = ';'
 ```
 
@@ -341,7 +341,7 @@ FIELD_SEPARATOR = ';'
 // v1.0
 const FIELD_SEPARATOR = '|';
 
-// v1.1
+// v2.0
 const FIELD_SEPARATOR = ';';
 ```
 
@@ -370,7 +370,7 @@ def test_encode_object_v11():
 
 ## FAQ
 
-### Q: Can I automatically convert v1.0 to v1.1?
+### Q: Can I automatically convert v1.0 to v2.0?
 
 **A:** Not safely. The conversion scripts provided are **helpers only**. Manual review is essential because:
 
@@ -386,21 +386,21 @@ def test_encode_object_v11():
 
 Both are interconvertible, so you can use both in different contexts.
 
-### Q: Will v1.0 parsers work with v1.1 data?
+### Q: Will v1.0 parsers work with v2.0 data?
 
 **A:** No. v1.0 parsers expect `|` delimiters and will fail on `;` delimiters.
 
-### Q: Will v1.1 parsers work with v1.0 data?
+### Q: Will v2.0 parsers work with v1.0 data?
 
-**A:** No. v1.1 parsers expect `;` delimiters and will fail on `|` delimiters.
+**A:** No. v2.0 parsers expect `;` delimiters and will fail on `|` delimiters.
 
 ### Q: How do I handle existing APIs using v1.0?
 
 **A:** Three strategies:
 
-1. **Breaking change**: Update API to v1.1, version endpoint (e.g., `/api/v2/`)
+1. **Breaking change**: Update API to v2.0, version endpoint (e.g., `/api/v2/`)
 2. **Dual support**: Accept both formats, detect version, deprecate v1.0
-3. **Gateway conversion**: Convert v1.0→v1.1 at API boundary
+3. **Gateway conversion**: Convert v1.0→v2.0 at API boundary
 
 ### Q: What about performance impact?
 
@@ -416,8 +416,8 @@ Both are interconvertible, so you can use both in different contexts.
 
 ## Resources
 
-- [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Complete SLD v1.1 specification
-- [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Complete MLD v1.1 specification  
+- [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Complete SLD v2.0 specification
+- [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Complete MLD v2.0 specification  
 - [CHANGELOG.md](CHANGELOG.md) - Detailed version history
 - [examples/](examples/) - Example files in both formats
 - [implementations/](implementations/) - Reference implementations
@@ -444,3 +444,4 @@ Both are interconvertible, so you can use both in different contexts.
 - [ ] Deprecate v1.0 support
 
 **Happy migrating! 🚀**
+

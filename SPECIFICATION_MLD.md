@@ -1,5 +1,5 @@
 # MLD Format Specification
-## Multi Line Data - Version 1.1
+## Multi Line Data - Version 2.0
 
 **Document Status:** Official Specification  
 **Version:** 1.1  
@@ -85,7 +85,7 @@ MLD uses a fixed set of single-character delimiters to structure data:
 ### 2.1 Rationale for Delimiters
 
 **Semicolon (`;`) vs. Pipe (`|`):**  
-Version 1.1 introduces semicolon as the field separator, replacing pipe from earlier designs. This choice addresses:
+Version 2.0 uses semicolon as the field separator. This choice addresses:
 - **Shell compatibility:** Pipe is reserved for command chaining in Unix shells
 - **Reduced escaping:** Semicolon appears less frequently in natural text
 - **Clipboard safety:** Semicolon-separated data pastes safely into terminals
@@ -805,10 +805,10 @@ Conforming implementations SHOULD pass the official MLD test suite:
 
 ## 14. Version History
 
-### Version 1.1 (December 2024) - **CURRENT**
+### Version 2.0 (November 2025) - **CURRENT**
 
 **Breaking Changes:**
-- Initial release of MLD specification
+- Consolidated v1.1 baseline + v1.2 extensions into unified MLD v2.0
 - Uses semicolon (`;`) as field separator for consistency with SLD v2.0
 
 **New Features:**

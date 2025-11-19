@@ -71,7 +71,7 @@ puntuaciones{85~92~78}
 ```
 
 ---
-## Extensiones v1.2 (etiquetas de tipo y null tipado)
+## Extensiones v2.0 (características opcionales)
 
 Funciones aditivas negociadas con `!features{types}`; decodificadores sin soporte pueden ignorarlas.
 

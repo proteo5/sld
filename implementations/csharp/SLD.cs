@@ -22,7 +22,7 @@ namespace SLD
     /// <summary>
     /// SLD/MLD (Single/Multi Line Data) Format - C# Implementation v2.0
     /// A token-efficient data serialization format
-    /// 
+    ///
     /// Breaking changes from v1.0:
     /// - Field separator changed from | to ; (semicolon)
     /// - Array marker changed to { (curly brace)

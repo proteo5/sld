@@ -49,15 +49,15 @@ See the specifications for normative details.
 #### Validator (experimental)
 
 - A minimal validator/inspector is available at `tools/validator.py` supporting:
-  - v1.1 parsing (fields `;`, records `~`/`\n`, arrays `{...}` with `~`, escapes `^`)
-  - v1.2-draft inline types (`key!i[123` / `ids!i{1~2}`) and typed null (`!n[`)
+  - v2.0 parsing (fields `;`, records `~`/`\n`, arrays `{...}` with `~`, escapes `^`)
+  - v2.0 optional features: inline types (`key!i[123` / `ids!i{1~2}`) and typed null (`!n[`)
   - Header detection for reserved `!` keys (e.g., `!v`, `!features{...}`)
 
 Quick run:
 
 ```powershell
-python tools/validator.py tests\vectors\v12_header_types_null.sld --format sld --canon
-python tools\validator.py tests\vectors\v11_mld.mld --format mld
+python tools/validator.py tests\vectors\v2_typed_header_null.sld --format sld --canon
+python tools\validator.py tests\vectors\v2_mld.mld --format mld
 ```
 
 #### Canonicalizer & Benchmark (experimental)
@@ -77,7 +77,7 @@ python tools\benchmark_tokens.py --sld tests\vectors\v12_canonical_array.sld
 #### Format Converter (experimental)
 
 - Bidirectional conversions: **JSON ↔ SLD**, **JSON ↔ MLD**, **SLD ↔ MLD**
-- Preserves types and structure; supports v1.2 inline typing
+- Preserves types and structure; supports v2.0 inline typing
 - Script: `tools/convert.py`
 
 Quick run:
@@ -99,7 +99,7 @@ python tools\convert.py --from json --to sld data.json -o output.sld
 
 #### Test Suite (comprehensive)
 
-- **11 test vectors** covering v1.1 baseline, v1.2 extensions, and edge cases:
+- **11 test vectors** covering v2.0 core features, optional features, and edge cases:
   - Basic: simple records, booleans, arrays
   - Edge cases: nested escapes, empty arrays, null variants, scientific notation, Unicode/NFC, many fields
   - Format variants: SLD and MLD
@@ -116,7 +116,7 @@ python tests\run_tests.py
 python tests\benchmark_perf.py
 ```
 
-**Current coverage**: 11 test vectors (v1.1 + v1.2-draft features)
+**Current coverage**: 11 test vectors (v2.0 core + optional features)
 
 ---
 
@@ -127,7 +127,7 @@ python tests\benchmark_perf.py
 - **SLD**: Single-line format using tilde `~` as record separator. Optimized for network transmission, compact storage, and minimal token count.
 - **MLD**: Multi-line format using newline `\n` as record separator. Optimized for log files, Unix tool processing (grep, awk, sed), and streaming data.
 
-Both formats use **semicolon** `;` as field separator (v1.1 change from `|` for shell safety). While others argued about formats, we created TWO that work together seamlessly.
+Both formats use **semicolon** `;` as field separator (v2.0 change from v1.0 `|` for shell safety). While others argued about formats, we created TWO that work together seamlessly.
 
 ---
 
@@ -751,13 +751,13 @@ MAX_NESTING_DEPTH = 10
 
 ## Migration from v1.0
 
-SLD v1.1 uses `;` instead of `|` as field separator. See [MIGRATION.md](MIGRATION.md) for complete guide.
+SLD v2.0 uses `;` instead of `|` as field separator. See [MIGRATION.md](MIGRATION.md) for complete guide.
 
 ### Quick Migration
 
 ```bash
 # Simple sed replacement (review output!)
-sed 's/\^|/\x00/g; s/|/;/g; s/\x00/^;/g' old_v1.0.sld > new_v1.1.sld
+sed 's/\^|/\x00/g; s/|/;/g; s/\x00/^;/g' old_v1.0.sld > new_v2.0.sld
 ```
 
 ### Validation
@@ -770,7 +770,7 @@ import json
 # Original v1.0 data (using old parser)
 original = decode_sld_v10(old_data)
 
-# Migrated v1.1 data
+# Migrated v2.0 data
 migrated = decode_sld(new_data)
 
 # Compare as JSON
@@ -832,8 +832,8 @@ Copyright 2025 Alfredo Pinto Molina
 **Q: Should I use SLD or MLD?**  
 A: Use SLD for network/compact storage, MLD for logs/streaming/Unix tools.
 
-**Q: Is v1.1 compatible with v1.0?**  
-A: No. v1.1 uses `;` instead of `|`. See [MIGRATION.md](MIGRATION.md).
+**Q: Is v2.0 compatible with v1.0?**  
+A: No. v2.0 uses `;` instead of `|`. See [MIGRATION.md](MIGRATION.md).
 
 **Q: Can I mix SLD and MLD?**  
 A: Yes! Convert with `tr '~' '\n'` (SLD→MLD) or `tr '\n' '~'` (MLD→SLD).
@@ -845,7 +845,7 @@ A: Base64 encode first, then store as string value.
 A: Full UTF-8 support. All special chars can be escaped.
 
 **Q: Production ready?**  
-A: Yes for v1.1. Well-tested, documented, multiple implementations.
+A: Yes for v2.0 core. Well-tested, documented, multiple implementations.
 
 ---
 
@@ -904,7 +904,7 @@ id,name,email
 2;Bob;bob@example.com
 ```
 
-### From v1.0 (Pipe) to v1.1 (Semicolon)
+### From v1.0 (Pipe) to v2.0 (Semicolon)
 
 **v1.0:**
 
@@ -912,7 +912,7 @@ id,name,email
 1|Alice|active
 ```
 
-**v1.1:**
+**v2.0:**
 
 ```sld
 1;Alice;active

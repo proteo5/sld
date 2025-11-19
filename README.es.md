@@ -12,14 +12,14 @@
 ### Documentación Principal
 
 - 🏠 **[Este README](README.es.md)** - Resumen y guía rápida
-- 📖 **[Especificación SLD](SPECIFICATION_SLD.md)** - Especificación técnica completa SLD v1.1 (inglés)
-- 📖 **[Especificación MLD](SPECIFICATION_MLD.md)** - Especificación técnica completa MLD v1.1 (inglés)
+- 📖 **[Especificación SLD](SPECIFICATION_SLD.md)** - Especificación técnica completa SLD v2.0 (inglés)
+- 📖 **[Especificación MLD](SPECIFICATION_MLD.md)** - Especificación técnica completa MLD v2.0 (inglés)
 - ⚡ **[Referencia Rápida SLD](REFERENCIA_RAPIDA_SLD.md)** - Guía de consulta rápida para SLD
 - ⚡ **[Referencia Rápida MLD](REFERENCIA_RAPIDA_MLD.md)** - Guía de consulta rápida para MLD con herramientas Unix
 - 📝 **[Guía de Sintaxis SLD](GUIA_SINTAXIS_SLD.md)** - Ejemplos y patrones detallados de SLD
 - 📝 **[Guía de Sintaxis MLD](GUIA_SINTAXIS_MLD.md)** - Ejemplos detallados de MLD con streaming
 - 🔄 **[Registro de Cambios](REGISTRO_CAMBIOS.md)** - Historial de versiones y cambios importantes
-- 🔀 **[Guía de Migración](MIGRACION.md)** - Guía de actualización v1.0 → v1.1
+- 🔀 **[Guía de Migración](MIGRACION.md)** - Guía de actualización v1.0 → v2.0
 -- ⚠️ **[SPECIFICATION.md](SPECIFICATION.md)** - Especificación v1.0 OBSOLETA
 
 ### Documentación en Otros Idiomas
@@ -38,8 +38,13 @@
 
 ---
 
-## Extensiones v1.2 (borrador)
+## Características v2.0
 
+**Core obligatorio:**
+- Separador `;` (campos), `~` (registros SLD), `\n` (registros MLD)
+- Arrays `{...}`, escapes `^`, booleanos `^1`/`^0`
+
+**Características opcionales v2.0:**
 - Perfil de canonicalización (orden estable, NFC, números normalizados)
 - Registro de metadatos con claves `!` y negociación `!features{...}`
 - Etiquetas de tipo inline antes de `[` o `{`: `!i !f !b !s !n !d !t !ts` (ej. `edad!i[42`, `ids!i{1~2}`)
@@ -54,7 +59,7 @@ Consulta las especificaciones para los detalles normativos.
 - **SLD**: Formato de línea única usando tilde `~` como separador de registros. Optimizado para transmisión de red, almacenamiento compacto y conteo mínimo de tokens.
 - **MLD**: Formato multilínea usando salto de línea `\n` como separador de registros. Optimizado para archivos de log, procesamiento con herramientas Unix (grep, awk, sed) y datos en streaming.
 
-Ambos formatos usan **punto y coma** `;` como separador de campos (cambio de v1.1 desde `|` para seguridad en shells). Mientras otros discutían sobre formatos, nosotros creamos DOS que funcionan juntos perfectamente.
+Ambos formatos usan **punto y coma** `;` como separador de campos (v2.0 cambio desde v1.0 `|` para seguridad en shells). Mientras otros discutían sobre formatos, nosotros creamos DOS que funcionan juntos perfectamente.
 
 ---
 
@@ -687,13 +692,13 @@ MAX_NESTING_DEPTH = 10
 
 ## Migración desde v1.0
 
-SLD v1.1 usa `;` en lugar de `|` como separador de campos. Ver [MIGRACION.md](MIGRACION.md) para guía completa.
+SLD v2.0 usa `;` en lugar de `|` como separador de campos. Ver [MIGRACION.md](MIGRACION.md) para guía completa.
 
 ### Migración Rápida
 
 ```bash
 # Reemplazo simple con sed (¡revisa la salida!)
-sed 's/\^|/\x00/g; s/|/;/g; s/\x00/^;/g' old_v1.0.sld > new_v1.1.sld
+sed 's/\^|/\x00/g; s/|/;/g; s/\x00/^;/g' old_v1.0.sld > new_v2.0.sld
 ```
 
 ### Validación
@@ -766,8 +771,8 @@ Licencia MIT - ver archivo [LICENSE](LICENSE) para detalles.
 **P: ¿Debería usar SLD o MLD?**  
 R: Usa SLD para almacenamiento de red/compacto, MLD para logs/streaming/herramientas Unix.
 
-**P: ¿Es v1.1 compatible con v1.0?**  
-R: No. v1.1 usa `;` en lugar de `|`. Ver [MIGRACION.md](MIGRACION.md).
+**P: ¿Es v2.0 compatible con v1.0?**  
+R: No. v2.0 usa `;` en lugar de `|`. Ver [MIGRACION.md](MIGRACION.md).
 
 **P: ¿Puedo mezclar SLD y MLD?**  
 R: ¡Sí! Convierte con `tr '~' '\n'` (SLD→MLD) o `tr '\n' '~'` (MLD→SLD).
@@ -779,7 +784,7 @@ R: Codifica con Base64 primero, luego almacena como valor de cadena.
 R: Soporte completo UTF-8. Todos los caracteres especiales se pueden escapar.
 
 **P: ¿Listo para producción?**  
-R: Sí para v1.1. Bien probado, documentado, múltiples implementaciones.
+R: Sí para v2.0 core. Bien probado, documentado, múltiples implementaciones.
 
 ---
 

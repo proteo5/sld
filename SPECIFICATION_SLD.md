@@ -98,11 +98,11 @@ name;;age;30
 
 (name is null, age is 30)
 
-#### Null Value (v1.2 extension)
+#### Null Value (v2.0 optional feature)
 
 - Canonical null MAY be encoded as the escape sequence `^_`.
 - Producers MUST only emit `^_` when the peer declares support via the header metadata `!features[null]` (see Header Metadata).
-- For backward compatibility, producers SHOULD prefer `campo!n[` (typed null; see Explicit Types) or empty value when interoperability with v1.1 decoders is required.
+- For backward compatibility, producers SHOULD prefer `campo!n[` (typed null; see Explicit Types) or empty value when interoperability with baseline decoders is required.
 
 Examples:
 
@@ -233,12 +233,12 @@ data_row        ::= value ( ";" value )*
 key             ::= escaped_string
 value           ::= escaped_string | boolean | ""
 boolean         ::= "^0" | "^1"
-null            ::= "^_"            (* v1.2 optional *)
+null            ::= "^_"            (* v2.0 optional *)
 escaped_string  ::= ( escaped_char | regular_char )*
 escaped_char    ::= "^" ( ";" | "~" | "[" | "{" | "}" | "^" )
 regular_char    ::= any character except ";", "~", "[", "{", "}", "^"
 
-(* Typed properties (v1.2 optional): key may carry an inline type tag before '[' or '{' using '!code' *)
+(* Typed properties (v2.0 optional): key may carry an inline type tag before '[' or '{' using '!code' *)
 type_code       ::= "i" | "f" | "b" | "s" | "n" | "d" | "t" | "ts"
 property        ::= key [ "!" type_code ] "[" value
 array           ::= key [ "!" type_code ] "{" array_body "}"
@@ -559,21 +559,21 @@ tr '\n' '~' < file.mld | sed 's/~$//' > file.sld
 
 ## Version History
 
-- **v1.1 (2025-11-18)**:
-  - Changed field separator from `|` to `;` for better shell compatibility
-  - Introduced MLD (Multi Line Data) variant
-  - Updated escape sequences
+- **v2.0 (2025-11-18)**:
+  - Consolidated v1.1 baseline + v1.2 extensions into unified v2.0
+  - Semicolon field separator (`;`), curly brace arrays (`{}`)
+  - Optional features: inline typing, typed null, headers, canonicalization
   - **BREAKING CHANGE**: Not compatible with v1.0
   
 - v1.0 (2025-11-16): Initial specification (DEPRECATED)
 
 ## Migration from v1.0
 
-v1.0 used `|` as field separator. To migrate to v1.1:
+v1.0 used `|` as field separator. To migrate to v2.0:
 
 ```bash
 # Simple conversion (if no escaped pipes)
-tr '|' ';' < old_v1.0.sld > new_v1.1.sld
+tr '|' ';' < old_v1.0.sld > new_v2.0.sld
 
 # Manual conversion required if data contains:
 # - Escaped pipes (^|)
