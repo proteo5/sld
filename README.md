@@ -73,6 +73,29 @@ python tools/canonicalizer.py tests\vectors\v12_canonical_array.sld --format sld
 python tools\benchmark_tokens.py --sld tests\vectors\v12_canonical_array.sld
 ```
 
+#### Format Converter (experimental)
+
+- Bidirectional conversions: **JSON ↔ SLD**, **JSON ↔ MLD**, **SLD ↔ MLD**
+- Preserves types and structure; supports v1.2 inline typing
+- Script: `tools/convert.py`
+
+Quick run:
+
+```powershell
+# JSON → SLD
+python tools\convert.py --from json --to sld tests\vectors\convert_test.json
+
+# SLD → JSON
+python tools\convert.py --from sld --to json tests\vectors\v12_header_types_null.sld
+
+# SLD ↔ MLD
+python tools\convert.py --from sld --to mld tests\vectors\v11_simple.sld
+python tools\convert.py --from mld --to sld tests\vectors\v11_mld.mld
+
+# Save to file
+python tools\convert.py --from json --to sld data.json -o output.sld
+```
+
 ---
 
 ## What is SLD/MLD?

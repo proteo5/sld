@@ -1,0 +1,12 @@
+{
+  "records": [
+    {
+      "id": 100,
+      "name": "Test Product",
+      "price": 99.99,
+      "active": true,
+      "tags": ["new", "featured"],
+      "description": "A test; with escapes"
+    }
+  ]
+}
