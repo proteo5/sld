@@ -43,16 +43,16 @@ def json_to_sld(json_path: str, typed: bool = False) -> str:
     """Convert JSON file to SLD format."""
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    
+
     header, records = json_to_records(data)
     parts: List[str] = []
-    
+
     if header:
         parts.append(encode_header(header))
-    
+
     for rec in records:
         parts.append(encode_record(rec))
-    
+
     return '~'.join(parts) + '~'
 
 
@@ -60,16 +60,16 @@ def json_to_mld(json_path: str, typed: bool = False) -> str:
     """Convert JSON file to MLD format."""
     with open(json_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    
+
     header, records = json_to_records(data)
     lines: List[str] = []
-    
+
     if header:
         lines.append(encode_header(header))
-    
+
     for rec in records:
         lines.append(encode_record(rec))
-    
+
     return '\n'.join(lines)
 
 
@@ -77,11 +77,11 @@ def sld_to_json(sld_path: str) -> str:
     """Convert SLD file to JSON."""
     with open(sld_path, 'r', encoding='utf-8') as f:
         data = f.read()
-    
+
     records = parse_sld(data)
     header, body = detect_header(records)
     result = records_to_json(header, body)
-    
+
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
@@ -89,11 +89,11 @@ def mld_to_json(mld_path: str) -> str:
     """Convert MLD file to JSON."""
     with open(mld_path, 'r', encoding='utf-8') as f:
         data = f.read()
-    
+
     records = parse_mld(data)
     header, body = detect_header(records)
     result = records_to_json(header, body)
-    
+
     return json.dumps(result, ensure_ascii=False, indent=2)
 
 
@@ -101,17 +101,17 @@ def sld_to_mld(sld_path: str) -> str:
     """Convert SLD to MLD (preserving structure)."""
     with open(sld_path, 'r', encoding='utf-8') as f:
         data = f.read()
-    
+
     records = parse_sld(data)
     header, body = detect_header(records)
     lines: List[str] = []
-    
+
     if header:
         lines.append(encode_header(header))
-    
+
     for rec in body:
         lines.append(encode_record(rec))
-    
+
     return '\n'.join(lines)
 
 
@@ -119,23 +119,23 @@ def mld_to_sld(mld_path: str) -> str:
     """Convert MLD to SLD (preserving structure)."""
     with open(mld_path, 'r', encoding='utf-8') as f:
         data = f.read()
-    
+
     records = parse_mld(data)
     header, body = detect_header(records)
     parts: List[str] = []
-    
+
     if header:
         parts.append(encode_header(header))
-    
+
     for rec in body:
         parts.append(encode_record(rec))
-    
+
     return '~'.join(parts) + '~'
 
 
 def main(argv: List[str]) -> int:
     import argparse
-    
+
     p = argparse.ArgumentParser(
         description='Convert between JSON, SLD, and MLD formats',
         epilog='Examples:\n'
@@ -154,12 +154,12 @@ def main(argv: List[str]) -> int:
     p.add_argument('--typed', action='store_true',
                    help='Use v1.2 inline type tags (only for JSON→SLD/MLD)')
     p.add_argument('-o', '--output', help='Output file (default: stdout)')
-    
+
     args = p.parse_args(argv)
-    
+
     # Route conversion
     result = None
-    
+
     if args.from_format == 'json' and args.to_format == 'sld':
         result = json_to_sld(args.input, args.typed)
     elif args.from_format == 'json' and args.to_format == 'mld':
@@ -179,7 +179,7 @@ def main(argv: List[str]) -> int:
     else:
         sys.stderr.write(f"Unsupported conversion: {args.from_format} → {args.to_format}\n")
         return 1
-    
+
     # Output
     if args.output:
         with open(args.output, 'w', encoding='utf-8') as f:
@@ -190,7 +190,7 @@ def main(argv: List[str]) -> int:
         sys.stdout.write(result)
         if not result.endswith('\n'):
             sys.stdout.write('\n')
-    
+
     return 0
 
 
