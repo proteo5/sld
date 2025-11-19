@@ -59,6 +59,20 @@ python tools/validator.py tests\vectors\v12_header_types_null.sld --format sld -
 python tools\validator.py tests\vectors\v11_mld.mld --format mld
 ```
 
+#### Canonicalizer & Benchmark (experimental)
+
+- Canonical SLD: stable key order, NFC strings, typed scalars, `!n[` null, arrays `{a~b}` without trailing `~`.
+- Scripts:
+  - `tools/canonicalizer.py` → emit canonical SLD/MLD form.
+  - `tools/benchmark_tokens.py` → approximate token counts vs JSON.
+
+Quick run:
+
+```powershell
+python tools/canonicalizer.py tests\vectors\v12_canonical_array.sld --format sld
+python tools\benchmark_tokens.py --sld tests\vectors\v12_canonical_array.sld
+```
+
 ---
 
 ## What is SLD/MLD?
