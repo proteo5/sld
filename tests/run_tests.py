@@ -28,7 +28,7 @@ def run_case(inp_path: str, exp_path: str, force_fmt: str = None) -> bool:
     cmd = [sys.executable, VALIDATOR, inp_path]
     if force_fmt:
         cmd += ["--format", force_fmt]
-    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+    p = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8')
     if p.returncode != 0:
         print(f"FAIL: {os.path.basename(inp_path)} exit={p.returncode} err={p.stderr.strip()[:100]}")
         return False

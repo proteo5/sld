@@ -421,6 +421,9 @@ def main(argv: List[str]) -> int:
         out = {"header": header, "records": body}
         if args.canon:
             out = to_canonical(out)
+        # Ensure UTF-8 output on Windows
+        import io
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
         json.dump(out, sys.stdout, ensure_ascii=False, indent=2)
         sys.stdout.write("\n")
         return 0
