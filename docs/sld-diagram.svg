@@ -1,0 +1,37 @@
+<svg width="600" height="120" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="600" height="120" fill="#f8f8f8" stroke="#eee"/>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="18">
+    <text x="20" y="40" fill="#222">SLD Record:</text>
+    <rect x="140" y="18" width="420" height="32" rx="8" fill="#fff" stroke="#bbb"/>
+    <text x="150" y="40" fill="#0066cc">name</text>
+    <text x="200" y="40" fill="#222">[</text>
+    <text x="215" y="40" fill="#222">Alice</text>
+    <text x="270" y="40" fill="#888">;</text>
+    <text x="290" y="40" fill="#0066cc">age</text>
+    <text x="340" y="40" fill="#222">[</text>
+    <text x="355" y="40" fill="#222">30</text>
+    <text x="390" y="40" fill="#888">;</text>
+    <text x="410" y="40" fill="#0066cc">tags</text>
+    <text x="470" y="40" fill="#222">{</text>
+    <text x="485" y="40" fill="#222">admin</text>
+    <text x="535" y="40" fill="#888">~</text>
+    <text x="555" y="40" fill="#222">user</text>
+    <text x="590" y="40" fill="#222">}</text>
+  </g>
+  <g font-family="Arial, Helvetica, sans-serif" font-size="14">
+    <text x="150" y="70" fill="#888">Field name</text>
+    <text x="200" y="70" fill="#888">Property marker</text>
+    <text x="215" y="70" fill="#888">Value</text>
+    <text x="270" y="70" fill="#888">Field separator</text>
+    <text x="290" y="70" fill="#888">Field name</text>
+    <text x="340" y="70" fill="#888">Property marker</text>
+    <text x="355" y="70" fill="#888">Value</text>
+    <text x="390" y="70" fill="#888">Field separator</text>
+    <text x="410" y="70" fill="#888">Field name</text>
+    <text x="470" y="70" fill="#888">Array marker</text>
+    <text x="485" y="70" fill="#888">Array value</text>
+    <text x="535" y="70" fill="#888">Array separator</text>
+    <text x="555" y="70" fill="#888">Array value</text>
+    <text x="590" y="70" fill="#888">Array close</text>
+  </g>
+</svg>
