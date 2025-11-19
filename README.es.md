@@ -38,6 +38,15 @@
 
 ---
 
+## Extensiones v1.2 (borrador)
+
+- Perfil de canonicalización (orden estable, NFC, números normalizados)
+- Registro de metadatos con claves `!` y negociación `!features{...}`
+- Sufijo de tipo en claves (`@i`, `@f`, `@b`, `@s`, `@null`, `@d`, `@t`, `@ts`)
+- Token de null `^_` opcional cuando se negocia
+
+Consulta las especificaciones para los detalles normativos.
+
 ## ¿Qué es SLD/MLD?
 
 **SLD (Single Line Data)** y **MLD (Multi Line Data)** son formatos revolucionarios de serialización de datos diseñados para minimizar el uso de tokens en contextos LLM.

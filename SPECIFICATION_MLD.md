@@ -213,7 +213,21 @@ middleName[;age[30
 optional[;required[value
 ```
 
-**Detection:** Parser encounters `;` or `\n` immediately after `[`.
+**Detection:** Parser encounters `;` or `\n` immediately after `[`. 
+
+---
+
+### 4.6 Null (v1.2 alternative)
+
+- Canonical null MAY be encoded as the escape sequence `^_` when the `null` feature is negotiated via header metadata (see Header Metadata v1.2).
+- For maximum compatibility with v1.1 decoders, producers SHOULD prefer the typed-null suffix `campo@null[` with empty payload, or omit the field entirely when semantics allow.
+
+Examples:
+
+```
+deleted[^_
+deleted@null[
+```
 
 ---
 
@@ -383,6 +397,18 @@ DIGIT           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 - **Whitespace:** Whitespace is significant within property names and values (no implicit trimming)
 
 ---
+
+### 7.3 v1.2 Grammar Additions (Informative)
+
+The following productions extend the grammar for optional features:
+
+```ebnf
+null_token  = ESCAPE "_" ;                 (* alternative null *)
+typed_key   = identifier "@" type_code ;
+type_code   = "i" | "f" | "b" | "s" | "null" | "d" | "t" | "ts" ;
+```
+
+Parsers SHOULD accept keys with `@type` suffix and MAY ignore unknown `type_code` values.
 
 ## 8. Encoding Algorithm
 
@@ -820,6 +846,57 @@ tr '~' '\n' < data.sld > data.mld
 - [QUICK_REFERENCE_MLD.md](QUICK_REFERENCE_MLD.md) - Quick reference guide
 - [SYNTAX_GUIDE_MLD.md](SYNTAX_GUIDE_MLD.md) - Detailed syntax examples
 - [README.md](README.md) - Main project documentation
+
+---
+
+## Canonicalization Profile (v1.2)
+
+Producers SHOULD emit canonical MLD for deterministic diffs and signatures. Decoders MUST accept non‑canonical input.
+
+- Stable property order (RECOMMENDED: lexicographic by key)
+- Arrays without trailing `~`; `{}` for empty arrays
+- No whitespace outside values
+- Unicode NFC normalization RECOMMENDED
+- Numbers normalized (no superfluous `+`, consistent exponent case)
+- Booleans `^1`/`^0`; null per section 4.6 when negotiated
+
+## Header Metadata (v1.2)
+
+The first record MAY be a metadata record whose keys are reserved and prefixed with `!`. Unknown `!` keys MUST be ignored by consumers.
+
+Reserved keys:
+- `!v[1.2]` – Declared minor version
+- `!schema[<uri>]` – Schema/contract identifier
+- `!ts[<iso-8601>]` – Production timestamp
+- `!source[<text>]` – Data origin
+- `!features{types~null~canon}` – Enabled optional features
+
+Example:
+
+```
+!v[1.2;!schema[urn:example:schema:v1;!ts[2025-11-18T12:00:00Z;!features{types~null~canon}
+id[1;name[Ana
+```
+
+## Explicit Types (v1.2)
+
+Keys MAY include a compact suffix after `@` to indicate intended interpretation:
+`@i` integer, `@f` float, `@b` boolean, `@s` string, `@null` null, `@d` date, `@t` time, `@ts` timestamp.
+
+Consumers MUST NOT fail on unknown type codes; they MAY ignore the suffix.
+
+## Standard Error Codes (v1.2)
+
+- E01: Invalid escape sequence
+- E02: Unterminated array `}` missing
+- E03: Unexpected end of record
+- E04: Invalid boolean value
+- E05: Invalid null use (feature not enabled)
+- E06: Malformed typed key suffix
+- E07: Limit exceeded (size/fields/depth)
+- E08: Invalid UTF‑8 sequence
+- E09: Malformed header metadata
+- E10: Unknown directive (fatal)
 
 ---
 

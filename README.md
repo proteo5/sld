@@ -22,6 +22,15 @@
 - **[Migration Guide](MIGRATION.md)** - v1.0 → v1.1 upgrade guide
   - [SPECIFICATION.md](SPECIFICATION.md) - Deprecated v1.0 specification
 
+### v1.2 Optional Extensions (draft)
+
+- Canonicalization profile (stable ordering, NFC, normalized numbers)
+- Header metadata record with reserved `!` keys and `!features{...}` negotiation
+- Explicit type suffix in keys (`@i`, `@f`, `@b`, `@s`, `@null`, `@d`, `@t`, `@ts`)
+- Optional null token `^_` when negotiated
+
+See the specifications for normative details.
+
 ### Language-Specific Documentation
 
 - **[README en Español](README.es.md)** - Complete Spanish documentation

@@ -1,4 +1,19 @@
 # Changelog
+## [1.2.0] - 2025-11-18
+
+### Added
+
+- Canonicalization profile: stable field order, arrays without trailing `~`, NFC normalization, normalized number formats.
+- Header metadata record (reserved `!` keys): `!v`, `!schema`, `!ts`, `!source`, `!features{...}`.
+- Optional explicit types via key suffix `@i @f @b @s @null @d @t @ts`.
+- Optional null token `^_` (requires `!features{null}` negotiation).
+- Standardized error codes E01–E10 for decoders.
+
+### Compatibility
+
+- These features are additive and backward compatible when producers negotiate via `!features`. v1.1 decoders can ignore unknown `!` keys and type suffixes. Producers SHOULD avoid emitting `^_` unless the peer advertises support.
+
+---
 
 All notable changes to the SLD/MLD format will be documented in this file.
 

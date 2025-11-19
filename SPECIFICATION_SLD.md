@@ -1,4 +1,4 @@
-# SLD Format Specification v1.1
+# SLD Format Specification v1.1 (with v1.2 extensions)
 
 **Single Line Data (SLD)** - Maximum token efficiency in a single line
 
@@ -90,13 +90,26 @@ price[3999.90;quantity[5;
 active[^1;verified[^0;
 ```
 
-**Null/Empty:** Consecutive delimiters
+**Null/Empty (v1.1):** Consecutive delimiters
 
 ```sld
 name;;age;30
 ```
 
 (name is null, age is 30)
+
+#### Null Value (v1.2 extension)
+
+- Canonical null MAY be encoded as the escape sequence `^_`.
+- Producers MUST only emit `^_` when the peer declares support via the header metadata `!features[null]` (see Header Metadata).
+- For backward compatibility, producers SHOULD prefer `campo@null[` (typed-null; see Explicit Types) or empty value when interoperability with v1.1 decoders is required.
+
+Examples:
+
+```sld
+note[^_      ; # typed as null if feature negotiated
+missing@null[; # backward-compatible typed null (empty payload)
+```
 
 #### Structured Data
 
@@ -220,9 +233,15 @@ data_row        ::= value ( ";" value )*
 key             ::= escaped_string
 value           ::= escaped_string | boolean | ""
 boolean         ::= "^0" | "^1"
+null            ::= "^_"            (* v1.2 optional *)
 escaped_string  ::= ( escaped_char | regular_char )*
 escaped_char    ::= "^" ( ";" | "~" | "[" | "{" | "}" | "^" )
 regular_char    ::= any character except ";", "~", "[", "{", "}", "^"
+
+(* Typed properties (v1.2 optional): key may carry a type suffix after '@' *)
+typed_key       ::= key "@" type_code
+type_code       ::= "i" | "f" | "b" | "s" | "null" | "d" | "t" | "ts"
+                   (* int, float, bool, string, null, date, time, timestamp *)
 ```
 
 **Notes:**
@@ -356,6 +375,20 @@ def decode_sld(sld_string):
 
 ## Performance Characteristics
 
+## Canonicalization Profile (v1.2)
+
+This section defines a canonical form for producers. Decoders MUST accept non‑canonical input; canonicalization is RECOMMENDED for signing, hashing, and deterministic diffs.
+
+- Field order: Properties within a record SHOULD be emitted with a stable order (RECOMMENDED: lexicographic by key; arrays retain input order).
+- Arrays: No trailing `~` before `}`. Empty arrays are `{}`.
+- Whitespace: Whitespace outside values is PROHIBITED. Inside values it is literal (escaped as needed).
+- Unicode: Producers SHOULD normalize values to NFC. Decoders MAY accept any normalization.
+- Numbers: Integers without leading `+` or zeros (except zero itself). Floats use `.` as decimal separator and lowercase `e` for scientific notation.
+- Booleans: Always `^1` / `^0`.
+- Null: Prefer `campo@null[` (empty payload) for maximum interoperability; `^_` only when negotiated.
+
+Canonicalization is a production rule; it does not alter the acceptance criteria of decoders.
+
 ### Token Efficiency
 
 Based on empirical testing with GPT-style tokenizers:
@@ -435,6 +468,21 @@ Implementations SHOULD provide clear errors for:
 - Malformed field separators
 - Character encoding issues
 
+### Standard Error Codes (v1.2)
+
+Implementations MAY report standardized error codes to improve interoperability:
+
+- E01: Invalid escape sequence
+- E02: Unterminated array `}` missing
+- E03: Unexpected record terminator
+- E04: Invalid boolean (only `^0` or `^1` allowed)
+- E05: Invalid null (requires `^_` feature or typed-null)
+- E06: Malformed typed key suffix (unknown type code)
+- E07: Exceeded implementation limits (size/fields/nesting)
+- E08: Invalid UTF‑8 sequence
+- E09: Header metadata malformed
+- E10: Unknown directive (fatal)
+
 ## Conformance
 
 An implementation is SLD v1.1-compliant if it:
@@ -445,6 +493,51 @@ An implementation is SLD v1.1-compliant if it:
 4. Produces single-line output
 5. Preserves data integrity through encode/decode cycles
 6. Uses `;` as field separator (not `|`)
+
+### v1.2 Optional Extensions
+
+An implementation advertising v1.2 support SHOULD additionally:
+
+1. Parse and optionally emit typed keys using the suffix form `name@i[` `name@f[` `name@b[` `name@s[` `name@null[` etc.
+2. Recognize `^_` as null when `!features` includes `null`.
+3. Respect and/or emit the canonicalization profile.
+4. Parse a metadata header record when present (see next section).
+
+## Header Metadata (v1.2)
+
+Producers MAY include a leading metadata record using reserved keys prefixed with `!`. Decoders that do not recognize these keys will treat them as ordinary fields and MAY ignore them.
+
+Placement:
+- SLD: The metadata record appears as the first record (before application data).
+
+Reserved keys:
+- `!v[1.2]` – Declared format minor version.
+- `!schema[<uri>]` – Schema or contract identifier.
+- `!ts[<iso-8601>]` – Timestamp of production.
+- `!source[<text>]` – Origin of the data.
+- `!features{types~null~canon}` – Enabled optional features (array of tokens).
+
+Example (SLD):
+
+```sld
+!v[1.2;!schema[urn:example:schema:v1;!ts[2025-11-18T12:00:00Z;!features{types~null~canon}~
+id[1;name[Ana~id[2;name[Carlos
+```
+
+### Explicit Types (v1.2)
+
+Keys MAY include a compact type suffix after `@` to signal the intended type of the value to consumers:
+
+- `@i` integer, `@f` float, `@b` boolean, `@s` string, `@null` null,
+- `@d` date, `@t` time, `@ts` timestamp (ISO‑8601 strings recommended).
+
+Examples:
+
+```sld
+age@i[42; price@f[3999.90; active@b[^1; title@s[Hello; removed@null[
+```
+
+Unknown type codes MUST NOT cause parse failure; consumers MAY ignore the suffix and treat as string.
 
 ## Related Formats
 

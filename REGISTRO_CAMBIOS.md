@@ -1,4 +1,19 @@
 # Registro de Cambios
+## [1.2.0] - 2025-11-18
+
+### Agregado
+
+- Perfil de Canonicalización: orden estable de campos, arrays sin `~` final, normalización NFC, formato numérico normalizado.
+- Registro de metadatos (claves reservadas con `!`): `!v`, `!schema`, `!ts`, `!source`, `!features{...}`.
+- Tipos explícitos opcionales con sufijo `@i @f @b @s @null @d @t @ts`.
+- Token opcional de null `^_` (requiere negociación `!features{null}`).
+- Tabla de códigos de error E01–E10 para decodificadores.
+
+### Compatibilidad
+
+- Cambios aditivos y compatibles hacia atrás cuando los productores negocian mediante `!features`. Los decodificadores v1.1 pueden ignorar claves `!` y sufijos de tipo desconocidos. Los productores DEBEN evitar `^_` salvo que la contraparte anuncie soporte.
+
+---
 
 Todos los cambios notables en este proyecto serán documentados en este archivo.
 
