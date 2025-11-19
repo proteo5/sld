@@ -220,13 +220,13 @@ optional[;required[value
 ### 4.6 Null (v1.2 alternative)
 
 - Canonical null MAY be encoded as the escape sequence `^_` when the `null` feature is negotiated via header metadata (see Header Metadata v1.2).
-- For maximum compatibility with v1.1 decoders, producers SHOULD prefer the typed-null suffix `campo@null[` with empty payload, or omit the field entirely when semantics allow.
+- For maximum compatibility with v1.1 decoders, producers SHOULD prefer the typed-null tag `campo!n[` (empty payload), or omit the field entirely when semantics allow.
 
 Examples:
 
 ```
 deleted[^_
-deleted@null[
+deleted!n[
 ```
 
 ---
@@ -404,11 +404,12 @@ The following productions extend the grammar for optional features:
 
 ```ebnf
 null_token  = ESCAPE "_" ;                 (* alternative null *)
-typed_key   = identifier "@" type_code ;
-type_code   = "i" | "f" | "b" | "s" | "null" | "d" | "t" | "ts" ;
+type_code   = "i" | "f" | "b" | "s" | "n" | "d" | "t" | "ts" ;
+property    = identifier [ "!" type_code ] PROP_MARKER property_value
+array_value = ARRAY_START ( element ( "~" element )* )? ARRAY_END    (* unchanged semantics; type applies at property level *)
 ```
 
-Parsers SHOULD accept keys with `@type` suffix and MAY ignore unknown `type_code` values.
+Parsers SHOULD accept inline `!type` tags and MAY ignore unknown `type_code` values.
 
 ## 8. Encoding Algorithm
 
@@ -880,8 +881,8 @@ id[1;name[Ana
 
 ## Explicit Types (v1.2)
 
-Keys MAY include a compact suffix after `@` to indicate intended interpretation:
-`@i` integer, `@f` float, `@b` boolean, `@s` string, `@null` null, `@d` date, `@t` time, `@ts` timestamp.
+Keys MAY include an inline type tag before the value marker using `!code`:
+`!i` integer, `!f` float, `!b` boolean, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
 
 Consumers MUST NOT fail on unknown type codes; they MAY ignore the suffix.
 

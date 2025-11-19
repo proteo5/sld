@@ -102,13 +102,13 @@ name;;age;30
 
 - Canonical null MAY be encoded as the escape sequence `^_`.
 - Producers MUST only emit `^_` when the peer declares support via the header metadata `!features[null]` (see Header Metadata).
-- For backward compatibility, producers SHOULD prefer `campo@null[` (typed-null; see Explicit Types) or empty value when interoperability with v1.1 decoders is required.
+- For backward compatibility, producers SHOULD prefer `campo!n[` (typed null; see Explicit Types) or empty value when interoperability with v1.1 decoders is required.
 
 Examples:
 
 ```sld
 note[^_      ; # typed as null if feature negotiated
-missing@null[; # backward-compatible typed null (empty payload)
+missing!n[; # backward-compatible typed null (empty payload)
 ```
 
 #### Structured Data
@@ -238,9 +238,10 @@ escaped_string  ::= ( escaped_char | regular_char )*
 escaped_char    ::= "^" ( ";" | "~" | "[" | "{" | "}" | "^" )
 regular_char    ::= any character except ";", "~", "[", "{", "}", "^"
 
-(* Typed properties (v1.2 optional): key may carry a type suffix after '@' *)
-typed_key       ::= key "@" type_code
-type_code       ::= "i" | "f" | "b" | "s" | "null" | "d" | "t" | "ts"
+(* Typed properties (v1.2 optional): key may carry an inline type tag before '[' or '{' using '!code' *)
+type_code       ::= "i" | "f" | "b" | "s" | "n" | "d" | "t" | "ts"
+property        ::= key [ "!" type_code ] "[" value
+array           ::= key [ "!" type_code ] "{" array_body "}"
                    (* int, float, bool, string, null, date, time, timestamp *)
 ```
 
@@ -385,7 +386,7 @@ This section defines a canonical form for producers. Decoders MUST accept non‑
 - Unicode: Producers SHOULD normalize values to NFC. Decoders MAY accept any normalization.
 - Numbers: Integers without leading `+` or zeros (except zero itself). Floats use `.` as decimal separator and lowercase `e` for scientific notation.
 - Booleans: Always `^1` / `^0`.
-- Null: Prefer `campo@null[` (empty payload) for maximum interoperability; `^_` only when negotiated.
+- Null: Prefer `campo!n[` (empty payload) for maximum interoperability; `^_` only when negotiated when types unsupported.
 
 Canonicalization is a production rule; it does not alter the acceptance criteria of decoders.
 
@@ -498,7 +499,7 @@ An implementation is SLD v1.1-compliant if it:
 
 An implementation advertising v1.2 support SHOULD additionally:
 
-1. Parse and optionally emit typed keys using the suffix form `name@i[` `name@f[` `name@b[` `name@s[` `name@null[` etc.
+1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` `name!n[` etc.
 2. Recognize `^_` as null when `!features` includes `null`.
 3. Respect and/or emit the canonicalization profile.
 4. Parse a metadata header record when present (see next section).
@@ -526,15 +527,15 @@ id[1;name[Ana~id[2;name[Carlos
 
 ### Explicit Types (v1.2)
 
-Keys MAY include a compact type suffix after `@` to signal the intended type of the value to consumers:
+Keys MAY include an optional inline type tag using `!code` immediately before the value marker `[` or `{`:
 
-- `@i` integer, `@f` float, `@b` boolean, `@s` string, `@null` null,
-- `@d` date, `@t` time, `@ts` timestamp (ISO‑8601 strings recommended).
+- `!i` integer, `!f` float, `!b` boolean, `!s` string, `!n` null,
+- `!d` date, `!t` time, `!ts` timestamp (ISO‑8601 strings recommended).
 
 Examples:
 
 ```sld
-age@i[42; price@f[3999.90; active@b[^1; title@s[Hello; removed@null[
+age!i[42; price!f[3999.90; active!b[^1; title!s[Hello; removed!n[
 ```
 
 Unknown type codes MUST NOT cause parse failure; consumers MAY ignore the suffix and treat as string.

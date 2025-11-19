@@ -26,8 +26,8 @@
 
 - Canonicalization profile (stable ordering, NFC, normalized numbers)
 - Header metadata record with reserved `!` keys and `!features{...}` negotiation
-- Explicit type suffix in keys (`@i`, `@f`, `@b`, `@s`, `@null`, `@d`, `@t`, `@ts`)
-- Optional null token `^_` when negotiated
+- Inline type tags before `[` or `{`: `!i !f !b !s !n !d !t !ts` (e.g. `age!i[42`, `ids!i{1~2}`)
+- Canonical typed null `!n[`; legacy alternative `^_` when types not negotiated
 
 See the specifications for normative details.
 

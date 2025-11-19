@@ -3,15 +3,15 @@
 
 ### Agregado
 
-- Perfil de Canonicalización: orden estable de campos, arrays sin `~` final, normalización NFC, formato numérico normalizado.
+- Perfil de canonicalización: orden estable de campos, arrays sin `~` final, normalización NFC, formato numérico normalizado.
 - Registro de metadatos (claves reservadas con `!`): `!v`, `!schema`, `!ts`, `!source`, `!features{...}`.
-- Tipos explícitos opcionales con sufijo `@i @f @b @s @null @d @t @ts`.
-- Token opcional de null `^_` (requiere negociación `!features{null}`).
+- Tipos explícitos opcionales con etiqueta inline `!i !f !b !s !n !d !t !ts` antes del valor.
+- Token de null opcional `^_` (compatibilidad legacy) y null tipado canónico `!n[`.
 - Tabla de códigos de error E01–E10 para decodificadores.
 
 ### Compatibilidad
 
-- Cambios aditivos y compatibles hacia atrás cuando los productores negocian mediante `!features`. Los decodificadores v1.1 pueden ignorar claves `!` y sufijos de tipo desconocidos. Los productores DEBEN evitar `^_` salvo que la contraparte anuncie soporte.
+- Cambios aditivos y compatibles hacia atrás cuando los productores negocian mediante `!features`. Los decodificadores v1.1 pueden ignorar claves `!` y etiquetas de tipo inline desconocidas. Los productores DEBEN evitar `^_` salvo que la contraparte anuncie soporte; preferir `!n[` cuando la característica `types` esté habilitada.
 
 ---
 

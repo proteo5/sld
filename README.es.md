@@ -42,8 +42,8 @@
 
 - Perfil de canonicalización (orden estable, NFC, números normalizados)
 - Registro de metadatos con claves `!` y negociación `!features{...}`
-- Sufijo de tipo en claves (`@i`, `@f`, `@b`, `@s`, `@null`, `@d`, `@t`, `@ts`)
-- Token de null `^_` opcional cuando se negocia
+- Etiquetas de tipo inline antes de `[` o `{`: `!i !f !b !s !n !d !t !ts` (ej. `edad!i[42`, `ids!i{1~2}`)
+- Null tipado canónico `!n[`; alternativa legacy `^_` cuando no hay negociación de tipos
 
 Consulta las especificaciones para los detalles normativos.
 

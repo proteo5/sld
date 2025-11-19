@@ -5,13 +5,13 @@
 
 - Canonicalization profile: stable field order, arrays without trailing `~`, NFC normalization, normalized number formats.
 - Header metadata record (reserved `!` keys): `!v`, `!schema`, `!ts`, `!source`, `!features{...}`.
-- Optional explicit types via key suffix `@i @f @b @s @null @d @t @ts`.
-- Optional null token `^_` (requires `!features{null}` negotiation).
+- Optional explicit types via inline tag `!i !f !b !s !n !d !t !ts` before value marker.
+- Optional null token `^_` (legacy compatibility) and canonical typed null `!n[`.
 - Standardized error codes E01–E10 for decoders.
 
 ### Compatibility
 
-- These features are additive and backward compatible when producers negotiate via `!features`. v1.1 decoders can ignore unknown `!` keys and type suffixes. Producers SHOULD avoid emitting `^_` unless the peer advertises support.
+- These features are additive and backward compatible when producers negotiate via `!features`. v1.1 decoders can ignore unknown `!` keys and inline type tags. Producers SHOULD avoid emitting `^_` unless the peer advertises support; prefer `!n[` for typed null when `types` feature is enabled.
 
 ---
 
