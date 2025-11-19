@@ -1,37 +1,75 @@
-<svg width="600" height="120" viewBox="0 0 600 120" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="600" height="120" fill="#f8f8f8" stroke="#eee"/>
-  <g font-family="Arial, Helvetica, sans-serif" font-size="18">
-    <text x="20" y="40" fill="#222">SLD Record:</text>
-    <rect x="140" y="18" width="420" height="32" rx="8" fill="#fff" stroke="#bbb"/>
-    <text x="150" y="40" fill="#0066cc">name</text>
-    <text x="200" y="40" fill="#222">[</text>
-    <text x="215" y="40" fill="#222">Alice</text>
-    <text x="270" y="40" fill="#888">;</text>
-    <text x="290" y="40" fill="#0066cc">age</text>
-    <text x="340" y="40" fill="#222">[</text>
-    <text x="355" y="40" fill="#222">30</text>
-    <text x="390" y="40" fill="#888">;</text>
-    <text x="410" y="40" fill="#0066cc">tags</text>
-    <text x="470" y="40" fill="#222">{</text>
-    <text x="485" y="40" fill="#222">admin</text>
-    <text x="535" y="40" fill="#888">~</text>
-    <text x="555" y="40" fill="#222">user</text>
-    <text x="590" y="40" fill="#222">}</text>
+<svg width="800" height="150" viewBox="0 0 800 150" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <style>
+      .code { font-family: "Menlo", "Monaco", "Consolas", monospace; font-size: 18px; font-weight: bold; }
+      .label { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-size: 11px; fill: #6b7280; }
+      .line { stroke: #e5e7eb; stroke-width: 1; }
+      .line-dashed { stroke: #e5e7eb; stroke-width: 1; stroke-dasharray: 3 3; }
+    </style>
+  </defs>
+
+  <!-- Background -->
+  <rect x="0" y="0" width="800" height="150" fill="#ffffff" />
+  
+  <!-- Main Record Box -->
+  <rect x="10" y="20" width="780" height="46" rx="8" fill="#f9fafb" stroke="#e5e7eb" stroke-width="1"/>
+  
+  <!-- Code Elements -->
+  <g class="code" text-anchor="middle">
+    <!-- name[Alice; -->
+    <text x="60" y="50" fill="#2563eb">name</text>
+    <text x="105" y="50" fill="#9ca3af">[</text>
+    <text x="150" y="50" fill="#111827">Alice</text>
+    <text x="200" y="50" fill="#ef4444">;</text>
+    
+    <!-- age[30; -->
+    <text x="240" y="50" fill="#2563eb">age</text>
+    <text x="280" y="50" fill="#9ca3af">[</text>
+    <text x="315" y="50" fill="#059669">30</text>
+    <text x="350" y="50" fill="#ef4444">;</text>
+    
+    <!-- tags{admin~user} -->
+    <text x="400" y="50" fill="#2563eb">tags</text>
+    <text x="450" y="50" fill="#9ca3af">{</text>
+    <text x="510" y="50" fill="#111827">admin</text>
+    <text x="570" y="50" fill="#ef4444">~</text>
+    <text x="630" y="50" fill="#111827">user</text>
+    <text x="680" y="50" fill="#9ca3af">}</text>
   </g>
-  <g font-family="Arial, Helvetica, sans-serif" font-size="14">
-    <text x="150" y="70" fill="#888">Field name</text>
-    <text x="200" y="70" fill="#888">Property marker</text>
-    <text x="215" y="70" fill="#888">Value</text>
-    <text x="270" y="70" fill="#888">Field separator</text>
-    <text x="290" y="70" fill="#888">Field name</text>
-    <text x="340" y="70" fill="#888">Property marker</text>
-    <text x="355" y="70" fill="#888">Value</text>
-    <text x="390" y="70" fill="#888">Field separator</text>
-    <text x="410" y="70" fill="#888">Field name</text>
-    <text x="470" y="70" fill="#888">Array marker</text>
-    <text x="485" y="70" fill="#888">Array value</text>
-    <text x="535" y="70" fill="#888">Array separator</text>
-    <text x="555" y="70" fill="#888">Array value</text>
-    <text x="590" y="70" fill="#888">Array close</text>
+
+  <!-- Annotations Row 1 (Data) -->
+  <g class="label" text-anchor="middle">
+    <text x="60" y="90">Field Name</text>
+    <line x1="60" y1="60" x2="60" y2="80" class="line" />
+    
+    <text x="150" y="90">String Value</text>
+    <line x1="150" y1="60" x2="150" y2="80" class="line" />
+    
+    <text x="315" y="90">Number</text>
+    <line x1="315" y1="60" x2="315" y2="80" class="line" />
+    
+    <text x="510" y="90">Array Item</text>
+    <line x1="510" y1="60" x2="510" y2="80" class="line" />
+    
+    <text x="630" y="90">Array Item</text>
+    <line x1="630" y1="60" x2="630" y2="80" class="line" />
+  </g>
+
+  <!-- Annotations Row 2 (Structure) -->
+  <g class="label" text-anchor="middle">
+    <text x="105" y="125">Prop Marker</text>
+    <line x1="105" y1="60" x2="105" y2="115" class="line-dashed" />
+    
+    <text x="200" y="125">Separator</text>
+    <line x1="200" y1="60" x2="200" y2="115" class="line-dashed" />
+    
+    <text x="450" y="125">Array Start</text>
+    <line x1="450" y1="60" x2="450" y2="115" class="line-dashed" />
+    
+    <text x="570" y="125">Array Sep</text>
+    <line x1="570" y1="60" x2="570" y2="115" class="line-dashed" />
+
+    <text x="680" y="125">Array End</text>
+    <line x1="680" y1="60" x2="680" y2="115" class="line-dashed" />
   </g>
 </svg>
