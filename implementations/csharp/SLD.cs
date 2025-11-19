@@ -220,7 +220,7 @@ namespace SLD
                     var parts = field.Split(new[] { PROPERTY_MARKER }, 2);
                     string key = UnescapeValue(parts[0]).ToString();
                     string value = parts.Length > 1 ? UnescapeValue(parts[1]).ToString() : "";
-                    
+
                     // Handle null (^_)
                     if (value == "^_")
                     {

@@ -93,31 +93,27 @@ active[^1;verified[^0;
 
 #### Null Value
 
-- Null is represented by the escape sequence `^_` (caret underscore).
-- Parsers MUST recognize `^_` as null.
-- Empty values (consecutive delimiters like `;;` or empty after `[`) are treated as empty strings, NOT null.
+Null has two representations depending on whether inline types are used:
+
+1. **Untyped null**: `^_` (caret underscore) - use when NOT using inline types
+2. **Typed null**: `!n[` (empty payload with type tag) - use when using inline types for consistency
+
+Parsers MUST recognize both forms.
+
+Empty values (consecutive delimiters like `;;` or empty after `[`) are treated as empty strings, NOT null.
 
 Examples:
 
 ```sld
+# Without inline types (baseline)
 name[^_;age[30    # name is null, age is 30
 opt[^_;text[];num[0  # opt is null, text is empty string, num is 0
+
+# With inline types (v2.0 optional feature)
+name!s[Alice;age!i[30;removed!n[;active!b[1
 ```
 
 #### Structured Data
-```
-
-#### Null Value
-
-- Null is represented by the escape sequence `^_` (caret underscore).
-- Parsers MUST recognize `^_` as null.
-- Empty values (consecutive delimiters like `;;` or empty after `[`) are treated as empty strings, NOT null.
-
-Examples:
-
-```sld
-name[^_;age[30    # name is null, age is 30
-opt[^_;text[];num[0  # opt is null, text is empty string, num is 0
 ```
 
 #### Structured Data
@@ -395,7 +391,7 @@ This section defines a canonical form for producers. Decoders MUST accept non‑
 - Unicode: Producers SHOULD normalize values to NFC. Decoders MAY accept any normalization.
 - Numbers: Integers without leading `+` or zeros (except zero itself). Floats use `.` as decimal separator and lowercase `e` for scientific notation.
 - Booleans: Always `^1` / `^0`.
-- Null: Use `^_` for null values; empty values (no chars after `[`) are empty strings.
+- Null: Use `!n[` when using inline types; use `^_` otherwise; empty values are empty strings.
 
 Canonicalization is a production rule; it does not alter the acceptance criteria of decoders.
 
@@ -508,8 +504,8 @@ An implementation is SLD v2.0-compliant if it:
 
 An implementation advertising v2.0 optional feature support SHOULD additionally:
 
-1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` etc.
-2. Recognize `^_` as null.
+1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` `name!n[` etc.
+2. Recognize `^_` as untyped null and `!n[` as typed null.
 3. Respect and/or emit the canonicalization profile.
 4. Parse a metadata header record when present (see next section).
 
@@ -538,13 +534,13 @@ id[1;name[Ana~id[2;name[Carlos
 
 Keys MAY include an optional inline type tag using `!code` immediately before the value marker `[` or `{`:
 
-- `!i` integer, `!f` float, `!b` boolean, `!s` string,
+- `!i` integer, `!f` float, `!b` boolean, `!s` string, `!n` null,
 - `!d` date, `!t` time, `!ts` timestamp (ISO‑8601 strings recommended).
 
 Examples:
 
 ```sld
-age!i[42; price!f[3999.90; active!b[^1; title!s[Hello; removed[^_
+age!i[42; price!f[3999.90; active!b[^1; title!s[Hello; removed!n[
 ```
 
 Unknown type codes MUST NOT cause parse failure; consumers MAY ignore the suffix and treat as string.
@@ -571,7 +567,7 @@ tr '\n' '~' < file.mld | sed 's/~$//' > file.sld
 - **v2.0 (2025-11-18)**:
   - Consolidated v1.1 baseline + v1.2 extensions into unified v2.0
   - Semicolon field separator (`;`), curly brace arrays (`{}`)
-  - Null represented as `^_` (not consecutive delimiters)
+  - Null: `^_` (untyped) or `!n[` (typed with inline types)
   - Optional features: inline typing, headers, canonicalization
   - **BREAKING CHANGE**: Not compatible with v1.0
   

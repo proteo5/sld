@@ -78,8 +78,8 @@ Funciones aditivas negociadas con `!features{types}`; decodificadores sin soport
 ### Etiquetas de tipo inline
 
 - Coloca `!codigo` inmediatamente antes de `[` o `{`.
-- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!d` date, `!t` time, `!ts` timestamp.
-- Valores null usan secuencia de escape `^_`.
+- Códigos: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
+- Null también puede ser `^_` cuando NO usas inline types.
 
 Ejemplos:
 
@@ -87,7 +87,7 @@ Ejemplos:
 edad!i[42; precio!f[399.90; activo!b[^1; titulo!s[Hola
 ids!i{1~2~3}
 creado!ts[2025-11-18T12:00:00Z
-eliminado[^_    # null explícito
+eliminado!n[    # null tipado
 ```
 
 ### Registro de metadatos (línea 0)

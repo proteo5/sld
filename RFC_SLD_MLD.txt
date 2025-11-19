@@ -60,8 +60,9 @@ Table of Contents
       4.4. Null Values ...............................................12
    5. v2.0 Optional Features .........................................13
       5.1. Inline Type Tags ..........................................13
-      5.2. Header Metadata ...........................................14
-      5.3. Canonicalization Profile ..................................15
+      5.2. Typed Null ................................................14
+      5.3. Header Metadata ...........................................15
+      5.4. Canonicalization Profile ..................................16
    6. Encoding and Decoding ..........................................16
       6.1. Encoding Rules ............................................16
       6.2. Decoding Rules ............................................17
@@ -365,15 +366,21 @@ Table of Contents
 
 4.4. Null Values
 
-   Null is represented by the escape sequence ^_ (caret underscore).
+   Null has two representations depending on context:
 
-   Example: optional[^_
+   1. Untyped null: ^_ (caret underscore)
+      Example: optional[^_
+      Use when NOT using inline type tags.
 
-   Parsers MUST recognize ^_ as null.  Empty values (no characters
+   2. Typed null: !n[ (empty payload with type tag)
+      Example: optional!n[
+      Use when using inline type tags for consistency.
+
+   Parsers MUST recognize both forms.  Empty values (no characters
    after [) MUST be interpreted as empty strings, NOT null.
 
-   This explicit representation distinguishes null from empty string,
-   avoiding ambiguity in data representation.
+   This dual representation allows null to integrate seamlessly with
+   both baseline (untyped) and typed (v2.0 optional) usage patterns.
 
 
 5. v2.0 Optional Features
@@ -400,6 +407,7 @@ Table of Contents
    | f    | Float          | price!f[19.99           |
    | b    | Boolean        | active!b[1              |
    | s    | String         | name!s[Alice            |
+   | n    | Null           | opt!n[                  |
    | d    | Date           | birth!d[2000-01-01      |
    | t    | Time           | start!t[14:30:00        |
    | ts   | Timestamp      | created!ts[2025-11-18T12:00Z |
@@ -414,7 +422,27 @@ Table of Contents
    Parsers MUST validate that values conform to their declared types.
    Invalid type-value combinations SHOULD result in parse errors.
 
-5.2. Header Metadata
+5.2. Typed Null
+
+   When inline typing is enabled, null values SHOULD use the typed
+   form for consistency:
+
+      field!n[
+
+   This consists of:
+   o  The field name
+   o  Type tag !n
+   o  Empty value marker [
+   o  No payload
+
+   Example record with mixed types including null:
+
+      id!i[100;name!s[Alice;score!f[95.5;notes!n[
+
+   Baseline implementations MAY use ^_ for null even when types are
+   present, but typed null (!n[) is RECOMMENDED for consistency.
+
+5.3. Header Metadata
 
    Documents MAY include a header record as the first record, using
    keys prefixed with exclamation point (!).  Reserved header keys:
@@ -450,7 +478,7 @@ Table of Contents
    from data records.  Header fields MUST NOT be interpreted as
    application data.
 
-5.3. Canonicalization Profile
+5.4. Canonicalization Profile
 
    Canonical SLD/MLD enforces deterministic serialization for
    cryptographic hashing, caching, and comparison.  Requirements:
@@ -470,7 +498,7 @@ Table of Contents
 
    5. Boolean Consistency: Use !b[1 and !b[0 (not ^1/^0).
 
-   6. Null Consistency: Use ^_ for null values.
+   6. Null Consistency: Use !n[ (not ^_) when inline types enabled.
 
    7. No Extraneous Whitespace: Implementations MUST NOT add spaces
       or tabs around delimiters.
@@ -509,7 +537,8 @@ Table of Contents
 
    o  Sort fields lexicographically when canonical output is needed.
 
-   o  Use ^_ for null values.
+   o  Use !n[ for null when inline types are enabled; use ^_
+      otherwise.
 
 6.2. Decoding Rules
 
@@ -522,7 +551,7 @@ Table of Contents
 
    3. Treat ^1 and ^0 as boolean true and false.
 
-   4. Recognize ^_ as null.
+   4. Recognize both ^_ and !n[ as null.
 
    5. Validate that arrays are properly closed with }.
 
@@ -603,7 +632,7 @@ Table of Contents
    o  Strings
    o  Numbers (as strings or typed with !i/!f)
    o  Booleans (^1/^0 or !b[1/!b[0)
-   o  Null (^_)
+   o  Null (^_ or !n[)
 
    Not supported:
    o  Nested objects (without extension)
@@ -795,7 +824,7 @@ Appendix B. Test Vectors
 
       Input SLD:
          !v[2.0;!features{types}~
-         id!i[100;name!s[Bob;score!f[85.5;notes[^_~
+         id!i[100;name!s[Bob;score!f[85.5;notes!n[~
 
       Expected JSON:
          {"header": {"!v": "2.0", "!features": ["types"]},
@@ -840,7 +869,7 @@ Appendix C. Implementation Guidance
    C.3. Compatibility
 
    To maximize compatibility with existing systems:
-   o  Recognize ^_ as null value
+   o  Recognize both ^_ and !n[ as null
    o  Accept both LF and CRLF in MLD
    o  Tolerate trailing whitespace after records
    o  Provide options for strict vs. lenient parsing

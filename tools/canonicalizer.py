@@ -22,7 +22,7 @@ from validator import parse_sld, parse_mld, detect_header, ESC, FIELD_SEP, REC_S
 # - Stable key ordering (lexicographic)
 # - NFC normalization of all string scalars
 # - No trailing '~' inside arrays
-# - Null encoded as ^_
+# - Null encoded as !n[ (typed null for consistency with inline types)
 # - Booleans encoded as !b[1 or !b[0
 # - Optional scalar typing for simple numeric types (int/float) using !i / !f
 # - Arrays encoded with '{' elements joined by '~' and closed with '}'
@@ -42,9 +42,9 @@ def escape_scalar(value: str) -> str:
 
 
 def encode_value(key: str, value: Any) -> str:
-    # Decide typed vs untyped
+    # Use typed forms for canonicalization (consistent with inline types)
     if value is None:
-        return f"{key}[^_"
+        return f"{key}!n["
     if isinstance(value, bool):
         return f"{key}!b[{1 if value else 0}"
     if isinstance(value, int) and not isinstance(value, bool):
@@ -56,7 +56,7 @@ def encode_value(key: str, value: Any) -> str:
         elems = []
         for elem in value:
             if elem is None:
-                elems.append('^_')  # element null
+                elems.append('!n[')  # typed null for array elements
             elif isinstance(elem, bool):
                 elems.append(f"!b[{1 if elem else 0}")
             elif isinstance(elem, int) and not isinstance(elem, bool):

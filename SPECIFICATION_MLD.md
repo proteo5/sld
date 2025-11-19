@@ -219,16 +219,25 @@ optional[;required[value
 
 ### 4.6 Null
 
-- Null is represented by the escape sequence `^_` (caret underscore).
-- Parsers MUST recognize `^_` as null.
-- Empty values (consecutive delimiters or empty after `[`) are treated as empty strings, NOT null.
+Null has two representations depending on whether inline types are used:
 
-Example:
+1. **Untyped null**: `^_` (caret underscore) - use when NOT using inline types
+2. **Typed null**: `!n[` (empty payload with type tag) - use when using inline types for consistency
+
+Parsers MUST recognize both forms.
+
+Empty values (consecutive delimiters or empty after `[`) are treated as empty strings, NOT null.
+
+Examples:
 
 ```
+# Without inline types
 deleted[^_
 optional[^_
 text[]    # empty string, not null
+
+# With inline types
+name!s[Alice;age!i[30;removed!n[
 ```
 
 ---

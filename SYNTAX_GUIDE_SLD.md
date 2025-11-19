@@ -82,9 +82,9 @@ year[2024~
 
 Type hints are optional and negotiated via `!features{types}`. Place `!code` immediately before the value marker.
 
-Codes: `!i` int, `!f` float, `!b` bool, `!s` string, `!d` date, `!t` time, `!ts` timestamp.
+Codes: `!i` int, `!f` float, `!b` bool, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
 
-Null values use escape sequence `^_`.
+Null can also be represented as `^_` when NOT using inline types.
 
 Examples:
 
@@ -93,7 +93,7 @@ age!i[42~
 price!f[399.90~
 active!b[^1~
 title!s[Hello~
-removed[^_~
+removed!n[~
 ids!i{1~2~3}~
 created!ts[2025-11-18T12:00:00Z~
 ```

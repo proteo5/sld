@@ -183,12 +183,12 @@ public class SLDParser {
             }
 
             // Check for property marker
-            if (field.contains(String.valueOf(PROPERTY_MARKER)) && 
+            if (field.contains(String.valueOf(PROPERTY_MARKER)) &&
                 !field.contains(ESCAPE_CHAR + String.valueOf(PROPERTY_MARKER))) {
                 String[] parts = field.split("\\\\" + PROPERTY_MARKER, 2);
                 String key = unescapeValue(parts[0]).toString();
                 String value = parts.length > 1 ? unescapeValue(parts[1]).toString() : "";
-                
+
                 // Handle null (^_)
                 if ("^_".equals(value)) {
                     record.put(key, null);
@@ -197,7 +197,7 @@ public class SLDParser {
                 }
             }
             // Check for array marker
-            else if (field.contains(String.valueOf(ARRAY_MARKER)) && 
+            else if (field.contains(String.valueOf(ARRAY_MARKER)) &&
                      !field.contains(ESCAPE_CHAR + String.valueOf(ARRAY_MARKER))) {
                 String[] parts = field.split("\\" + ARRAY_MARKER, 2);
                 String key = unescapeValue(parts[0]).toString();

@@ -197,7 +197,7 @@ function decodeRecord(recordStr) {
             const parts = field.split(PROPERTY_MARKER, 2);
             const key = unescapeValue(parts[0]);
             const value = parts.length > 1 ? unescapeValue(parts[1]) : '';
-            
+
             // Handle null (^_)
             if (value === '^_') {
                 record[key] = null;

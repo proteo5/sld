@@ -200,7 +200,7 @@ namespace SLD;class Parser
                 $parts = explode(self::PROPERTY_MARKER, $field, 2);
                 $key = self::unescapeValue($parts[0]);
                 $value = isset($parts[1]) ? self::unescapeValue($parts[1]) : '';
-                
+
                 // Handle null (^_)
                 if ($value === '^_') {
                     $record[$key] = null;
