@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "8xWf1/VG7QI=",
+  "dgSpecHash": "tqj3PUXX+8k=",
   "success": true,
   "projectFilePath": "C:\\Des\\5-Fx\\SLD\\implementations\\csharp\\SLD.csproj",
   "expectedPackageFiles": [
@@ -91,10 +91,7 @@
     "C:\\Users\\prote\\.nuget\\packages\\xunit.core\\2.6.2\\xunit.core.2.6.2.nupkg.sha512",
     "C:\\Users\\prote\\.nuget\\packages\\xunit.extensibility.core\\2.6.2\\xunit.extensibility.core.2.6.2.nupkg.sha512",
     "C:\\Users\\prote\\.nuget\\packages\\xunit.extensibility.execution\\2.6.2\\xunit.extensibility.execution.2.6.2.nupkg.sha512",
-    "C:\\Users\\prote\\.nuget\\packages\\xunit.runner.visualstudio\\2.5.4\\xunit.runner.visualstudio.2.5.4.nupkg.sha512",
-    "C:\\Users\\prote\\.nuget\\packages\\microsoft.netcore.app.ref\\6.0.36\\microsoft.netcore.app.ref.6.0.36.nupkg.sha512",
-    "C:\\Users\\prote\\.nuget\\packages\\microsoft.windowsdesktop.app.ref\\6.0.36\\microsoft.windowsdesktop.app.ref.6.0.36.nupkg.sha512",
-    "C:\\Users\\prote\\.nuget\\packages\\microsoft.aspnetcore.app.ref\\6.0.36\\microsoft.aspnetcore.app.ref.6.0.36.nupkg.sha512"
+    "C:\\Users\\prote\\.nuget\\packages\\xunit.runner.visualstudio\\2.5.4\\xunit.runner.visualstudio.2.5.4.nupkg.sha512"
   ],
   "logs": []
 }

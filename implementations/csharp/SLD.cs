@@ -303,7 +303,9 @@ namespace SLD
         }
     }
 
-    // Example usage class
+    /*
+    // Example usage class (commented out to avoid conflicts with test framework)
+    // To run examples, uncomment this code and run as a console application
     public class Program
     {
         public static void Main(string[] args)
@@ -342,4 +344,5 @@ namespace SLD
             Console.WriteLine($"Back to SLD: {SLDParser.MLDToSLD(mld3)}");
         }
     }
+    */
 }
