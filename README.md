@@ -12,6 +12,7 @@
 ### Core Documentation
 
 - **[This README](README.md)** - Overview and quick start
+- **[RFC Draft](RFC_SLD_MLD.txt)** - IETF-style formal specification (v1.1 + v1.2 extensions)
 - **[SLD Specification](SPECIFICATION_SLD.md)** - Complete SLD technical specification v1.1
 - **[MLD Specification](SPECIFICATION_MLD.md)** - Complete MLD technical specification v1.1
 - **[SLD Quick Reference](QUICK_REFERENCE_SLD.md)** - Fast lookup guide for SLD

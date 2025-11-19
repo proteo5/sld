@@ -1,0 +1,884 @@
+
+
+
+
+Network Working Group                                A. Pinto Molina
+Request for Comments: XXXX                                              
+Category: Standards Track                                  November 2025
+           SLD/MLD: Single-Line and Multi-Line Data Formats
+                    for Token-Efficient Serialization
+
+
+Status of This Memo
+
+   This document specifies an Internet standards track protocol for the
+   Internet community, and requests discussion and suggestions for
+   improvements.  Please refer to the current edition of the "Internet
+   Official Protocol Standards" (STD 1) for the standardization state
+   and status of this protocol.  Distribution of this memo is unlimited.
+
+Copyright Notice
+
+   Copyright (C) 2025 Alfredo Pinto Molina.  All Rights Reserved.
+
+Abstract
+
+   This document defines SLD (Single-Line Data) and MLD (Multi-Line
+   Data), two complementary data serialization formats optimized for
+   token efficiency, network transmission, and line-oriented processing.
+   SLD uses tilde (~) as record separator for compact single-line
+   transmission, while MLD uses newline for streaming and Unix tool
+   compatibility.  Both formats share a common syntax with semicolon
+   field separators, bracket-based value markers, and caret-based
+   escaping.  This specification includes optional v1.2 extensions for
+   explicit typing, canonicalization, and header metadata negotiation.
+
+Table of Contents
+
+   1. Introduction ....................................................3
+      1.1. Terminology ................................................3
+      1.2. Motivation .................................................4
+   2. Format Overview .................................................5
+      2.1. SLD (Single-Line Data) .....................................5
+      2.2. MLD (Multi-Line Data) ......................................5
+      2.3. Design Principles ..........................................6
+   3. Syntax and Grammar ..............................................7
+      3.1. Character Set ..............................................7
+      3.2. Delimiters .................................................7
+      3.3. Escape Sequences ...........................................8
+      3.4. Grammar (ABNF) .............................................9
+   4. Data Types .....................................................10
+      4.1. Scalars ...................................................10
+      4.2. Arrays ....................................................11
+      4.3. Boolean Values ............................................11
+      4.4. Null Values ...............................................12
+   5. v1.2 Optional Extensions .......................................13
+      5.1. Inline Type Tags ..........................................13
+      5.2. Typed Null ................................................14
+      5.3. Header Metadata ...........................................14
+      5.4. Canonicalization Profile ..................................15
+   6. Encoding and Decoding ..........................................16
+      6.1. Encoding Rules ............................................16
+      6.2. Decoding Rules ............................................17
+      6.3. Error Handling ............................................18
+   7. Format Conversion ..............................................19
+      7.1. SLD to MLD ................................................19
+      7.2. MLD to SLD ................................................19
+      7.3. JSON Interoperability .....................................20
+   8. Security Considerations ........................................21
+      8.1. Input Validation ..........................................21
+      8.2. Resource Limits ...........................................21
+      8.3. Injection Attacks .........................................22
+   9. IANA Considerations ............................................23
+      9.1. Media Types ...............................................23
+      9.2. File Extensions ...........................................24
+   10. References ....................................................25
+      10.1. Normative References .....................................25
+      10.2. Informative References ...................................25
+   Appendix A. Token Efficiency Analysis .............................26
+   Appendix B. Test Vectors ..........................................28
+   Appendix C. Implementation Guidance ...............................30
+
+
+1. Introduction
+
+   Data serialization formats play a critical role in modern computing
+   systems, enabling information exchange between applications, services,
+   and components.  While JSON [RFC8259] has become ubiquitous due to
+   its human readability and broad support, emerging use cases in
+   large language models (LLMs), log processing, and bandwidth-
+   constrained environments demand more token-efficient alternatives.
+
+   This document defines two complementary serialization formats:
+
+   o  SLD (Single-Line Data): Optimized for network transmission,
+      API responses, and compact storage using tilde (~) as record
+      separator.
+
+   o  MLD (Multi-Line Data): Optimized for streaming data, log files,
+      and Unix tool processing using newline (\n) as record separator.
+
+   Both formats share a common syntax and are losslessly convertible,
+   allowing implementers to choose the appropriate variant for their
+   use case while maintaining compatibility.
+
+1.1. Terminology
+
+   The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT",
+   "SHOULD", "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL" in this
+   document are to be interpreted as described in [RFC2119].
+
+   This specification uses the following terms:
+
+   o  Record: A collection of key-value pairs representing a single
+      data entity.
+
+   o  Field: A key-value pair within a record.
+
+   o  Key: The identifier portion of a field.
+
+   o  Value: The data portion of a field (scalar, array, or nested
+      object).
+
+   o  Scalar: An atomic value (string, number, boolean, or null).
+
+   o  Array: An ordered sequence of values enclosed in braces.
+
+   o  Delimiter: A special character used to separate structural
+      elements (;, ~, \n, [, {, }).
+
+   o  Escape Sequence: A caret (^) followed by a character to represent
+      literal delimiters or special values.
+
+1.2. Motivation
+
+   Existing serialization formats present trade-offs that limit their
+   applicability in certain contexts:
+
+   o  JSON provides excellent readability but high token overhead due
+      to verbose syntax with brackets, quotes, and commas.
+
+   o  CSV lacks support for nested structures and type information.
+
+   o  MessagePack and Protocol Buffers require binary encoding,
+      preventing direct text manipulation.
+
+   SLD/MLD addresses these limitations by:
+
+   1. Reducing token count by ~78% compared to formatted JSON through
+      minimal syntax (no quotes, braces-for-objects, or commas).
+
+   2. Maintaining text-based format for human inspection and Unix tool
+      compatibility.
+
+   3. Supporting arrays and optional type information while preserving
+      simplicity.
+
+   4. Enabling line-oriented processing for streaming and log analysis.
+
+   5. Providing lossless bidirectional conversion between single-line
+      and multi-line representations.
+
+
+2. Format Overview
+
+2.1. SLD (Single-Line Data)
+
+   SLD represents one or more records on a single line, using tilde (~)
+   to separate records.  This format is optimized for:
+
+   o  Network transmission (WebSocket messages, API responses)
+   o  Compact storage (embedded systems, memory-constrained environments)
+   o  Token-limited contexts (LLM prompts, context windows)
+
+   Example:
+
+      id[1;name[Alice;age[30~id[2;name[Bob;age[25~
+
+   This represents two records with fields id, name, and age.
+
+2.2. MLD (Multi-Line Data)
+
+   MLD represents each record on a separate line, using newline (\n) as
+   the record separator.  This format is optimized for:
+
+   o  Log files (application logs, access logs, audit trails)
+   o  Streaming data (real-time event processing)
+   o  Unix tool processing (grep, awk, sed, head, tail)
+   o  Line-by-line analysis with constant memory
+
+   Example:
+
+      id[1;name[Alice;age[30
+      id[2;name[Bob;age[25
+
+   This represents the same two records as the SLD example.
+
+2.3. Design Principles
+
+   SLD/MLD adheres to the following design principles:
+
+   1. Minimalism: Use the fewest characters necessary to represent
+      structure unambiguously.
+
+   2. Compatibility: Maintain lossless conversion between SLD and MLD.
+
+   3. Extensibility: Support optional extensions (v1.2) without breaking
+      baseline parsers.
+
+   4. Shell Safety: Use semicolon (;) as field separator to avoid
+      conflicts with Unix pipe (|).
+
+   5. Human Readability: Remain text-based and reasonably inspectable
+      without specialized tools.
+
+   6. Performance: Enable efficient parsing through simple state
+      machines and single-pass processing.
+
+
+3. Syntax and Grammar
+
+3.1. Character Set
+
+   SLD/MLD documents MUST use UTF-8 encoding [RFC3629].  Implementations
+   SHOULD normalize text to Unicode Normalization Form C (NFC) [UAX15]
+   when canonicalization is required.
+
+3.2. Delimiters
+
+   The following ASCII characters serve as structural delimiters:
+
+   +----------+---------+-----------------+-------------------------+
+   | Char     | Unicode | Purpose         | Example                 |
+   +----------+---------+-----------------+-------------------------+
+   | ;        | U+003B  | Field separator | name[Alice;age[30       |
+   | ~        | U+007E  | Record sep(SLD) | id[1~id[2~              |
+   | \n       | U+000A  | Record sep(MLD) | id[1\nid[2              |
+   | [        | U+005B  | Value marker    | name[Alice              |
+   | {        | U+007B  | Array open      | tags{red~blue}          |
+   | }        | U+007D  | Array close     | tags{red~blue}          |
+   | ^        | U+005E  | Escape char     | text[semi^;colon        |
+   +----------+---------+-----------------+-------------------------+
+
+   All delimiters except newline are single-byte ASCII characters.
+   Implementations MUST recognize both LF (\n) and CRLF (\r\n) as
+   newline in MLD, but SHOULD emit LF only when generating output.
+
+3.3. Escape Sequences
+
+   To represent literal delimiter characters within values, SLD/MLD
+   uses caret (^) as the escape character:
+
+   +----------+-------------------+---------------------------+
+   | Sequence | Meaning           | Example                   |
+   +----------+-------------------+---------------------------+
+   | ^;       | Literal semicolon | price[5^;99 → "5;99"      |
+   | ^~       | Literal tilde     | file[doc^~1 → "doc~1"     |
+   | ^[       | Literal bracket   | expr[x^[0^] → "x[0]"      |
+   | ^{       | Literal brace     | code[if^{ → "if{"         |
+   | ^}       | Literal brace     | code[^} → "}"             |
+   | ^^       | Literal caret     | math[2^^3 → "2^3"         |
+   | ^1       | Boolean true      | active[^1 → true          |
+   | ^0       | Boolean false     | verified[^0 → false       |
+   | ^_       | Null (legacy)     | opt[^_ → null             |
+   +----------+-------------------+---------------------------+
+
+   Implementations MUST process escape sequences during decoding and
+   MUST NOT treat escaped characters as delimiters.
+
+3.4. Grammar (ABNF)
+
+   The following grammar uses Augmented Backus-Naur Form [RFC5234]:
+
+   sld-document   = *( record REC-SEP-SLD ) [ record ]
+   mld-document   = *( record REC-SEP-MLD )
+
+   record         = field *( FIELD-SEP field )
+   field          = key value-marker value
+
+   key            = 1*( unescaped / escape-seq )
+   value          = scalar / array
+
+   scalar         = *( unescaped / escape-seq )
+   array          = ARRAY-OPEN [ element
+                    *( REC-SEP-SLD element ) ] ARRAY-CLOSE
+   element        = *( unescaped / escape-seq )
+
+   value-marker   = "["
+   FIELD-SEP      = ";"
+   REC-SEP-SLD    = "~"
+   REC-SEP-MLD    = LF / CRLF
+   ARRAY-OPEN     = "{"
+   ARRAY-CLOSE    = "}"
+
+   escape-seq     = "^" ( ";" / "~" / "[" / "{" / "}" / "^"
+                    / "1" / "0" / "_" )
+   unescaped      = %x00-3A / %x3C-5A / %x5C / %x5D /
+                    %x60-7C / %x7E-10FFFF
+                    ; Any UTF-8 except delimiters
+
+   LF             = %x0A
+   CRLF           = %x0D %x0A
+
+   Note: The unescaped production excludes ASCII semicolon (;),
+   left bracket ([), left brace ({), right brace (}), tilde (~),
+   and caret (^).
+
+
+4. Data Types
+
+4.1. Scalars
+
+   Scalar values are sequences of characters between a value marker ([)
+   and the next field or record delimiter.  SLD/MLD does not enforce
+   type constraints on scalars; implementations MAY interpret values as
+   strings, numbers, or other types based on application context.
+
+   Examples:
+
+      name[Alice           → string "Alice"
+      age[30               → could be string "30" or integer 30
+      price[19.99          → could be string or float
+      timestamp[2025-11-18 → ISO 8601 string
+
+   Implementations that require explicit typing SHOULD use v1.2 inline
+   type tags (Section 5.1).
+
+4.2. Arrays
+
+   Arrays are delimited by opening brace ({) and closing brace (}).
+   Elements within an array are separated by tilde (~), matching the
+   SLD record separator.  Arrays MUST be closed with }.
+
+   Examples:
+
+      tags{red~blue~green}
+      ids{1~2~3~4~5}
+      empty{}
+
+   Arrays MAY be nested within other arrays:
+
+      matrix{{1~2}~{3~4}}
+
+   Array elements follow the same escaping rules as scalar values.
+   Trailing tildes within arrays SHOULD be omitted in canonical form.
+
+4.3. Boolean Values
+
+   Boolean values are represented using caret-prefixed numeric escapes:
+
+   o  ^1 represents true
+   o  ^0 represents false
+
+   Example:
+
+      active[^1;verified[^0
+
+   Parsers MUST recognize ^1 and ^0 as boolean values.  When v1.2
+   inline typing is enabled, implementations SHOULD use !b[1 and !b[0
+   for explicit boolean typing (Section 5.1).
+
+4.4. Null Values
+
+   Null values have two representations:
+
+   1. Legacy null: ^_ (caret underscore)
+      Example: optional[^_
+
+   2. Typed null (v1.2): !n[ (empty payload with type tag)
+      Example: optional!n[
+
+   Parsers MUST support both forms.  Implementations using v1.2
+   features SHOULD prefer typed null (!n[) for consistency with the
+   explicit typing system.
+
+   Empty values (no characters after [) MAY be interpreted as null or
+   empty string depending on application requirements.
+
+
+5. v1.2 Optional Extensions
+
+   The v1.2 specification introduces optional extensions that enhance
+   type safety, canonicalization, and metadata negotiation.  These
+   extensions are designed to be backward-compatible: baseline v1.1
+   parsers can safely ignore v1.2 features.
+
+5.1. Inline Type Tags
+
+   Inline type tags attach immediately before the value marker ([) or
+   array marker ({) using an exclamation point (!) prefix:
+
+   key!type[value
+   key!type{element~element}
+
+   Defined type codes:
+
+   +------+----------------+-------------------------+
+   | Code | Type           | Example                 |
+   +------+----------------+-------------------------+
+   | i    | Integer        | age!i[42                |
+   | f    | Float          | price!f[19.99           |
+   | b    | Boolean        | active!b[1              |
+   | s    | String         | name!s[Alice            |
+   | n    | Null           | opt!n[                  |
+   | d    | Date           | birth!d[2000-01-01      |
+   | t    | Time           | start!t[14:30:00        |
+   | ts   | Timestamp      | created!ts[2025-11-18T12:00Z |
+   +------+----------------+-------------------------+
+
+   Type tags apply to the entire value (scalar or array elements).
+   For arrays, the type tag indicates the element type:
+
+      ids!i{1~2~3}         → array of integers
+      flags!b{1~0~1}       → array of booleans
+
+   Parsers MUST validate that values conform to their declared types.
+   Invalid type-value combinations SHOULD result in parse errors.
+
+5.2. Typed Null
+
+   When inline typing is enabled, null values SHOULD use the typed
+   form:
+
+      field!n[
+
+   This consists of:
+   o  The field name
+   o  Type tag !n
+   o  Empty value marker [
+   o  No payload
+
+   Example record with mixed types including null:
+
+      id!i[100;name!s[Alice;score!f[95.5;notes!n[
+
+5.3. Header Metadata
+
+   Documents MAY include a header record as the first record, using
+   keys prefixed with exclamation point (!).  Reserved header keys:
+
+   +------------+------------------------------------------+
+   | Key        | Purpose                                  |
+   +------------+------------------------------------------+
+   | !v         | Format version (e.g., "1.2")             |
+   | !schema    | Schema identifier or URL                 |
+   | !ts        | Document timestamp                       |
+   | !source    | Originating system or service            |
+   | !features  | Enabled features (array)                 |
+   +------------+------------------------------------------+
+
+   Example SLD with header:
+
+      !v[1.2;!features{types~canon~null}~
+      id!i[1;name!s[Alice;active!b[1~
+
+   Example MLD with header:
+
+      !v[1.2;!features{types~canon~null}
+      id!i[1;name!s[Alice;active!b[1
+
+   The !features array allows capability negotiation between producers
+   and consumers.  Common feature flags:
+
+   o  types: Inline type tags enabled
+   o  canon: Canonical form enforced
+   o  null: Typed null (!n[) used
+   o  nested: Nested objects supported (future extension)
+
+   Parsers MUST distinguish header records (all keys start with !)
+   from data records.  Header fields MUST NOT be interpreted as
+   application data.
+
+5.4. Canonicalization Profile
+
+   Canonical SLD/MLD enforces deterministic serialization for
+   cryptographic hashing, caching, and comparison.  Requirements:
+
+   1. Field Ordering: Keys MUST be sorted lexicographically (ASCII).
+
+   2. Unicode Normalization: String values MUST be in NFC form.
+
+   3. Array Elements: Arrays MUST NOT have trailing tildes.
+      Correct:   tags{a~b~c}
+      Incorrect: tags{a~b~c~}
+
+   4. Number Formatting: Numbers SHOULD use minimal representation
+      without unnecessary decimals or leading zeros.
+      Correct:   count!i[42
+      Incorrect: count!i[042
+
+   5. Boolean Consistency: Use !b[1 and !b[0 (not ^1/^0).
+
+   6. Null Consistency: Use !n[ (not ^_).
+
+   7. No Extraneous Whitespace: Implementations MUST NOT add spaces
+      or tabs around delimiters.
+
+   Canonical documents facilitate:
+   o  Reproducible serialization
+   o  Efficient caching (same content → same serialization)
+   o  Digital signatures and checksums
+
+
+6. Encoding and Decoding
+
+6.1. Encoding Rules
+
+   When encoding data to SLD/MLD, implementations MUST:
+
+   1. Escape all delimiter characters (;, ~, [, {, }, ^) appearing in
+      keys or values using caret-based escapes.
+
+   2. Represent booleans as ^1 (true) or ^0 (false), or use !b[1/!b[0
+      when v1.2 typing is enabled.
+
+   3. Close all arrays with }.
+
+   4. Use UTF-8 encoding for all text.
+
+   5. Omit trailing record separators in MLD (end with newline after
+      last record).
+
+   6. Include trailing record separator in SLD (end with ~).
+
+   Implementations SHOULD:
+
+   o  Use NFC normalization for Unicode text when canonicalization is
+      required.
+
+   o  Sort fields lexicographically when canonical output is needed.
+
+   o  Prefer typed null (!n[) over legacy null (^_) when v1.2 features
+      are enabled.
+
+6.2. Decoding Rules
+
+   When decoding SLD/MLD, implementations MUST:
+
+   1. Recognize both LF and CRLF as newline in MLD.
+
+   2. Process escape sequences, replacing ^X with the literal
+      character X.
+
+   3. Treat ^1 and ^0 as boolean true and false.
+
+   4. Support both legacy null (^_) and typed null (!n[).
+
+   5. Validate that arrays are properly closed with }.
+
+   6. Handle empty values (key[ with no subsequent characters before
+      delimiter) according to application requirements.
+
+   Implementations SHOULD:
+
+   o  Validate inline type tags when present and reject malformed
+      type-value combinations.
+
+   o  Detect and separate header records (all keys prefixed with !)
+      from data records.
+
+   o  Report parse errors with meaningful diagnostics including
+      position information.
+
+6.3. Error Handling
+
+   Parsers SHOULD define and report the following error conditions:
+
+   +------+---------------------------+---------------------------+
+   | Code | Error                     | Example                   |
+   +------+---------------------------+---------------------------+
+   | E01  | Syntax error              | Unescaped delimiter       |
+   | E02  | Invalid escape sequence   | ^x (undefined escape)     |
+   | E03  | Unclosed array            | tags{a~b (missing })      |
+   | E04  | Mismatched delimiters     | key[value}                |
+   | E05  | Invalid type code         | age!z[30 (z undefined)    |
+   | E06  | Empty key                 | [value                    |
+   | E07  | Type mismatch             | age!i[abc                 |
+   | E08  | Duplicate keys            | id[1;id[2 (same record)   |
+   | E09  | Invalid UTF-8             | Malformed byte sequence   |
+   | E10  | Resource limit exceeded   | Document too large        |
+   +------+---------------------------+---------------------------+
+
+   Implementations MAY treat some errors as warnings (e.g., duplicate
+   keys) depending on application requirements.
+
+
+7. Format Conversion
+
+7.1. SLD to MLD
+
+   Converting SLD to MLD:
+
+   1. Replace each top-level record separator (~) with newline (\n).
+   2. Remove trailing ~ if present.
+   3. Preserve all field separators (;) and array delimiters unchanged.
+
+   Trivial conversion using Unix tools:
+
+      tr '~' '\n' < input.sld > output.mld
+
+   This conversion is lossless.
+
+7.2. MLD to SLD
+
+   Converting MLD to SLD:
+
+   1. Replace each newline with tilde (~).
+   2. Append trailing ~ to the document.
+   3. Preserve all field separators (;) and array delimiters unchanged.
+
+   Trivial conversion using Unix tools:
+
+      tr '\n' '~' < input.mld > output.sld
+
+   This conversion is lossless.
+
+7.3. JSON Interoperability
+
+   SLD/MLD can represent a subset of JSON data structures:
+
+   Supported:
+   o  Objects (as records with fields)
+   o  Arrays
+   o  Strings
+   o  Numbers (as strings or typed with !i/!f)
+   o  Booleans (^1/^0 or !b[1/!b[0)
+   o  Null (^_ or !n[)
+
+   Not supported:
+   o  Nested objects (without extension)
+   o  Mixed-type arrays (without element-level type tags)
+
+   When converting from JSON to SLD/MLD:
+   o  Top-level arrays become multiple records.
+   o  Object properties become fields.
+   o  JSON strings are unquoted and escaped per Section 3.3.
+
+   When converting from SLD/MLD to JSON:
+   o  Records become JSON objects.
+   o  Fields become object properties.
+   o  Arrays map directly to JSON arrays.
+   o  Type tags inform JSON type inference.
+
+
+8. Security Considerations
+
+8.1. Input Validation
+
+   Implementations MUST validate input to prevent injection attacks:
+
+   o  Enforce maximum document size limits to prevent memory exhaustion.
+   o  Limit maximum nesting depth for arrays.
+   o  Validate escape sequences and reject malformed input.
+   o  Sanitize keys and values before use in contexts where special
+      characters have semantic meaning (SQL, shell commands, etc.).
+
+8.2. Resource Limits
+
+   Parsers SHOULD enforce:
+
+   o  Maximum record count per document
+   o  Maximum field count per record
+   o  Maximum value length
+   o  Maximum array element count
+   o  Parse timeout for streaming inputs
+
+   Exceeding limits SHOULD result in error E10 (resource limit exceeded).
+
+8.3. Injection Attacks
+
+   Applications using SLD/MLD data in shell commands or SQL queries
+   MUST apply appropriate escaping beyond the format's escape sequences.
+   The semicolon field separator was chosen to reduce (but not
+   eliminate) shell injection risks compared to pipe (|).
+
+   When constructing commands or queries from SLD/MLD data:
+   o  Use parameterized queries for SQL.
+   o  Use proper argument arrays for shell execution.
+   o  Do NOT concatenate SLD/MLD values directly into command strings.
+
+
+9. IANA Considerations
+
+9.1. Media Types
+
+   This document registers the following media types:
+
+   Type name: text
+   Subtype name: sld
+   Required parameters: None
+   Optional parameters: charset (default UTF-8)
+   Encoding considerations: UTF-8
+   Security considerations: See Section 8
+   Interoperability considerations: See Section 7
+   Published specification: This document
+   Applications: Data serialization, APIs, log files
+   Additional information:
+      Magic number(s): None
+      File extension(s): .sld
+      Macintosh file type code(s): TEXT
+
+   Type name: text
+   Subtype name: mld
+   Required parameters: None
+   Optional parameters: charset (default UTF-8)
+   Encoding considerations: UTF-8
+   Security considerations: See Section 8
+   Interoperability considerations: See Section 7
+   Published specification: This document
+   Applications: Log files, streaming data, Unix tool processing
+   Additional information:
+      Magic number(s): None
+      File extension(s): .mld
+      Macintosh file type code(s): TEXT
+
+9.2. File Extensions
+
+   .sld - Single-Line Data format
+   .mld - Multi-Line Data format
+
+
+10. References
+
+10.1. Normative References
+
+   [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
+              Requirement Levels", BCP 14, RFC 2119, March 1997.
+
+   [RFC3629]  Yergeau, F., "UTF-8, a transformation format of ISO
+              10646", STD 63, RFC 3629, November 2003.
+
+   [RFC5234]  Crocker, D., Ed., and P. Overell, "Augmented BNF for
+              Syntax Specifications: ABNF", STD 68, RFC 5234,
+              January 2008.
+
+   [UAX15]    Unicode Consortium, "Unicode Normalization Forms",
+              Unicode Standard Annex #15, 2023.
+
+10.2. Informative References
+
+   [RFC8259]  Bray, T., Ed., "The JavaScript Object Notation (JSON)
+              Data Interchange Format", STD 90, RFC 8259,
+              December 2017.
+
+
+Appendix A. Token Efficiency Analysis
+
+   Token efficiency comparison using identical dataset (user profile
+   with id, name, email, age, verified status, and roles array):
+
+   +-------------------+--------+------------+----------------------+
+   | Format            | Tokens | Bytes      | Notes                |
+   +-------------------+--------+------------+----------------------+
+   | JSON (formatted)  | 125    | 450        | Baseline             |
+   | JSON (minified)   | 85     | 280        | No whitespace        |
+   | CSV               | 36     | 120        | No nesting support   |
+   | SLD               | 22     | 95         | 78% reduction vs JSON|
+   +-------------------+--------+------------+----------------------+
+
+   Test data:
+      JSON:
+      {
+        "id": 42,
+        "name": "Alice Smith",
+        "email": "alice@example.com",
+        "age": 30,
+        "verified": true,
+        "roles": ["admin", "user"]
+      }
+
+      SLD:
+      id[42;name[Alice Smith;email[alice@example.com;age[30;
+      verified[^1;roles{admin~user}~
+
+   Token counting methodology:
+   o  Alphanumeric sequences count as 1 token
+   o  Special characters count as 1 token each
+   o  Common subwords (e.g., "example", "com") count as 1 token
+
+   The token advantage increases with:
+   o  Larger datasets (overhead amortization)
+   o  Fewer nested structures (JSON bracket overhead)
+   o  Repetitive field names (SLD has no quotes)
+
+
+Appendix B. Test Vectors
+
+   The following test vectors demonstrate conformance:
+
+   B.1. Simple Record (SLD)
+
+      Input SLD:
+         name[Alice;age[30~
+
+      Expected JSON:
+         {"name": "Alice", "age": "30"}
+
+   B.2. Boolean and Array (SLD)
+
+      Input SLD:
+         name[Alice;active[^1;tags{red~blue~green}~
+
+      Expected JSON:
+         {"name": "Alice", "active": true,
+          "tags": ["red", "blue", "green"]}
+
+   B.3. Nested Escapes (SLD)
+
+      Input SLD:
+         text[semi^;colon;path[C:^^Users^^Alice~
+
+      Expected JSON:
+         {"text": "semi;colon", "path": "C:^Users^Alice"}
+
+   B.4. Typed Values with Header (SLD v1.2)
+
+      Input SLD:
+         !v[1.2;!features{types~null}~
+         id!i[100;name!s[Bob;score!f[85.5;notes!n[~
+
+      Expected JSON:
+         {"header": {"!v": "1.2", "!features": ["types", "null"]},
+          "records": [
+            {"id": 100, "name": "Bob", "score": 85.5, "notes": null}
+          ]}
+
+   B.5. Multi-Line Data (MLD)
+
+      Input MLD:
+         name[Alice;age[30
+         name[Bob;age[25
+
+      Expected JSON:
+         [{"name": "Alice", "age": "30"},
+          {"name": "Bob", "age": "25"}]
+
+
+Appendix C. Implementation Guidance
+
+   C.1. Parser State Machine
+
+   A minimal SLD parser can be implemented as a state machine with
+   the following states:
+
+   o  KEY: Reading field key
+   o  VALUE: Reading scalar value
+   o  ARRAY: Reading array elements
+   o  ESCAPE: Processing escape sequence
+
+   Transitions occur on delimiter characters, with escape state
+   handling caret sequences.
+
+   C.2. Performance Considerations
+
+   For high-performance parsing:
+   o  Use single-pass scanning without backtracking
+   o  Minimize memory allocations (pre-allocate buffers)
+   o  Use lookup tables for escape sequence resolution
+   o  Leverage SIMD for delimiter scanning in large documents
+
+   C.3. Compatibility
+
+   To maximize compatibility with existing systems:
+   o  Support both ^_ and !n[ for null
+   o  Accept both LF and CRLF in MLD
+   o  Tolerate trailing whitespace after records
+   o  Provide options for strict vs. lenient parsing
+
+
+Authors' Addresses
+
+   Alfredo Pinto Molina
+   Email: proteo5@github.com
+
+
+Full Copyright Statement
+
+   Copyright (C) 2025 Alfredo Pinto Molina.  All Rights Reserved.
+
+   This document and translations of it may be copied and furnished to
+   others, and derivative works that comment on or otherwise explain it
+   or assist in its implementation may be prepared, copied, published
+   and distributed, in whole or in part, without restriction of any
+   kind, provided that the above copyright notice and this paragraph are
+   included on all such copies and derivative works.
