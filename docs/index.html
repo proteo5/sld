@@ -396,20 +396,47 @@
                                 if(raw === '^_') return null;
                                 return unescapeValue(raw);
                             }
+                            function splitUnescaped(str, sep, respectBraces = false){
+                                const result = [];
+                                let current = '';
+                                let depth = 0;
+                                let escaped = false;
+                                for(let i = 0; i < str.length; i++){
+                                    const ch = str[i];
+                                    if(escaped){
+                                        current += ch;
+                                        escaped = false;
+                                        continue;
+                                    }
+                                    if(ch === '^'){ escaped = true; current += ch; continue; }
+                                    if(respectBraces){
+                                        if(ch === '{'){ depth++; }
+                                        if(ch === '}'){ depth--; }
+                                    }
+                                    if(ch === sep && depth === 0){
+                                        result.push(current);
+                                        current = '';
+                                    } else {
+                                        current += ch;
+                                    }
+                                }
+                                if(current.length) result.push(current);
+                                return result;
+                            }
                             function decodeRecords(str){
                                 const isMLD = str.includes('\n') && !str.includes('~');
-                                const recSep = isMLD ? /\n/ : /~/;
-                                const records = str.split(recSep).filter(r => r.trim().length);
+                                const recSep = isMLD ? '\n' : '~';
+                                const records = splitUnescaped(str, recSep, true).filter(r => r.trim().length);
                                 return records.map(r => {
                                     const obj = {};
-                                    const fields = r.split(';').filter(f => f.trim().length);
+                                    const fields = splitUnescaped(r, ';', true).filter(f => f.trim().length);
                                     for(const f of fields){
                                         const braceIdx = f.indexOf('{');
                                         const bracketIdx = f.indexOf('[');
                                         if(braceIdx !== -1){
                                             const key = f.slice(0, braceIdx);
                                             const inner = f.slice(braceIdx + 1, f.lastIndexOf('}'));
-                                            const items = inner.length ? inner.split('~').map(parseValue) : [];
+                                            const items = inner.length ? splitUnescaped(inner, '~', false).map(parseValue) : [];
                                             obj[key] = items;
                                         } else if(bracketIdx !== -1){
                                             const key = f.slice(0, bracketIdx);
