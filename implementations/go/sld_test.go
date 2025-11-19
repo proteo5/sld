@@ -19,9 +19,9 @@ func TestEscapeValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := UnescapeValue(tt.input)
+		result := EscapeValue(tt.input)
 		if result != tt.expected {
-			t.Errorf("escapeValue(%q) = %q, want %q", tt.input, result, tt.expected)
+			t.Errorf("EscapeValue(%q) = %q, want %q", tt.input, result, tt.expected)
 		}
 	}
 }
@@ -73,8 +73,8 @@ func TestEncodeSLD(t *testing.T) {
 	t.Run("Array encoding", func(t *testing.T) {
 		data := map[string]interface{}{"tags": []interface{}{"admin", "user"}}
 		sld := EncodeSLD(data)
-		if !strings.Contains(sld, "tags{admin,user") {
-			t.Errorf("Expected 'tags{admin,user' in %q", sld)
+		if !strings.Contains(sld, "tags{admin~user") {
+			t.Errorf("Expected 'tags{admin~user' in %q", sld)
 		}
 	})
 
@@ -146,12 +146,19 @@ func TestDecodeSLD(t *testing.T) {
 	})
 
 	t.Run("Array decoding", func(t *testing.T) {
-		sld := "tags{admin,user"
+		sld := "tags{admin~user"
 		data := DecodeSLD(sld)
-		record := data.(map[string]interface{})
-		tags := record["tags"].([]string)
-		if !reflect.DeepEqual(tags, []string{"admin", "user"}) {
-			t.Errorf("Expected [admin user], got %v", tags)
+		// DecodeSLD returns []map when there's one record
+		var record map[string]interface{}
+		if records, ok := data.([]map[string]interface{}); ok {
+			record = records[0]
+		} else {
+			record = data.(map[string]interface{})
+		}
+		tags := record["tags"].([]interface{})
+		expected := []interface{}{"admin", "user"}
+		if !reflect.DeepEqual(tags, expected) {
+			t.Errorf("Expected %v, got %v", expected, tags)
 		}
 	})
 
@@ -227,7 +234,7 @@ func TestDecodeMLD(t *testing.T) {
 
 func TestFormatConversion(t *testing.T) {
 	t.Run("SLD to MLD", func(t *testing.T) {
-		sld := "name[Alice~name[Bob~"
+		sld := "name[Alice~name[Bob"
 		mld := SLDToMLD(sld)
 		if strings.Contains(mld, "~") {
 			t.Error("MLD should not contain tildes")
@@ -249,7 +256,7 @@ func TestFormatConversion(t *testing.T) {
 	})
 
 	t.Run("Round trip SLD->MLD->SLD", func(t *testing.T) {
-		original := "name[Alice;age[30~name[Bob;age[25~"
+		original := "name[Alice;age[30~name[Bob;age[25"
 		mld := SLDToMLD(original)
 		backToSLD := MLDToSLD(mld)
 		if backToSLD != original {
@@ -320,8 +327,8 @@ func TestComplexData(t *testing.T) {
 	if record["verified"] != true {
 		t.Errorf("Expected verified=true, got %v", record["verified"])
 	}
-	tags := record["tags"].([]string)
-	if !reflect.DeepEqual(tags, []string{"admin", "user"}) {
+	tags := record["tags"].([]interface{})
+	if !reflect.DeepEqual(tags, []interface{}{"admin", "user"}) {
 		t.Errorf("Expected tags=[admin user], got %v", tags)
 	}
 }

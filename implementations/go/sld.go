@@ -38,14 +38,13 @@ const (
 
 // EscapeValue escapes special SLD/MLD characters in a string.
 func EscapeValue(text string) string {
-	replacer := strings.NewReplacer(
-		EscapeChar, EscapeChar+EscapeChar,
-		FieldSeparator, EscapeChar+FieldSeparator,
-		RecordSeparatorSLD, EscapeChar+RecordSeparatorSLD,
-		PropertyMarker, EscapeChar+PropertyMarker,
-		ArrayMarker, EscapeChar+ArrayMarker,
-	)
-	return replacer.Replace(text)
+	// Escape ^ first to avoid double-escaping
+	text = strings.ReplaceAll(text, EscapeChar, EscapeChar+EscapeChar)
+	text = strings.ReplaceAll(text, FieldSeparator, EscapeChar+FieldSeparator)
+	text = strings.ReplaceAll(text, RecordSeparatorSLD, EscapeChar+RecordSeparatorSLD)
+	text = strings.ReplaceAll(text, PropertyMarker, EscapeChar+PropertyMarker)
+	text = strings.ReplaceAll(text, ArrayMarker, EscapeChar+ArrayMarker)
+	return text
 }
 
 // UnescapeValue unescapes SLD/MLD escape sequences.
@@ -73,18 +72,27 @@ func UnescapeValue(text string) interface{} {
 	return result.String()
 }
 
-// SplitUnescaped splits text by delimiter, respecting escape sequences.
+// SplitUnescaped splits text by delimiter, respecting escape sequences and array braces.
 func SplitUnescaped(text, delimiter string) []string {
 	var parts []string
 	var current strings.Builder
 	i := 0
 	delimByte := delimiter[0]
+	braceDepth := 0
 
 	for i < len(text) {
 		if text[i] == EscapeChar[0] && i+1 < len(text) {
 			current.WriteString(text[i : i+2])
 			i += 2
-		} else if text[i] == delimByte {
+		} else if text[i] == '{' {
+			braceDepth++
+			current.WriteByte(text[i])
+			i++
+		} else if text[i] == '}' && braceDepth > 0 {
+			braceDepth--
+			current.WriteByte(text[i])
+			i++
+		} else if text[i] == delimByte && braceDepth == 0 {
 			parts = append(parts, current.String())
 			current.Reset()
 			i++
@@ -119,7 +127,7 @@ func EncodeRecord(record map[string]interface{}) string {
 			for _, item := range v {
 				nestedItems = append(nestedItems, EscapeValue(fmt.Sprint(item)))
 			}
-			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, ArrayMarker, strings.Join(nestedItems, ",")))
+			parts = append(parts, fmt.Sprintf("%s%s%s", escapedKey, ArrayMarker, strings.Join(nestedItems, RecordSeparatorSLD)))
 		case bool:
 			// Boolean as ^1 or ^0
 			boolVal := "^0"
@@ -188,9 +196,9 @@ func DecodeRecord(recordStr string) map[string]interface{} {
 			key := UnescapeValue(parts[0]).(string)
 			var value interface{}
 			if len(parts) > 1 {
-				val := UnescapeValue(parts[1]).(string)
+				val := UnescapeValue(parts[1])
 				// Handle null (^_)
-				if val == "^_" {
+				if strVal, ok := val.(string); ok && strVal == "^_" {
 					value = nil
 				} else {
 					value = val
@@ -204,7 +212,7 @@ func DecodeRecord(recordStr string) map[string]interface{} {
 			parts := strings.SplitN(field, ArrayMarker, 2)
 			key := UnescapeValue(parts[0]).(string)
 			if len(parts) > 1 {
-				itemStrs := strings.Split(parts[1], ",")
+				itemStrs := strings.Split(parts[1], RecordSeparatorSLD)
 				items := make([]interface{}, len(itemStrs))
 				for i, itemStr := range itemStrs {
 					items[i] = UnescapeValue(itemStr)
@@ -271,12 +279,14 @@ func DecodeMLD(mldString string) interface{} {
 
 // SLDToMLD converts SLD format to MLD format.
 func SLDToMLD(sldString string) string {
-	return strings.TrimRight(sldString, RecordSeparatorSLD) + RecordSeparatorMLD
+	sldString = strings.TrimRight(sldString, RecordSeparatorSLD)
+	return strings.ReplaceAll(sldString, RecordSeparatorSLD, RecordSeparatorMLD)
 }
 
 // MLDToSLD converts MLD format to SLD format.
 func MLDToSLD(mldString string) string {
-	return strings.ReplaceAll(mldString, RecordSeparatorMLD, RecordSeparatorSLD) + RecordSeparatorSLD
+	mldString = strings.TrimRight(mldString, RecordSeparatorMLD)
+	return strings.ReplaceAll(mldString, RecordSeparatorMLD, RecordSeparatorSLD)
 }
 
 // Example demonstrates SLD/MLD usage
