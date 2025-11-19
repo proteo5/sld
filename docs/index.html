@@ -537,6 +537,16 @@
                     <h3>Zero Overhead</h3>
                     <p>No quoting required for standard alphanumeric strings. Only escape what is necessary.</p>
                 </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧾</div>
+                    <h3>Header Metadata</h3>
+                    <p>Optional first record advertises version, schema, timestamp, source, and enabled features via reserved <code>!</code> keys (e.g., <code>!v</code>, <code>!schema</code>, <code>!ts</code>, <code>!source</code>, <code>!features{types~canon}</code>).</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🏷️</div>
+                    <h3>Inline Type Tags</h3>
+                    <p>Explicit typing on keys with <code>!i !f !b !s !n !d !t !ts</code> before <code>[</code> or <code>{</code>, enabling schema validation and typed nulls (<code>!n[</code>).</p>
+                </div>
             </div>
         </div>
     </section>
