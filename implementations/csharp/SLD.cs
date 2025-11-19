@@ -46,12 +46,13 @@ namespace SLD
             if (string.IsNullOrEmpty(text))
                 return string.Empty;
 
-            return text
-                .Replace("^", "^^")
-                .Replace(";", "^;")
-                .Replace("~", "^~")
-                .Replace("[", "^[")
-                .Replace("{", "^{");
+            // Must escape ^ first, then use ^ as escape prefix
+            text = text.Replace("^", "^^");
+            text = text.Replace(";", "^;");
+            text = text.Replace("~", "^~");
+            text = text.Replace("[", "^[");
+            text = text.Replace("{", "^{");
+            return text;
         }
 
         /// <summary>
@@ -59,6 +60,14 @@ namespace SLD
         /// </summary>
         public static object UnescapeValue(string text)
         {
+            // Handle special values first
+            if (text == "^1")
+                return true;
+            if (text == "^0")
+                return false;
+            if (text == "^_")
+                return null;
+
             var result = new StringBuilder();
             int i = 0;
 
@@ -67,12 +76,7 @@ namespace SLD
                 if (text[i] == ESCAPE_CHAR && i + 1 < text.Length)
                 {
                     char nextChar = text[i + 1];
-                    if (nextChar == '1')
-                        return true; // Boolean true
-                    else if (nextChar == '0')
-                        return false; // Boolean false
-                    else
-                        result.Append(nextChar);
+                    result.Append(nextChar);
                     i += 2;
                 }
                 else
@@ -134,11 +138,11 @@ namespace SLD
                     string nested = EncodeRecord(dict);
                     parts.Add($"{escapedKey}{PROPERTY_MARKER}{nested}");
                 }
-                else if (value is List<object> list)
+                else if (value is System.Collections.IEnumerable enumerable && !(value is string))
                 {
-                    // Array using { marker
-                    var nestedItems = list.Select(item => EscapeValue(item.ToString()));
-                    parts.Add($"{escapedKey}{ARRAY_MARKER}{string.Join(",", nestedItems)}");
+                    // Array using { marker with ~ separator and } close
+                    var nestedItems = enumerable.Cast<object>().Select(item => EscapeValue(item.ToString()));
+                    parts.Add($"{escapedKey}{ARRAY_MARKER}{string.Join(RECORD_SEPARATOR_SLD.ToString(), nestedItems)}}}");
                 }
                 else if (value is bool boolValue)
                 {
@@ -219,16 +223,14 @@ namespace SLD
                 {
                     var parts = field.Split(new[] { PROPERTY_MARKER }, 2);
                     string key = UnescapeValue(parts[0]).ToString();
-                    string value = parts.Length > 1 ? UnescapeValue(parts[1]).ToString() : "";
-
-                    // Handle null (^_)
-                    if (value == "^_")
+                    if (parts.Length > 1)
                     {
-                        record[key] = null;
+                        object value = UnescapeValue(parts[1]);
+                        record[key] = value;
                     }
                     else
                     {
-                        record[key] = value;
+                        record[key] = "";
                     }
                 }
                 // Check for array marker
@@ -238,7 +240,10 @@ namespace SLD
                     string key = UnescapeValue(parts[0]).ToString();
                     if (parts.Length > 1)
                     {
-                        var items = parts[1].Split(',').Select(item => UnescapeValue(item)).ToList();
+                        var arrayContent = parts[1];
+                        if (arrayContent.EndsWith("}"))
+                            arrayContent = arrayContent.Substring(0, arrayContent.Length - 1);
+                        var items = arrayContent.Split(RECORD_SEPARATOR_SLD).Select(item => UnescapeValue(item)).ToList();
                         record[key] = items;
                     }
                     else
@@ -256,6 +261,7 @@ namespace SLD
             var parts = new List<string>();
             var current = new StringBuilder();
             int i = 0;
+            int braceDepth = 0;
 
             while (i < text.Length)
             {
@@ -265,7 +271,19 @@ namespace SLD
                     current.Append(text[i + 1]);
                     i += 2;
                 }
-                else if (text[i] == delimiter)
+                else if (text[i] == '{')
+                {
+                    braceDepth++;
+                    current.Append(text[i]);
+                    i++;
+                }
+                else if (text[i] == '}')
+                {
+                    braceDepth--;
+                    current.Append(text[i]);
+                    i++;
+                }
+                else if (text[i] == delimiter && braceDepth == 0)
                 {
                     parts.Add(current.ToString());
                     current.Clear();
@@ -299,7 +317,8 @@ namespace SLD
         /// </summary>
         public static string MLDToSLD(string mldString)
         {
-            return mldString.Replace(RECORD_SEPARATOR_MLD, RECORD_SEPARATOR_SLD) + RECORD_SEPARATOR_SLD;
+            mldString = mldString.TrimEnd(RECORD_SEPARATOR_MLD);
+            return mldString.Replace(RECORD_SEPARATOR_MLD, RECORD_SEPARATOR_SLD);
         }
     }
 

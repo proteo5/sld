@@ -87,7 +87,7 @@ namespace SLD.Tests
                 { "tags", new List<string> { "admin", "user" } }
             };
             var sld = SLDParser.EncodeSLD(data);
-            Assert.Contains("tags{admin,user", sld);
+            Assert.Contains("tags{admin~user}", sld);
         }
 
         [Fact]
@@ -159,12 +159,14 @@ namespace SLD.Tests
         [Fact]
         public void TestArrayDecoding()
         {
-            var sld = "tags{admin,user";
+            var sld = "tags{admin~user}";
             var data = SLDParser.DecodeSLD(sld) as Dictionary<string, object>;
             Assert.NotNull(data);
-            var tags = data["tags"] as List<string>;
+            var tags = data["tags"] as List<object>;
             Assert.NotNull(tags);
-            Assert.Equal(new List<string> { "admin", "user" }, tags);
+            Assert.Equal(2, tags.Count);
+            Assert.Equal("admin", tags[0]);
+            Assert.Equal("user", tags[1]);
         }
 
         [Fact]
@@ -261,7 +263,7 @@ namespace SLD.Tests
         [Fact]
         public void TestRoundTripSLDMLDSLD()
         {
-            var original = "name[Alice;age[30~name[Bob;age[25~";
+            var original = "name[Alice;age[30~name[Bob;age[25";
             var mld = SLDParser.SLDToMLD(original);
             var backToSLD = SLDParser.MLDToSLD(mld);
             Assert.Equal(original, backToSLD);
@@ -335,9 +337,11 @@ namespace SLD.Tests
             Assert.NotNull(decoded);
             Assert.Equal("Alice", decoded["name"]);
             Assert.True((bool)decoded["verified"]);
-            var tags = decoded["tags"] as List<string>;
+            var tags = decoded["tags"] as List<object>;
             Assert.NotNull(tags);
-            Assert.Equal(new List<string> { "admin", "user" }, tags);
+            Assert.Equal(2, tags.Count);
+            Assert.Equal("admin", tags[0]);
+            Assert.Equal("user", tags[1]);
         }
     }
 }

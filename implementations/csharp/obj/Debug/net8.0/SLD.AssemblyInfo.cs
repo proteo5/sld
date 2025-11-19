@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyDescriptionAttribute(("Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder for .N" +
     "ET"))]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.0.0+02bd4b6a783964328bf26a249e2ab6d3b4666ccb")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.0.0+263a50b03309a93a5f5b8c44287f32b85c5e47cd")]
 [assembly: System.Reflection.AssemblyProductAttribute("SLD Format Parser")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SLD")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.0.0.0")]
