@@ -281,7 +281,7 @@ func MLDToSLD(mldString string) string {
 
 // Example demonstrates SLD/MLD usage
 func Example() {
-	fmt.Println("=== SLD/MLD Go Implementation v2.0 ===\n")
+	fmt.Println("=== SLD/MLD Go Implementation v2.0 ===")
 
 	// Example 1: Simple records with SLD
 	fmt.Println("Example 1: Simple user data (SLD)")

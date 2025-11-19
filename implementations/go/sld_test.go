@@ -19,7 +19,7 @@ func TestEscapeValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := escapeValue(tt.input)
+		result := UnescapeValue(tt.input)
 		if result != tt.expected {
 			t.Errorf("escapeValue(%q) = %q, want %q", tt.input, result, tt.expected)
 		}
@@ -39,9 +39,9 @@ func TestUnescapeValue(t *testing.T) {
 	}
 
 	for _, tt := range tests {
-		result := unescapeValue(tt.input)
+		result := UnescapeValue(tt.input)
 		if !reflect.DeepEqual(result, tt.expected) {
-			t.Errorf("unescapeValue(%q) = %v, want %v", tt.input, result, tt.expected)
+			t.Errorf("UnescapeValue(%q) = %v, want %v", tt.input, result, tt.expected)
 		}
 	}
 }
