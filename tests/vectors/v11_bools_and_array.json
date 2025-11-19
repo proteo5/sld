@@ -1,0 +1,10 @@
+{
+  "header": null,
+  "records": [
+    {
+      "name": "Alice",
+      "active": true,
+      "tags": ["red", "blue", "green"]
+    }
+  ]
+}

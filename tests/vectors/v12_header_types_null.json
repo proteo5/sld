@@ -1,0 +1,16 @@
+{
+  "header": {
+    "!v": "1.2",
+    "!features": ["types", "null", "canon"],
+    "!ts": "2025-06-01T12:30:00Z"
+  },
+  "records": [
+    {
+      "name": "Alice",
+      "age": 30,
+      "active": true,
+      "nickname": "Ai;ce",
+      "opt": null
+    }
+  ]
+}

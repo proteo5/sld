@@ -45,6 +45,20 @@ See the specifications for normative details.
 - **[Example Files](examples/)** - Sample .sld and .mld files with README
 - **[Implementations](implementations/)** - Working code in Python, JavaScript, Go, C#, PHP, Java
 
+#### Validator (experimental)
+
+- A minimal validator/inspector is available at `tools/validator.py` supporting:
+  - v1.1 parsing (fields `;`, records `~`/`\n`, arrays `{...}` with `~`, escapes `^`)
+  - v1.2-draft inline types (`key!i[123` / `ids!i{1~2}`) and typed null (`!n[`)
+  - Header detection for reserved `!` keys (e.g., `!v`, `!features{...}`)
+
+Quick run:
+
+```powershell
+python tools/validator.py tests\vectors\v12_header_types_null.sld --format sld --canon
+python tools\validator.py tests\vectors\v11_mld.mld --format mld
+```
+
 ---
 
 ## What is SLD/MLD?
