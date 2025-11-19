@@ -4,13 +4,13 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>SLD</RootNamespace>
     <AssemblyName>SLD</AssemblyName>
-    <Version>1.1.0</Version>
-    <Authors>SLD Project Contributors</Authors>
+    <Version>2.0.0</Version>
+    <Authors>Alfredo Pinto Molina</Authors>
     <Company>SLD Project</Company>
     <Product>SLD Format Parser</Product>
     <Description>Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder for .NET</Description>
     <Copyright>Copyright 2025 Alfredo Pinto Molina</Copyright>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/proteo5/sld</PackageProjectUrl>
     <RepositoryUrl>https://github.com/proteo5/sld</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

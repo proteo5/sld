@@ -1,20 +1,20 @@
-# SLD Quick Reference v1.1
+# SLD Quick Reference v2.0
 
 ## Single Line Data — Fast reference for developers
 
 ---
 
-## Delimiters (v1.1)
+## Delimiters (v2.0)
 
-| Symbol | Purpose | Example |
-|--------|---------|---------|
+| Character | Purpose | Example |
+|-----------|---------|---------|
 | `;` | Field separator | `name[Alice;age[30` |
 | `~` | Record separator | `record1~record2` |
 | `[` | Property marker | `name[value` |
 | `{` | Array marker | `tags{red~blue}` |
 | `^` | Escape character | `text[Hello^; World` |
 
-**⚠️ Breaking Change in v1.1:** Field separator changed from `|` to `;` for better shell compatibility.
+**⚠️ Breaking Change in v2.0:** Field separator changed from `|` (v1.0) to `;` for better shell compatibility.
 
 ---
 
@@ -75,7 +75,7 @@ scores{85~92~78}
 ```
 
 
-## v1.2 Optional Extensions (inline types and typed null)
+## v2.0 Optional Features (inline types and typed null)
 
 These features are additive and negotiated via a metadata header (`!features{types}`); decoders without support may ignore type hints.
 
@@ -246,7 +246,7 @@ tr '\n' '~' < data.mld > data.sld
 name|Alice|age|30
 ```
 
-### ✅ Correct: Using `;` (v1.1 delimiter)
+### ✅ Correct: Using `;` (v2.0 delimiter)
 
 ```sld
 name[Alice;age[30~
@@ -356,7 +356,7 @@ See [MIGRATION.md](MIGRATION.md) for complete guide.
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Full technical specification
 - [SYNTAX_GUIDE_SLD.md](SYNTAX_GUIDE_SLD.md) - Detailed syntax examples
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Multi-line variant
-- [MIGRATION.md](MIGRATION.md) - v1.0 to v1.1 migration guide
+- [MIGRATION.md](MIGRATION.md) - v1.0 to v2.0 migration guide
 
 ---
 

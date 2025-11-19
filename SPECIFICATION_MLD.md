@@ -217,10 +217,10 @@ optional[;required[value
 
 ---
 
-### 4.6 Null (v1.2 alternative)
+### 4.6 Null (v2.0 optional feature)
 
-- Canonical null MAY be encoded as the escape sequence `^_` when the `null` feature is negotiated via header metadata (see Header Metadata v1.2).
-- For maximum compatibility with v1.1 decoders, producers SHOULD prefer the typed-null tag `campo!n[` (empty payload), or omit the field entirely when semantics allow.
+- Canonical null MAY be encoded as the escape sequence `^_` when the `null` feature is negotiated via header metadata (see Header Metadata v2.0).
+- For maximum compatibility with baseline decoders, producers SHOULD prefer the typed-null tag `campo!n[` (empty payload), or omit the field entirely when semantics allow.
 
 Examples:
 
@@ -398,7 +398,7 @@ DIGIT           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
 
 ---
 
-### 7.3 v1.2 Grammar Additions (Informative)
+### 7.3 v2.0 Grammar Additions (Informative)
 
 The following productions extend the grammar for optional features:
 
@@ -809,7 +809,7 @@ Conforming implementations SHOULD pass the official MLD test suite:
 
 **Breaking Changes:**
 - Initial release of MLD specification
-- Uses semicolon (`;`) as field separator for consistency with SLD v1.1
+- Uses semicolon (`;`) as field separator for consistency with SLD v2.0
 
 **New Features:**
 - Line-oriented format for Unix tool compatibility
@@ -839,7 +839,7 @@ tr '~' '\n' < data.sld > data.mld
 ### 15.2 Informative References
 
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Single Line Data format specification
-- [MIGRATION.md](MIGRATION.md) - Migration guide from SLD v1.0 to v1.1
+- [MIGRATION.md](MIGRATION.md) - Migration guide from SLD v1.0 to v2.0
 - POSIX.1-2017 - Standard for Unix utilities (`grep`, `sed`, `awk`)
 
 ### 15.3 Related Documents
@@ -850,7 +850,7 @@ tr '~' '\n' < data.sld > data.mld
 
 ---
 
-## Canonicalization Profile (v1.2)
+## Canonicalization Profile (v2.0)
 
 Producers SHOULD emit canonical MLD for deterministic diffs and signatures. Decoders MUST accept non‑canonical input.
 
@@ -861,7 +861,7 @@ Producers SHOULD emit canonical MLD for deterministic diffs and signatures. Deco
 - Numbers normalized (no superfluous `+`, consistent exponent case)
 - Booleans `^1`/`^0`; null per section 4.6 when negotiated
 
-## Header Metadata (v1.2)
+## Header Metadata (v2.0)
 
 The first record MAY be a metadata record whose keys are reserved and prefixed with `!`. Unknown `!` keys MUST be ignored by consumers.
 
@@ -879,14 +879,14 @@ Example:
 id[1;name[Ana
 ```
 
-## Explicit Types (v1.2)
+## Explicit Types (v2.0)
 
 Keys MAY include an inline type tag before the value marker using `!code`:
 `!i` integer, `!f` float, `!b` boolean, `!s` string, `!n` null, `!d` date, `!t` time, `!ts` timestamp.
 
 Consumers MUST NOT fail on unknown type codes; they MAY ignore the suffix.
 
-## Standard Error Codes (v1.2)
+## Standard Error Codes (v2.0)
 
 - E01: Invalid escape sequence
 - E02: Unterminated array `}` missing

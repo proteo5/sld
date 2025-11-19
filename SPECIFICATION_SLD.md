@@ -1,4 +1,4 @@
-# SLD Format Specification v1.1 (with v1.2 extensions)
+# SLD Format Specification v2.0
 
 **Single Line Data (SLD)** - Maximum token efficiency in a single line
 
@@ -90,7 +90,7 @@ price[3999.90;quantity[5;
 active[^1;verified[^0;
 ```
 
-**Null/Empty (v1.1):** Consecutive delimiters
+**Null/Empty (v2.0):** Consecutive delimiters
 
 ```sld
 name;;age;30
@@ -154,7 +154,7 @@ For nested objects, flatten the structure using underscore notation:
 user_name[John;user_address_street[Main St;user_address_city[NYC~
 ```
 
-Note: Nested objects beyond simple flattening are implementation-defined and optional in v1.1.
+Note: Nested objects beyond simple flattening are implementation-defined and optional in v2.0.
 
 ### Complete Example
 
@@ -376,7 +376,7 @@ def decode_sld(sld_string):
 
 ## Performance Characteristics
 
-## Canonicalization Profile (v1.2)
+## Canonicalization Profile (v2.0)
 
 This section defines a canonical form for producers. Decoders MUST accept non‑canonical input; canonicalization is RECOMMENDED for signing, hashing, and deterministic diffs.
 
@@ -469,7 +469,7 @@ Implementations SHOULD provide clear errors for:
 - Malformed field separators
 - Character encoding issues
 
-### Standard Error Codes (v1.2)
+### Standard Error Codes (v2.0)
 
 Implementations MAY report standardized error codes to improve interoperability:
 
@@ -486,7 +486,7 @@ Implementations MAY report standardized error codes to improve interoperability:
 
 ## Conformance
 
-An implementation is SLD v1.1-compliant if it:
+An implementation is SLD v2.0-compliant if it:
 
 1. Correctly encodes/decodes all primitive types
 2. Handles all five escape sequences (`;`, `~`, `[`, `{`, `^`)
@@ -495,16 +495,16 @@ An implementation is SLD v1.1-compliant if it:
 5. Preserves data integrity through encode/decode cycles
 6. Uses `;` as field separator (not `|`)
 
-### v1.2 Optional Extensions
+### v2.0 Optional Features
 
-An implementation advertising v1.2 support SHOULD additionally:
+An implementation advertising v2.0 optional feature support SHOULD additionally:
 
 1. Parse and optionally emit typed properties using inline type tags `name!i[` `name!f[` `name!b[` `name!s[` `name!n[` etc.
 2. Recognize `^_` as null when `!features` includes `null`.
 3. Respect and/or emit the canonicalization profile.
 4. Parse a metadata header record when present (see next section).
 
-## Header Metadata (v1.2)
+## Header Metadata (v2.0)
 
 Producers MAY include a leading metadata record using reserved keys prefixed with `!`. Decoders that do not recognize these keys will treat them as ordinary fields and MAY ignore them.
 
@@ -525,7 +525,7 @@ Example (SLD):
 id[1;name[Ana~id[2;name[Carlos
 ```
 
-### Explicit Types (v1.2)
+### Explicit Types (v2.0)
 
 Keys MAY include an optional inline type tag using `!code` immediately before the value marker `[` or `{`:
 

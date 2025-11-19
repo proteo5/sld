@@ -16,19 +16,16 @@
  */
 
 /**
- * SLD/MLD (Single/Multi Line Data) Format - PHP Implementation v1.1
+ * SLD/MLD (Single/Multi Line Data) Format - PHP Implementation v2.0
  * A token-efficient data serialization format
  * 
- * Changes in v1.1:
+ * Breaking changes from v1.0:
  * - Field separator changed from | to ; (semicolon)
- * - Added MLD format support (records separated by newlines)
  * - Array marker changed to { (curly brace)
- * - Property marker remains [ (square bracket)
+ * - Added MLD format support (records separated by newlines)
  */
 
-namespace SLD;
-
-class Parser
+namespace SLD;class Parser
 {
     // Constants
     const FIELD_SEPARATOR = ';';
@@ -198,7 +195,7 @@ class Parser
             }
 
             // Check for property marker
-            if (strpos($field, self::PROPERTY_MARKER) !== false && 
+            if (strpos($field, self::PROPERTY_MARKER) !== false &&
                 strpos($field, self::ESCAPE_CHAR . self::PROPERTY_MARKER) === false) {
                 $parts = explode(self::PROPERTY_MARKER, $field, 2);
                 $key = self::unescapeValue($parts[0]);
@@ -206,7 +203,7 @@ class Parser
                 $record[$key] = $value;
             }
             // Check for array marker
-            elseif (strpos($field, self::ARRAY_MARKER) !== false && 
+            elseif (strpos($field, self::ARRAY_MARKER) !== false &&
                     strpos($field, self::ESCAPE_CHAR . self::ARRAY_MARKER) === false) {
                 $parts = explode(self::ARRAY_MARKER, $field, 2);
                 $key = self::unescapeValue($parts[0]);

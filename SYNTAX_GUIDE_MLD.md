@@ -1,4 +1,4 @@
-# MLD Syntax Guide v1.1
+# MLD Syntax Guide v2.0
 
 ## Comprehensive syntax examples and patterns for Multi Line Data
 
@@ -78,7 +78,7 @@ value[;other[data
 address[123 Main Street, Apt 4B
 ```
 
-### v1.2 Inline Types and Typed Null
+### v2.0 Optional Features: Inline Types and Typed Null
 
 Type hints are optional and negotiated via `!features{types}`. Place `!code` immediately before the value marker.
 
@@ -799,7 +799,7 @@ zcat data.mld.gz | grep "status\[active"
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Full technical specification
 - [QUICK_REFERENCE_MLD.md](QUICK_REFERENCE_MLD.md) - Quick lookup guide
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Single-line variant
-- [MIGRATION.md](MIGRATION.md) - v1.0 to v1.1 migration
+- [MIGRATION.md](MIGRATION.md) - v1.0 to v2.0 migration
 
 ---
 

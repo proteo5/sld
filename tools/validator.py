@@ -18,7 +18,7 @@ import unicodedata
 from typing import Any, Dict, List, Optional, Tuple
 
 
-# SLD/MLD core tokens (v1.1 baseline)
+# SLD/MLD core tokens (v2.0)
 FIELD_SEP = ";"
 REC_SEP_SLD = "~"
 REC_SEP_MLD = "\n"

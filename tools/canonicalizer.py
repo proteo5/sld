@@ -18,7 +18,7 @@ from typing import Any, Dict, List
 
 from validator import parse_sld, parse_mld, detect_header, ESC, FIELD_SEP, REC_SEP_SLD
 
-# Canonicalization rules (draft v1.2 profile):
+# Canonicalization rules (v2.0 profile):
 # - Stable key ordering (lexicographic)
 # - NFC normalization of all string scalars
 # - No trailing '~' inside arrays

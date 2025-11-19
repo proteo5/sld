@@ -19,14 +19,13 @@ package io.github.proteo5.sld;
 import java.util.*;
 
 /**
- * SLD/MLD (Single/Multi Line Data) Format - Java Implementation v1.1
+ * SLD/MLD (Single/Multi Line Data) Format - Java Implementation v2.0
  * A token-efficient data serialization format
  *
- * Changes in v1.1:
+ * Breaking changes from v1.0:
  * - Field separator changed from | to ; (semicolon)
- * - Added MLD format support (records separated by newlines)
  * - Array marker changed to { (curly brace)
- * - Property marker remains [ (square bracket)
+ * - Added MLD format support (records separated by newlines)
  */
 public class SLDParser {
     // Constants

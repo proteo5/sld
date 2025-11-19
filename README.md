@@ -1,7 +1,7 @@
-# SLD/MLD - Single/Multi Line Data Format v1.1
+# SLD/MLD - Single/Multi Line Data Format v2.0
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)](https://github.com/proteo5/sld/releases)
+[![Version](https://img.shields.io/badge/version-2.0.0-blue.svg)](https://github.com/proteo5/sld/releases)
 
 > SLD (Single Line Data) and MLD (Multi Line Data) are compact, line-oriented data formats designed for efficient serialization, storage, and processing. SLD is optimized for single-line transmission; MLD is optimized for line-by-line streaming and Unix toolchains.
 
@@ -12,18 +12,18 @@
 ### Core Documentation
 
 - **[This README](README.md)** - Overview and quick start
-- **[RFC Draft](RFC_SLD_MLD.txt)** - IETF-style formal specification (v1.1 + v1.2 extensions)
-- **[SLD Specification](SPECIFICATION_SLD.md)** - Complete SLD technical specification v1.1
-- **[MLD Specification](SPECIFICATION_MLD.md)** - Complete MLD technical specification v1.1
+- **[RFC Draft](RFC_SLD_MLD.txt)** - IETF-style formal specification v2.0
+- **[SLD Specification](SPECIFICATION_SLD.md)** - Complete SLD technical specification v2.0
+- **[MLD Specification](SPECIFICATION_MLD.md)** - Complete MLD technical specification v2.0
 - **[SLD Quick Reference](QUICK_REFERENCE_SLD.md)** - Fast lookup guide for SLD
 - **[MLD Quick Reference](QUICK_REFERENCE_MLD.md)** - Fast lookup guide for MLD with Unix tools
 - **[SLD Syntax Guide](SYNTAX_GUIDE_SLD.md)** - Detailed SLD examples and patterns
 - **[MLD Syntax Guide](SYNTAX_GUIDE_MLD.md)** - Detailed MLD examples with streaming
 - **[Changelog](CHANGELOG.md)** - Version history and breaking changes
-- **[Migration Guide](MIGRATION.md)** - v1.0 → v1.1 upgrade guide
+- **[Migration Guide](MIGRATION.md)** - v1.0 → v2.0 upgrade guide
   - [SPECIFICATION.md](SPECIFICATION.md) - Deprecated v1.0 specification
 
-### v1.2 Optional Extensions (draft)
+### v2.0 Optional Features
 
 - Canonicalization profile (stable ordering, NFC, normalized numbers)
 - Header metadata record with reserved `!` keys and `!features{...}` negotiation

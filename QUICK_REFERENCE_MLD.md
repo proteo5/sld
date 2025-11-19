@@ -1,10 +1,10 @@
-# MLD Quick Reference v1.1
+# MLD Quick Reference v2.0
 
 **Multi Line Data - Fast reference for developers**
 
 ---
 
-## Delimiters (v1.1)
+## Delimiters (v2.0)
 
 | Symbol | Purpose | Example |
 |--------|---------|---------|
@@ -71,7 +71,7 @@ scores{85~92~78}
 ```
 
 ---
-## v1.2 Optional Extensions (inline types and typed null)
+## v2.0 Optional Features (inline types and typed null)
 
 These features are additive and negotiated via a metadata header (`!features{types}`); decoders without support may ignore type hints.
 
@@ -465,7 +465,7 @@ wait
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Full technical specification
 - [SYNTAX_GUIDE_MLD.md](SYNTAX_GUIDE_MLD.md) - Detailed syntax examples
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Single-line variant
-- [MIGRATION.md](MIGRATION.md) - v1.0 to v1.1 migration guide
+- [MIGRATION.md](MIGRATION.md) - v1.0 to v2.0 migration guide
 
 ---
 

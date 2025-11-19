@@ -9,8 +9,8 @@ with open("../../README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="sld-format",
-    version="1.1.0",
-    author="SLD Project Contributors",
+    version="2.0.0",
+    author="Alfredo Pinto Molina",
     author_email="",
     description="Single Line Data (SLD) and Multi Line Data (MLD) format parser and encoder",
     long_description=long_description,

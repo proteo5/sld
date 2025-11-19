@@ -1,4 +1,4 @@
-# SLD Syntax Guide v1.1
+# SLD Syntax Guide v2.0
 
 **Comprehensive syntax examples and patterns for Single Line Data**
 
@@ -78,7 +78,7 @@ quote[To be, or not to be: that is the question.~
 count[42~
 age[30~
 year[2024~
-### v1.2 Inline Types and Typed Null
+### v2.0 Optional Features: Inline Types and Typed Null
 
 Type hints are optional and negotiated via `!features{types}`. Place `!code` immediately before the value marker.
 
@@ -365,7 +365,7 @@ employee_id;first_name;last_name;department;salary;hire_date;active~E001;John;Do
 name|Alice|age|30
 ```
 
-**Why:** v1.1 uses `;` not `|` for fields
+**Why:** v2.0 uses `;` not `|` for fields
 
 **✅ Do:**
 ```
@@ -691,7 +691,7 @@ def parse_chunked(sld_string, chunk_size=1000):
 - [SPECIFICATION_SLD.md](SPECIFICATION_SLD.md) - Full technical specification
 - [QUICK_REFERENCE_SLD.md](QUICK_REFERENCE_SLD.md) - Quick lookup guide
 - [SPECIFICATION_MLD.md](SPECIFICATION_MLD.md) - Multi-line variant
-- [MIGRATION.md](MIGRATION.md) - v1.0 to v1.1 migration
+- [MIGRATION.md](MIGRATION.md) - v1.0 to v2.0 migration
 
 ---
 

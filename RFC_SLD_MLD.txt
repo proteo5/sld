@@ -36,7 +36,7 @@ Abstract
    transmission, while MLD uses newline for streaming and Unix tool
    compatibility.  Both formats share a common syntax with semicolon
    field separators, bracket-based value markers, and caret-based
-   escaping.  This specification includes optional v1.2 extensions for
+   escaping.  This specification includes optional v2.0 features for
    explicit typing, canonicalization, and header metadata negotiation.
 
 Table of Contents
@@ -58,7 +58,7 @@ Table of Contents
       4.2. Arrays ....................................................11
       4.3. Boolean Values ............................................11
       4.4. Null Values ...............................................12
-   5. v1.2 Optional Extensions .......................................13
+   5. v2.0 Optional Features .........................................13
       5.1. Inline Type Tags ..........................................13
       5.2. Typed Null ................................................14
       5.3. Header Metadata ...........................................14
@@ -209,7 +209,7 @@ Table of Contents
 
    2. Compatibility: Maintain lossless conversion between SLD and MLD.
 
-   3. Extensibility: Support optional extensions (v1.2) without breaking
+   3. Extensibility: Support optional extensions (v2.0) without breaking
       baseline parsers.
 
    4. Shell Safety: Use semicolon (;) as field separator to avoid
@@ -327,7 +327,7 @@ Table of Contents
       price[19.99          → could be string or float
       timestamp[2025-11-18 → ISO 8601 string
 
-   Implementations that require explicit typing SHOULD use v1.2 inline
+   Implementations that require explicit typing SHOULD use v2.0 inline
    type tags (Section 5.1).
 
 4.2. Arrays
@@ -360,7 +360,7 @@ Table of Contents
 
       active[^1;verified[^0
 
-   Parsers MUST recognize ^1 and ^0 as boolean values.  When v1.2
+   Parsers MUST recognize ^1 and ^0 as boolean values.  When v2.0
    inline typing is enabled, implementations SHOULD use !b[1 and !b[0
    for explicit boolean typing (Section 5.1).
 
@@ -371,10 +371,10 @@ Table of Contents
    1. Legacy null: ^_ (caret underscore)
       Example: optional[^_
 
-   2. Typed null (v1.2): !n[ (empty payload with type tag)
+   2. Typed null (v2.0): !n[ (empty payload with type tag)
       Example: optional!n[
 
-   Parsers MUST support both forms.  Implementations using v1.2
+   Parsers MUST support both forms.  Implementations using v2.0
    features SHOULD prefer typed null (!n[) for consistency with the
    explicit typing system.
 
@@ -382,12 +382,12 @@ Table of Contents
    empty string depending on application requirements.
 
 
-5. v1.2 Optional Extensions
+5. v2.0 Optional Features
 
-   The v1.2 specification introduces optional extensions that enhance
+   The v2.0 specification introduces optional features that enhance
    type safety, canonicalization, and metadata negotiation.  These
-   extensions are designed to be backward-compatible: baseline v1.1
-   parsers can safely ignore v1.2 features.
+   features are designed to be backward-compatible: baseline v2.0
+   parsers can safely ignore optional features.
 
 5.1. Inline Type Tags
 
@@ -446,7 +446,7 @@ Table of Contents
    +------------+------------------------------------------+
    | Key        | Purpose                                  |
    +------------+------------------------------------------+
-   | !v         | Format version (e.g., "1.2")             |
+   | !v         | Format version (e.g., "2.0")             |
    | !schema    | Schema identifier or URL                 |
    | !ts        | Document timestamp                       |
    | !source    | Originating system or service            |
@@ -455,12 +455,12 @@ Table of Contents
 
    Example SLD with header:
 
-      !v[1.2;!features{types~canon~null}~
+      !v[2.0;!features{types~canon~null}~
       id!i[1;name!s[Alice;active!b[1~
 
    Example MLD with header:
 
-      !v[1.2;!features{types~canon~null}
+      !v[2.0;!features{types~canon~null}
       id!i[1;name!s[Alice;active!b[1
 
    The !features array allows capability negotiation between producers
@@ -516,7 +516,7 @@ Table of Contents
       keys or values using caret-based escapes.
 
    2. Represent booleans as ^1 (true) or ^0 (false), or use !b[1/!b[0
-      when v1.2 typing is enabled.
+      when v2.0 typing is enabled.
 
    3. Close all arrays with }.
 
@@ -534,7 +534,7 @@ Table of Contents
 
    o  Sort fields lexicographically when canonical output is needed.
 
-   o  Prefer typed null (!n[) over legacy null (^_) when v1.2 features
+   o  Prefer typed null (!n[) over legacy null (^_) when v2.0 features
       are enabled.
 
 6.2. Decoding Rules
@@ -817,14 +817,14 @@ Appendix B. Test Vectors
       Expected JSON:
          {"text": "semi;colon", "path": "C:^Users^Alice"}
 
-   B.4. Typed Values with Header (SLD v1.2)
+   B.4. Typed Values with Header (SLD v2.0)
 
       Input SLD:
-         !v[1.2;!features{types~null}~
+         !v[2.0;!features{types~null}~
          id!i[100;name!s[Bob;score!f[85.5;notes!n[~
 
       Expected JSON:
-         {"header": {"!v": "1.2", "!features": ["types", "null"]},
+         {"header": {"!v": "2.0", "!features": ["types", "null"]},
           "records": [
             {"id": 100, "name": "Bob", "score": 85.5, "notes": null}
           ]}

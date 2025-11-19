@@ -13,13 +13,12 @@
 // limitations under the License.
 
 // Package sld provides SLD/MLD (Single/Multi Line Data) format encoding and decoding.
-// A token-efficient data serialization format - v1.1
+// A token-efficient data serialization format - v2.0
 //
-// Changes in v1.1:
+// Breaking changes from v1.0:
 // - Field separator changed from | to ; (semicolon)
-// - Added MLD format support (records separated by newlines)
 // - Array marker changed to { (curly brace)
-// - Property marker remains [ (square bracket)
+// - Added MLD format support (records separated by newlines)
 package sld
 
 import (

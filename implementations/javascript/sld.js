@@ -1,12 +1,12 @@
 /**
  * Copyright 2025 Alfredo Pinto Molina
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *     http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -15,14 +15,13 @@
  */
 
 /**
- * SLD/MLD (Single/Multi Line Data) Format - JavaScript Implementation v1.1
+ * SLD/MLD (Single/Multi Line Data) Format - JavaScript Implementation v2.0
  * A token-efficient data serialization format
  * 
- * Changes in v1.1:
+ * Breaking changes from v1.0:
  * - Field separator changed from | to ; (semicolon)
- * - Added MLD format support (records separated by newlines)
  * - Array marker changed to { (curly brace)
- * - Property marker remains [ (square bracket)
+ * - Added MLD format support (records separated by newlines)
  */
 
 // Constants
@@ -42,7 +41,7 @@ function escapeValue(text) {
     if (text === null || text === undefined) {
         return '';
     }
-    
+
     const str = String(text);
     return str
         .replace(/\^/g, '^^')
@@ -60,7 +59,7 @@ function escapeValue(text) {
 function unescapeValue(text) {
     const result = [];
     let i = 0;
-    
+
     while (i < text.length) {
         if (text[i] === ESCAPE_CHAR && i + 1 < text.length) {
             const nextChar = text[i + 1];
@@ -77,7 +76,7 @@ function unescapeValue(text) {
             i += 1;
         }
     }
-    
+
     return result.join('');
 }
 
@@ -91,7 +90,7 @@ function splitUnescaped(text, delimiter) {
     const parts = [];
     const current = [];
     let i = 0;
-    
+
     while (i < text.length) {
         if (text[i] === ESCAPE_CHAR && i + 1 < text.length) {
             current.push(text.slice(i, i + 2));
@@ -105,11 +104,11 @@ function splitUnescaped(text, delimiter) {
             i += 1;
         }
     }
-    
+
     if (current.length > 0 || text.endsWith(delimiter)) {
         parts.push(current.join(''));
     }
-    
+
     return parts;
 }
 
@@ -120,10 +119,10 @@ function splitUnescaped(text, delimiter) {
  */
 function encodeRecord(record) {
     const parts = [];
-    
+
     for (const [key, value] of Object.entries(record)) {
         const escapedKey = escapeValue(key);
-        
+
         if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
             // Nested object - not fully implemented yet
             const nested = encodeRecord(value);
@@ -145,7 +144,7 @@ function encodeRecord(record) {
             parts.push(`${escapedKey}${PROPERTY_MARKER}${escapedValue}`);
         }
     }
-    
+
     return parts.join(FIELD_SEPARATOR);
 }
 
@@ -189,10 +188,10 @@ function encodeMLD(data) {
 function decodeRecord(recordStr) {
     const record = {};
     const fields = splitUnescaped(recordStr, FIELD_SEPARATOR);
-    
+
     for (const field of fields) {
         if (!field) continue;
-        
+
         // Check for property marker
         if (field.includes(PROPERTY_MARKER) && !field.includes(ESCAPE_CHAR + PROPERTY_MARKER)) {
             const parts = field.split(PROPERTY_MARKER, 2);
@@ -212,7 +211,7 @@ function decodeRecord(recordStr) {
             }
         }
     }
-    
+
     return record;
 }
 
@@ -225,17 +224,17 @@ function decodeSLD(sldString) {
     if (!sldString) {
         return {};
     }
-    
+
     // Remove trailing ~ if present
     sldString = sldString.replace(/~+$/, '');
-    
+
     const records = [];
-    
+
     for (const recordStr of splitUnescaped(sldString, RECORD_SEPARATOR_SLD)) {
         if (!recordStr) continue;
         records.push(decodeRecord(recordStr));
     }
-    
+
     return records.length > 1 ? records : (records[0] || {});
 }
 
@@ -248,14 +247,14 @@ function decodeMLD(mldString) {
     if (!mldString) {
         return {};
     }
-    
+
     const records = [];
-    
+
     for (const line of mldString.split(RECORD_SEPARATOR_MLD)) {
         if (!line.trim()) continue;
         records.push(decodeRecord(line));
     }
-    
+
     return records.length > 1 ? records : (records[0] || {});
 }
 
@@ -294,7 +293,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // Example usage
 if (typeof require !== 'undefined' && require.main === module) {
     console.log('=== SLD/MLD JavaScript Implementation v1.1 ===\n');
-    
+
     // Example 1: Simple records with SLD
     console.log('Example 1: Simple user data (SLD)');
     const data1 = [
@@ -304,13 +303,13 @@ if (typeof require !== 'undefined' && require.main === module) {
     const sld1 = encodeSLD(data1);
     console.log('Encoded SLD:', sld1);
     console.log('Decoded:', decodeSLD(sld1), '\n');
-    
+
     // Example 2: Same data with MLD
     console.log('Example 2: Same data (MLD)');
     const mld1 = encodeMLD(data1);
     console.log('Encoded MLD:\n', mld1);
     console.log('Decoded:', decodeMLD(mld1), '\n');
-    
+
     // Example 3: Arrays
     console.log('Example 3: Products with tags (arrays)');
     const data3 = [
@@ -320,14 +319,14 @@ if (typeof require !== 'undefined' && require.main === module) {
     const sld3 = encodeSLD(data3);
     console.log('Encoded SLD:', sld3);
     console.log('Decoded:', decodeSLD(sld3), '\n');
-    
+
     // Example 4: Booleans
     console.log('Example 4: Boolean values');
     const data4 = { name: 'Alice', verified: true, active: false };
     const sld4 = encodeSLD(data4);
     console.log('Encoded SLD:', sld4);
     console.log('Decoded:', decodeSLD(sld4), '\n');
-    
+
     // Example 5: Conversion SLD ↔ MLD
     console.log('Example 5: Format conversion');
     const sld5 = 'name[Alice;age[30~name[Bob;age[25~';
@@ -335,7 +334,7 @@ if (typeof require !== 'undefined' && require.main === module) {
     console.log('SLD:', sld5);
     console.log('MLD:\n', mld5);
     console.log('Back to SLD:', mldToSLD(mld5), '\n');
-    
+
     // Example 6: Escaped characters
     console.log('Example 6: Escaped characters');
     const data6 = { note: 'Price: $5;99', path: 'C:\\Users' };
