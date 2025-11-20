@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SLD - The Token-Efficient Data Format</title>
+    <title>SLD/MLD - The Token-Efficient Data Formats</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <meta name="description" content="SLD (Single Line Data) is a minimal, token-efficient data format designed for LLMs and streaming. 60% fewer tokens than JSON.">
     <style>
         :root {
@@ -198,6 +199,78 @@
             color: var(--primary);
         }
 
+        /* Core Docs Grid */
+        .docs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.75rem;
+            margin-top: 2.5rem;
+        }
+        .doc-card {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.25rem 1.25rem 1.4rem;
+            background: linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            transition: box-shadow .25s, border-color .25s, transform .25s;
+        }
+        .doc-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 6px 18px -4px rgba(37,99,235,0.25);
+            transform: translateY(-3px);
+        }
+        .doc-card h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 600;
+            letter-spacing: .3px;
+            display: flex;
+            align-items: center;
+            gap: .5rem;
+        }
+        .doc-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            color: var(--primary);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        .doc-card p {
+            margin: 0;
+            font-size: .82rem;
+            line-height: 1.25rem;
+            color: var(--text-muted);
+        }
+        .doc-links {
+            margin-top: .35rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: .6rem;
+        }
+        .doc-link {
+            font-size: .72rem;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: .5px;
+            padding: .4rem .55rem;
+            border-radius: 5px;
+            background: #2563eb10;
+            color: var(--primary);
+            text-decoration: none;
+            border: 1px solid #2563eb20;
+            transition: background .2s, color .2s, border-color .2s;
+        }
+        .doc-link:hover { background: #2563eb; color: #fff; border-color: #2563eb; }
+        .docs-note { font-size: .75rem; margin-top: 1.25rem; color: var(--text-muted); }
+
         /* Installation */
         .install-grid {
             display: grid;
@@ -249,9 +322,12 @@
 
     <nav>
         <div class="container nav-content">
-            <a href="#" class="logo">SLD/MLD</a>
+            <a href="#" class="logo" style="display:flex; align-items:center; gap:10px;">
+                <img src="logo.svg" alt="SLD/MLD Logo" height="48">
+            </a>
             <div class="nav-links">
-                <a href="#why">Why SLD?</a>
+                <a href="#why">Why SLD/MLD?</a>
+                <a href="#docs">Docs</a>
                 <a href="#install">Install</a>
                 <a href="https://github.com/proteo5/sld/blob/main/SPECIFICATION_SLD.md">Spec v2.0</a>
                 <a href="https://github.com/proteo5/sld">GitHub</a>
@@ -261,7 +337,7 @@
 
     <header class="hero">
         <div class="container">
-            <h1>The Token-Efficient Data Format</h1>
+            <h1>The Token-Efficient Data Formats</h1>
             <p class="lead">
                 Optimized for Large Language Models and High-Throughput Streams.<br>
                 Type-safe, structure-aware, and 60% smaller than JSON.
@@ -282,7 +358,7 @@
             <div style="text-align:center; margin-bottom: 3rem;">
                 <h2>Every Token Counts</h2>
                 <p style="max-width: 600px; margin: 0 auto; color: var(--text-muted);">
-                    JSON is verbose. SLD eliminates structural overhead like quotes, braces, and whitespace without losing data integrity.
+                    JSON is verbose. SLD/MLD eliminates structural overhead like quotes, braces, and whitespace without losing data integrity.
                 </p>
             </div>
 
@@ -301,12 +377,62 @@
                 </div>
                 <div class="code-card">
                     <div class="code-header">
-                        <span>SLD</span>
+                        <span>SLD/MLD</span>
                         <span class="token-badge efficient">~18 tokens (-60%)</span>
                     </div>
                     <pre class="sld-code">name[Alice;age[30;tags{admin~user};verified[^1</pre>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section id="docs" class="section-alt section-padding">
+        <div class="container">
+            <h2>Core Documents & References</h2>
+            <p style="max-width:680px; color:var(--text-muted); margin-bottom:2.2rem;">Authoritative specification, evolving RFC draft, quick references and source code. Use these links to implement, validate or extend the formats.</p>
+            <div class="docs-grid">
+                <div class="doc-card">
+                    <h3><span class="doc-icon">📜</span> RFC Draft</h3>
+                    <p>Work-in-progress formalization of SLD/MLD for future standardization and community review.</p>
+                    <div class="doc-links">
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/RFC_SLD_MLD.txt" target="_blank" rel="noopener">Open RFC</a>
+                    </div>
+                </div>
+                <div class="doc-card">
+                    <h3><span class="doc-icon">📘</span> SLD Specification</h3>
+                    <p>Canonical single-line data rules: delimiters, header metadata, inline types, canonicalization profile.</p>
+                    <div class="doc-links">
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/SPECIFICATION_SLD.md" target="_blank" rel="noopener">SLD Spec</a>
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/QUICK_REFERENCE.md" target="_blank" rel="noopener">Quick Ref</a>
+                    </div>
+                </div>
+                <div class="doc-card">
+                    <h3><span class="doc-icon">🗂️</span> MLD Specification</h3>
+                    <p>Line-oriented variant optimized for grep/awk/sed, streaming ingestion and incremental processing.</p>
+                    <div class="doc-links">
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/SPECIFICATION_MLD.md" target="_blank" rel="noopener">MLD Spec</a>
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/REFERENCIA_RAPIDA_MLD.md" target="_blank" rel="noopener">Ref (ES)</a>
+                    </div>
+                </div>
+                <div class="doc-card">
+                    <h3><span class="doc-icon">🧪</span> Examples & Guides</h3>
+                    <p>Real-world samples plus syntax guides to learn formatting choices and edge cases quickly.</p>
+                    <div class="doc-links">
+                        <a class="doc-link" href="https://github.com/proteo5/sld/tree/main/examples" target="_blank" rel="noopener">Examples</a>
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/SYNTAX_GUIDE_SLD.md" target="_blank" rel="noopener">Syntax SLD</a>
+                        <a class="doc-link" href="https://github.com/proteo5/sld/blob/main/SYNTAX_GUIDE_MLD.md" target="_blank" rel="noopener">Syntax MLD</a>
+                    </div>
+                </div>
+                <div class="doc-card">
+                    <h3><span class="doc-icon">💻</span> Source & Issues</h3>
+                    <p>Reference implementations, open issue tracker, roadmap and contribution guidelines.</p>
+                    <div class="doc-links">
+                        <a class="doc-link" href="https://github.com/proteo5/sld" target="_blank" rel="noopener">Repository</a>
+                        <a class="doc-link" href="https://github.com/proteo5/sld/issues" target="_blank" rel="noopener">Issues</a>
+                    </div>
+                </div>
+            </div>
+            <p class="docs-note">Looking for Spanish docs? Check <a href="https://github.com/proteo5/sld/blob/main/REFERENCIA_RAPIDA_SLD.md" style="color:var(--primary); text-decoration:none; font-weight:600;">Referencia Rápida SLD</a> y <a href="https://github.com/proteo5/sld/blob/main/REFERENCIA_RAPIDA_MLD.md" style="color:var(--primary); text-decoration:none; font-weight:600;">MLD</a>.</p>
         </div>
     </section>
 
@@ -348,7 +474,7 @@
                                 <summary style="cursor:pointer; font-weight:600;">Implementation Notes (click to expand)</summary>
                                 <div style="margin-top:1rem; font-size:0.9rem; color:var(--text-muted); line-height:1.4;">
                                         <p>The encoder walks object keys and emits <code>key[value</code> pairs separated by <code>;</code>. Arrays produce <code>key{item~item}</code>. Booleans become <code>^1</code>/<code>^0</code>; <code>null</code> becomes <code>^_</code>. Special characters <code>; ~ [ { } ^</code> inside values are escaped with a caret.</p>
-                                        <p>The decoder splits on record separators (<code>~</code> for SLD, <code>\n</code> for MLD), then fields by <code>;</code> (ignoring empty tail). Each field is parsed as either property (<code>name[Alice</code>) or array (<code>tags{admin~user}</code>). Escapes are resolved by scanning values for caret-prefixed tokens.</p>
+                                        <p>The decoder splits on record separators (<code>~</code> for SLD/MLD, <code>\n</code> for MLD), then fields by <code>;</code> (ignoring empty tail). Each field is parsed as either property (<code>name[Alice</code>) or array (<code>tags{admin~user}</code>). Escapes are resolved by scanning values for caret-prefixed tokens.</p>
                                         <p>This demo is intentionally minimal—no canonicalization, inline type tags, headers, or nested objects. Treat it as an educational preview, not a production parser.</p>
                                 </div>
                         </details>

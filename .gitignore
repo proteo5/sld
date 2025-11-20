@@ -41,7 +41,49 @@ Thumbs.db
 .coverage
 htmlcov/
 
-# Node (if anyone makes a JS implementation)
+# C# / .NET
+bin/
+obj/
+*.user
+*.suo
+*.cache
+*.dll
+*.pdb
+*.exe
+[Dd]ebug/
+[Rr]elease/
+*.AssemblyInfo.cs
+*.AssemblyInfoInputs.cache
+*.csproj.nuget.*
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Java
+target/
+*.class
+*.jar
+*.war
+*.ear
+.classpath
+.project
+.settings/
+*.iml
+
+# Go
+*.test
+*.out
+vendor/
+
+# JavaScript / Node
 node_modules/
 npm-debug.log
 yarn-error.log
+package-lock.json
+yarn.lock
+.npm/
+
+# PHP
+vendor/
+composer.lock
+.phpunit.result.cache

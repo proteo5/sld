@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100">
+  <defs>
+    <style>
+      .bg { fill: #ffffff; }
+      .icon-box { fill: #2563eb; }
+      .icon-content { fill: #ffffff; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-weight: 800; font-size: 40px; fill: #111827; }
+      .subtitle { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; font-weight: 500; font-size: 14px; fill: #6b7280; }
+    </style>
+  </defs>
+
+  <!-- Icon: Structure (Single Line vs Multi Line) -->
+  <rect x="10" y="10" width="80" height="80" rx="16" class="icon-box"/>
+
+  <!-- Single Line (Top) -->
+  <rect x="25" y="30" width="50" height="6" rx="3" class="icon-content" opacity="0.9"/>
+
+  <!-- Multi Line (Bottom) -->
+  <rect x="25" y="45" width="50" height="6" rx="3" class="icon-content" opacity="0.7"/>
+  <rect x="25" y="58" width="35" height="6" rx="3" class="icon-content" opacity="0.5"/>
+
+  <!-- Text -->
+  <text x="110" y="55" class="title">SLD / MLD</text>
+  <text x="110" y="80" class="subtitle">Single / Multiple Line Data</text>
+</svg>
