@@ -274,20 +274,35 @@ Table of Contents
 
 3.4. Grammar (ABNF)
 
-   The following grammar uses Augmented Backus-Naur Form [RFC5234]:
+   The following grammar uses Augmented Backus-Naur Form [RFC5234].
+   It defines baseline constructs plus optional v2.0 extensions for
+   header metadata and inline type tags. Productions marked [OPT] are
+   present only when the corresponding feature is enabled via !features
+   in the header record.
 
-   sld-document   = *( record REC-SEP-SLD ) [ record ]
-   mld-document   = *( record REC-SEP-MLD )
+   sld-document   = [ header-record REC-SEP-SLD ]
+                    *( record REC-SEP-SLD ) [ record ]
+   mld-document   = [ header-record REC-SEP-MLD ]
+                    *( record REC-SEP-MLD )
+
+   header-record  = header-field *( FIELD-SEP header-field )
+                    ; MUST appear first if present
+   header-field   = header-key value-marker value
+   header-key     = "!" 1*( unescaped / escape-seq )
 
    record         = field *( FIELD-SEP field )
-   field          = key value-marker value
+   field          = key [ type-tag ] value-marker value
+                  / key [ type-tag ] array
+
+   type-tag       = "!" type-code                    ; [OPT types]
+   type-code      = "i" / "f" / "b" / "s" / "n" / "d" / "t" / "ts"
 
    key            = 1*( unescaped / escape-seq )
    value          = scalar / array
 
    scalar         = *( unescaped / escape-seq )
-   array          = ARRAY-OPEN [ element
-                    *( REC-SEP-SLD element ) ] ARRAY-CLOSE
+   array          = ARRAY-OPEN [ element *( REC-SEP-SLD element ) ]
+                    ARRAY-CLOSE
    element        = *( unescaped / escape-seq )
 
    value-marker   = "["
@@ -306,9 +321,14 @@ Table of Contents
    LF             = %x0A
    CRLF           = %x0D %x0A
 
-   Note: The unescaped production excludes ASCII semicolon (;),
-   left bracket ([), left brace ({), right brace (}), tilde (~),
-   and caret (^).
+   Notes:
+   1. The unescaped production excludes ASCII semicolon (;), left
+      bracket ([), left brace ({), right brace (}), tilde (~), and
+      caret (^).
+   2. A type-tag before an ARRAY-OPEN applies to all elements of the
+      array. Nested arrays require explicit type-tag at each level.
+   3. header-record keys MUST all begin with '!'; a record with mixed
+      header and non-header keys is malformed (see error E09).
 
 
 4. Data Types
@@ -365,22 +385,26 @@ Table of Contents
    for explicit boolean typing (Section 5.1).
 
 4.4. Null Values
-
-   Null has two representations depending on context:
+   Null has two representations depending on the presence of inline
+   typing:
 
    1. Untyped null: ^_ (caret underscore)
       Example: optional[^_
-      Use when NOT using inline type tags.
+      Used when inline type tags feature is not enabled.
 
    2. Typed null: !n[ (empty payload with type tag)
       Example: optional!n[
-      Use when using inline type tags for consistency.
+      Preferred when inline type tags are enabled for consistency.
 
-   Parsers MUST recognize both forms.  Empty values (no characters
-   after [) MUST be interpreted as empty strings, NOT null.
+   Precedence Rule: If the 'types' feature is negotiated (header
+   includes !features with 'types'), producers SHOULD emit !n[ and
+   consumers MUST treat ^_ as legacy null for compatibility.
 
-   This dual representation allows null to integrate seamlessly with
-   both baseline (untyped) and typed (v2.0 optional) usage patterns.
+   Empty values (key[ immediately followed by delimiter) denote empty
+   strings and MUST NOT be interpreted as null.
+
+   Encoding Guidance: See Section 6.1 for null emission rules. Decoding
+   Guidance: See Section 6.2 for null recognition behavior.
 
 
 5. v2.0 Optional Features
@@ -395,8 +419,8 @@ Table of Contents
    Inline type tags attach immediately before the value marker ([) or
    array marker ({) using an exclamation point (!) prefix:
 
-   key!type[value
-   key!type{element~element}
+      key!type[value]
+      key!type{element~element}
 
    Defined type codes:
 
@@ -413,34 +437,35 @@ Table of Contents
    | ts   | Timestamp      | created!ts[2025-11-18T12:00Z |
    +------+----------------+-------------------------+
 
-   Type tags apply to the entire value (scalar or array elements).
-   For arrays, the type tag indicates the element type:
+   Type tags apply to the entire value (scalar) or to each element of
+   an array. A type-tag before ARRAY-OPEN denotes homogeneous element
+   type:
 
-      ids!i{1~2~3}         → array of integers
-      flags!b{1~0~1}       → array of booleans
+      ids!i{1~2~3}          → array of integers
+      flags!b{1~0~1}        → array of booleans
+      dates!d{2025-01-01~2025-02-01}
 
-   Parsers MUST validate that values conform to their declared types.
-   Invalid type-value combinations SHOULD result in parse errors.
+   Nested arrays require explicit type at each nesting level for clear
+   semantics:
+
+      matrix!i{{1~2}~{3~4}}   (2D integer matrix)
+
+   Absence of a type tag implies application-level inference (all
+   elements treated as strings unless context dictates otherwise).
+
+   Parsers MUST validate declared types (Section 6.3). Invalid or
+   inconsistent type/value combinations MUST raise E07 (Type mismatch).
+   Unknown type codes MUST raise E05 (Invalid type code).
 
 5.2. Typed Null
 
-   When inline typing is enabled, null values SHOULD use the typed
-   form for consistency:
+   Typed null is the preferred representation when inline typing is
+   enabled (see Section 4.4). Example:
 
-      field!n[
+      notes!n[
 
-   This consists of:
-   o  The field name
-   o  Type tag !n
-   o  Empty value marker [
-   o  No payload
-
-   Example record with mixed types including null:
-
-      id!i[100;name!s[Alice;score!f[95.5;notes!n[
-
-   Baseline implementations MAY use ^_ for null even when types are
-   present, but typed null (!n[) is RECOMMENDED for consistency.
+   Producers SHOULD use !n[ instead of ^_. Consumers MUST still accept
+   ^_ for robustness. This section defers full semantics to Section 4.4.
 
 5.3. Header Metadata
 
@@ -470,13 +495,23 @@ Table of Contents
    The !features array allows capability negotiation between producers
    and consumers.  Common feature flags:
 
-   o  types: Inline type tags enabled
-   o  canon: Canonical form enforced
-   o  nested: Nested objects supported (future extension)
+   o  types  : Inline type tags enabled
+   o  canon  : Canonical form enforced (Section 5.4)
+   o  null   : Producer will emit typed null (!n[) when types enabled
+   o  nested : Future extension for nested objects (reserved)
 
-   Parsers MUST distinguish header records (all keys start with !)
-   from data records.  Header fields MUST NOT be interpreted as
-   application data.
+   Negotiation Rules:
+   1. !features MUST appear only in the header record.
+   2. Unknown feature flags MUST be ignored (forward compatibility).
+   3. Producers SHOULD advertise only features they actively apply.
+   4. Absence of a feature flag implies baseline behavior.
+
+   Header Identification: A header-record is any first record whose
+   keys all begin with '!'. Mixed-key first records are malformed
+   (E09). Header fields MUST NOT be treated as application data.
+
+   Security Note: See Section 8.4 regarding trust of !source, !schema,
+   and !ts values.
 
 5.4. Canonicalization Profile
 
@@ -484,29 +519,24 @@ Table of Contents
    cryptographic hashing, caching, and comparison.  Requirements:
 
    1. Field Ordering: Keys MUST be sorted lexicographically (ASCII).
-
-   2. Unicode Normalization: String values MUST be in NFC form.
-
-   3. Array Elements: Arrays MUST NOT have trailing tildes.
+   2. Unicode Normalization: String values MUST be NFC.
+   3. Array Elements: MUST NOT have trailing tildes.
       Correct:   tags{a~b~c}
       Incorrect: tags{a~b~c~}
+   4. Integer Formatting: No leading zeros ("42" not "042").
+   5. Float Formatting: Minimal representation (strip trailing zeros
+      and unnecessary decimal points). "3.14" ok; "3.1400" canonical → "3.14";
+      "5.0" canonical → "5".
+   6. Timestamp Format: Prefer ISO 8601 UTC with 'Z' suffix for !ts and
+      typed timestamps (e.g., 2025-11-19T12:34:56Z).
+   7. Boolean Consistency: Use !b[1 / !b[0 when types enabled (not ^1/^0).
+   8. Null Consistency: Use !n[ when types enabled (not ^_).
+   9. Whitespace: MUST NOT introduce spaces/tabs around delimiters.
+  10. Stable Feature Emission: Advertise only actually enforced features
+      in !features.
 
-   4. Number Formatting: Numbers SHOULD use minimal representation
-      without unnecessary decimals or leading zeros.
-      Correct:   count!i[42
-      Incorrect: count!i[042
-
-   5. Boolean Consistency: Use !b[1 and !b[0 (not ^1/^0).
-
-   6. Null Consistency: Use !n[ (not ^_) when inline types enabled.
-
-   7. No Extraneous Whitespace: Implementations MUST NOT add spaces
-      or tabs around delimiters.
-
-   Canonical documents facilitate:
-   o  Reproducible serialization
-   o  Efficient caching (same content → same serialization)
-   o  Digital signatures and checksums
+   Canonical documents facilitate reproducible serialization, caching,
+   and digital signatures. Deviations SHOULD trigger re-normalization.
 
 
 6. Encoding and Decoding
@@ -515,81 +545,64 @@ Table of Contents
 
    When encoding data to SLD/MLD, implementations MUST:
 
-   1. Escape all delimiter characters (;, ~, [, {, }, ^) appearing in
-      keys or values using caret-based escapes.
-
-   2. Represent booleans as ^1 (true) or ^0 (false), or use !b[1/!b[0
-      when v2.0 typing is enabled.
-
-   3. Close all arrays with }.
-
-   4. Use UTF-8 encoding for all text.
-
-   5. Omit trailing record separators in MLD (end with newline after
-      last record).
-
-   6. Include trailing record separator in SLD (end with ~).
+   1. Escape delimiter characters (;, ~, [, {, }, ^) inside keys/values.
+   2. Close all arrays with }.
+   3. Use UTF-8 for all text.
+   4. End each record in MLD with LF (optionally CRLF for input
+      interoperability); the final record MAY be followed by a newline.
+   5. Terminate SLD documents with a trailing '~' after the last record
+      (SHOULD). Omission is permissible but MAY reduce streaming safety.
+   6. Represent booleans as ^1/^0 if untyped; use !b[1/!b[0 when 'types'
+      feature active.
+   7. Emit null as ^_ if untyped; emit !n[ when 'types' feature active.
 
    Implementations SHOULD:
-
-   o  Use NFC normalization for Unicode text when canonicalization is
-      required.
-
-   o  Sort fields lexicographically when canonical output is needed.
-
-   o  Use !n[ for null when inline types are enabled; use ^_
-      otherwise.
+   o  Apply NFC normalization when canonical or 'canon' feature active.
+   o  Sort fields lexicographically for canonical output.
+   o  Minimize numeric representations (strip unnecessary zeros).
+   o  Emit timestamps in ISO 8601 UTC (YYYY-MM-DDThh:mm:ssZ) when typed.
+   o  Include only enforced features in !features.
 
 6.2. Decoding Rules
 
    When decoding SLD/MLD, implementations MUST:
 
-   1. Recognize both LF and CRLF as newline in MLD.
-
-   2. Process escape sequences, replacing ^X with the literal
-      character X.
-
-   3. Treat ^1 and ^0 as boolean true and false.
-
-   4. Recognize both ^_ and !n[ as null.
-
-   5. Validate that arrays are properly closed with }.
-
-   6. Handle empty values (key[ with no subsequent characters before
-      delimiter) according to application requirements.
+   1. Recognize LF and CRLF as newline in MLD.
+   2. Process escape sequences, replacing ^X with literal X.
+   3. Interpret ^1/^0 as boolean true/false.
+   4. Recognize both ^_ and !n[ as null (Section 4.4).
+   5. Validate arrays close with }.
+   6. Identify a header-record if first record keys all start with '!'.
+   7. Reject mixed header/non-header first record (E09 Malformed header).
+   8. Handle empty values as empty strings (NOT null).
 
    Implementations SHOULD:
-
-   o  Validate inline type tags when present and reject malformed
-      type-value combinations.
-
-   o  Detect and separate header records (all keys prefixed with !)
-      from data records.
-
-   o  Report parse errors with meaningful diagnostics including
-      position information.
+   o  Validate inline type tags and raise E07 on mismatches.
+   o  Ignore unknown feature flags in !features.
+   o  Provide diagnostics including position info on errors.
 
 6.3. Error Handling
 
    Parsers SHOULD define and report the following error conditions:
 
-   +------+---------------------------+---------------------------+
-   | Code | Error                     | Example                   |
-   +------+---------------------------+---------------------------+
-   | E01  | Syntax error              | Unescaped delimiter       |
-   | E02  | Invalid escape sequence   | ^x (undefined escape)     |
-   | E03  | Unclosed array            | tags{a~b (missing })      |
-   | E04  | Mismatched delimiters     | key[value}                |
-   | E05  | Invalid type code         | age!z[30 (z undefined)    |
-   | E06  | Empty key                 | [value                    |
-   | E07  | Type mismatch             | age!i[abc                 |
-   | E08  | Duplicate keys            | id[1;id[2 (same record)   |
-   | E09  | Invalid UTF-8             | Malformed byte sequence   |
-   | E10  | Resource limit exceeded   | Document too large        |
-   +------+---------------------------+---------------------------+
+   +------+---------------------------+-------------------------------+
+   | Code | Error                     | Example                       |
+   +------+---------------------------+-------------------------------+
+   | E01  | Syntax error              | Unescaped delimiter           |
+   | E02  | Invalid escape sequence   | ^x (undefined escape)         |
+   | E03  | Unclosed array            | tags{a~b (missing })          |
+   | E04  | Mismatched delimiters     | key[value}                    |
+   | E05  | Invalid type code         | age!z[30 (z undefined)        |
+   | E06  | Empty key                 | [value                        |
+   | E07  | Type mismatch             | age!i[abc                     |
+   | E08  | Duplicate keys            | id[1;id[2 (same record)       |
+   | E09  | Malformed header          | !v[2.0;name[Alice (mixed)     |
+   | E10  | Invalid UTF-8             | Malformed byte sequence       |
+   | E11  | Resource limit exceeded   | Document too large            |
+   +------+---------------------------+-------------------------------+
 
-   Implementations MAY treat some errors as warnings (e.g., duplicate
-   keys) depending on application requirements.
+   Implementations MAY downgrade duplicates (E08) to warnings based on
+   application policy.
 
 
 7. Format Conversion
@@ -675,6 +688,20 @@ Table of Contents
    Exceeding limits SHOULD result in error E10 (resource limit exceeded).
 
 8.3. Injection Attacks
+8.4. Header Trust and Spoofing
+
+   Header fields (!source, !schema, !ts, !v, !features) are declarative
+   and NOT inherently trustworthy. Applications SHOULD:
+
+   o  Validate !schema against an allowlist.
+   o  Treat !source as informational unless cryptographically verified.
+   o  Use signed envelopes or transport-level auth for provenance.
+   o  Normalize and validate !ts (reject implausible timestamps).
+   o  Ignore unrecognized feature flags without failing.
+
+   Absence or manipulation of header metadata MUST NOT cause silent
+   acceptance of weaker validation settings. Malformed mixed headers
+   MUST trigger E09.
 
    Applications using SLD/MLD data in shell commands or SQL queries
    MUST apply appropriate escaping beyond the format's escape sequences.
